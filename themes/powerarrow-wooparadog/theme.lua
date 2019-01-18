@@ -10,6 +10,8 @@ local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
 
+local net_widgets = require("net_widgets")
+
 local math, string, os = math, string, os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
@@ -112,14 +114,6 @@ theme.cal = lain.widget.cal({
     }
 })
 
--- Taskwarrior
-local task = wibox.widget.imagebox(theme.widget_task)
-lain.widget.contrib.task.attach(task, {
-    -- do not colorize output
-    show_cmd = "task | sed -r 's/\\x1B\\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g'"
-})
-task:buttons(my_table.join(awful.button({}, 1, lain.widget.contrib.task.prompt)))
-
 -- Scissors (xsel copy and paste)
 local scissors = wibox.widget.imagebox(theme.widget_scissors)
 scissors:buttons(my_table.join(awful.button({}, 1, function() awful.spawn.with_shell("xsel | xsel -i -b") end)))
@@ -144,13 +138,6 @@ theme.mail = lain.widget.imap({
     end
 })
 --]]
-
--- ALSA volume
-theme.volume = lain.widget.alsabar({
-    --togglechannel = "IEC958,3",
-    notification_preset = { font = "xos4 Terminus 10", fg = theme.fg_normal },
-})
-
 
 -- MEM
 local memicon = wibox.widget.imagebox(theme.widget_mem)
@@ -199,7 +186,7 @@ theme.fs = lain.widget.fs({
 })
 --]]
 
--- Battery
+--[[ Battery
 local baticon = wibox.widget.imagebox(theme.widget_battery)
 local bat = lain.widget.bat({
     settings = function()
@@ -222,9 +209,63 @@ local bat = lain.widget.bat({
         end
     end
 })
+]]
+
+-- net indicator
+local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
+local net_wired = net_widgets.indicator({font=theme.font})
+
+-- ALSA volume bar
+local volicon = wibox.widget.imagebox(theme.widget_vol)
+
+theme.volume = lain.widget.alsabar {
+    width = 59, border_width = 0, ticks = true, ticks_size = 6,
+    notification_preset = { font = theme.font },
+    --togglechannel = "IEC958,3",
+    settings = function()
+        if volume_now.status == "off" then
+            volicon:set_image(theme.widget_vol_mute)
+        elseif volume_now.level == 0 then
+            volicon:set_image(theme.widget_vol_no)
+        elseif volume_now.level <= 50 then
+            volicon:set_image(theme.widget_vol_low)
+        else
+            volicon:set_image(theme.widget_vol)
+        end
+    end,
+    colors = {
+        background   = "#343434",
+        mute         = red,
+        unmute       = theme.fg_normal
+    }
+}
+theme.volume.tooltip.wibox.fg = theme.fg_focus
+theme.volume.bar:buttons(my_table.join (
+          awful.button({}, 1, function()
+            awful.spawn("pavucontrol")
+          end),
+          awful.button({}, 2, function()
+            os.execute(string.format("%s set %s 100%%", theme.volume.cmd, theme.volume.channel))
+            theme.volume.update()
+          end),
+          awful.button({}, 3, function()
+            os.execute(string.format("%s set %s toggle", theme.volume.cmd, theme.volume.togglechannel or theme.volume.channel))
+            theme.volume.update()
+          end),
+          awful.button({}, 4, function()
+            os.execute(string.format("%s set %s 1%%+", theme.volume.cmd, theme.volume.channel))
+            theme.volume.update()
+          end),
+          awful.button({}, 5, function()
+            os.execute(string.format("%s set %s 1%%-", theme.volume.cmd, theme.volume.channel))
+            theme.volume.update()
+          end)
+))
+local volumebg = wibox.container.background(theme.volume.bar, "#474747", gears.shape.rectangle)
+local volumewidget = wibox.widget{volicon, wibox.container.margin(volumebg, 2, 7, 4, 4), layout=wibox.layout.align.horizontal}
+
 
 -- Net
-local neticon = wibox.widget.imagebox(theme.widget_net)
 local net = lain.widget.net({
     settings = function()
         widget:set_markup(markup.fontfg(theme.font, "#FEFEFE", " " .. net_now.received .. " ↓↑ " .. net_now.sent .. " "))
@@ -312,23 +353,24 @@ function theme.at_screen_connect(s)
             pl(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, "#4B3B51"),
             --pl(wibox.widget { fsicon, theme.fs and theme.fs.widget, layout = wibox.layout.align.horizontal }, "#CB755B"),
             pl(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, "#8DAA9A"),
-            pl(wibox.widget { neticon, net.widget, layout = wibox.layout.align.horizontal }, "#C0C0A2"),
+            pl(wibox.widget { neticon, net.widget, layout = wibox.layout.align.horizontal }, "#5e3636"),
             pl(binclock.widget, "#777E76"),
             --]]
             -- using separators
             arrow(theme.bg_normal, "#343434"),
-            wibox.container.background(wibox.container.margin(task, 3, 7), "#343434"),
+            wibox.container.background(volumewidget, "#343434"),
             arrow("#343434", "#777E76"),
             wibox.container.background(wibox.container.margin(wibox.widget { memicon, mem.widget, layout = wibox.layout.align.horizontal }, 2, 3), "#777E76"),
             arrow("#777E76", "#4B696D"),
             wibox.container.background(wibox.container.margin(wibox.widget { cpuicon, cpu.widget, layout = wibox.layout.align.horizontal }, 3, 4), "#4B696D"),
             arrow("#4B696D", "#4B3B51"),
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, 4, 4), "#4B3B51"),
-            arrow("#4B3B51", "#CB755B"),
-            wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#CB755B"),
-            arrow("#CB755B", "#C0C0A2"),
-            wibox.container.background(wibox.container.margin(wibox.widget { nil, neticon, net.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#C0C0A2"),
-            arrow("#C0C0A2", "#777E76"),
+            -- arrow("#4B3B51", "#CB755B"),
+            -- wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#CB755B"),
+            arrow("#4B3B51", "#5e3636"),
+            wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
+            wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
+            arrow("#5e3636", "#777E76"),
             wibox.container.background(wibox.container.margin(textclock, 4, 8), "#777E76"),
             arrow("#777E76", "alpha"),
             --]]

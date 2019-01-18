@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({ "urxvtd", "unclutter -root" }) -- entries must be separated by commas
+run_once({"lxsession -s awesome -e LXDE", "urxvtd", "unclutter -root" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
 --[[
@@ -97,7 +97,7 @@ local guieditor    = "gedit"
 local scrlocker    = "slock"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "1", "2", "3", "4", "5" }
+awful.util.tagnames = { "Firefox", "Terminal", "Files", "4", "Steam" }
 awful.layout.layouts = {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -322,12 +322,9 @@ globalkeys = my_table.join(
               {description = "jump to urgent client", group = "client"}),
     awful.key({ modkey,           }, "Tab",
         function ()
-            awful.client.focus.history.previous()
-            if client.focus then
-                client.focus:raise()
-            end
+            awful.util.spawn("rofi -show window -show-icons") 
         end,
-        {description = "go back", group = "client"}),
+        {description = "switch client", group = "client"}),
 
     -- Show/Hide Wibox
     awful.key({ modkey }, "b", function ()
@@ -660,8 +657,26 @@ awful.rules.rules = {
     { rule = { class = "Firefox" },
       properties = { screen = 1, tag = awful.util.tagnames[1] } },
 
+    { rule = { class = "Pcmanfm" },
+      properties = { screen = 1, tag = awful.util.tagnames[3] } },
+
+    { rule = { class = "Nautilus" },
+      properties = { screen = 1, tag = awful.util.tagnames[3] } },
+
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
+
+    { rule = { class = "Pavucontrol" },
+      properties = { floating = true } },
+
+    { rule = { class = "Gpicview" },
+      properties = { floating = true, ontop = true },
+      callback = function(c)
+      	awful.placement.centered(c, nil)
+      end},
+
+    { rule = { class = "Steam" },
+      properties = { screen = 1, tag = awful.util.tagnames[5] } },
 }
 -- }}}
 
