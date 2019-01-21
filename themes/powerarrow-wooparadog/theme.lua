@@ -75,6 +75,7 @@ theme.widget_mail                               = theme.dir .. "/icons/mail.png"
 theme.widget_mail_on                            = theme.dir .. "/icons/mail_on.png"
 theme.widget_task                               = theme.dir .. "/icons/task.png"
 theme.widget_scissors                           = theme.dir .. "/icons/scissors.png"
+theme.widget_icon_wallpaper                     = theme.dir .. "/icons/wall.png"
 theme.tasklist_plain_task_name                  = true
 theme.tasklist_disable_icon                     = true
 theme.useless_gap                               = 0
@@ -215,6 +216,12 @@ local bat = lain.widget.bat({
 local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
 local net_wired = net_widgets.indicator({font=theme.font})
 
+-- Wallpaper
+local wall_icon = wibox.widget.imagebox(theme.widget_icon_wallpaper)
+local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){ path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME"))}
+wall_icon:buttons(my_table.join(awful.button({ }, 1, wallpaper.start)))
+wallpaper.start()
+
 -- ALSA volume bar
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
@@ -302,9 +309,6 @@ function theme.at_screen_connect(s)
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
 
-    local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){}
-    wallpaper.start()
-
     -- Tags
     awful.tag(awful.util.tagnames, s, awful.layout.layouts)
 
@@ -375,6 +379,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
+	    wall_icon, 
         },
     }
 end
