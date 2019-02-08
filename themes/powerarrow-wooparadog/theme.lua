@@ -76,6 +76,7 @@ theme.widget_mail_on                            = theme.dir .. "/icons/mail_on.p
 theme.widget_task                               = theme.dir .. "/icons/task.png"
 theme.widget_scissors                           = theme.dir .. "/icons/scissors.png"
 theme.widget_icon_wallpaper                     = theme.dir .. "/icons/wall.png"
+theme.widget_icon_wallpaper_paused              = theme.dir .. "/icons/wall_paused.png"
 theme.tasklist_plain_task_name                  = true
 theme.tasklist_disable_icon                     = true
 theme.useless_gap                               = 0
@@ -219,7 +220,18 @@ local net_wired = net_widgets.indicator({font=theme.font})
 -- Wallpaper
 local wall_icon = wibox.widget.imagebox(theme.widget_icon_wallpaper)
 local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){ path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME"))}
-wall_icon:buttons(my_table.join(awful.button({ }, 1, wallpaper.start)))
+wall_icon:buttons(
+  my_table.join(
+    awful.button({ }, 1, function()
+      wallpaper.start()
+      wall_icon.image = theme.widget_icon_wallpaper
+    end),
+    awful.button({ }, 2, function()
+      wallpaper.stop()
+      wall_icon.image = theme.widget_icon_wallpaper_paused
+    end)
+    )
+  )
 wallpaper.start()
 
 -- ALSA volume bar
@@ -314,7 +326,7 @@ function theme.at_screen_connect(s)
 
     -- Create a promptbox for each screen
     s.mypromptbox = {
-	    run = function(self) awful.util.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun -show combi -modi combi") end
+      run = function(self) awful.util.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun -show combi -modi combi") end
     }
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -379,7 +391,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
-	    wall_icon, 
+            wall_icon,
         },
     }
 end

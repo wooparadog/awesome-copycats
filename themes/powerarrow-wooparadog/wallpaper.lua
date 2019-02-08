@@ -48,6 +48,7 @@ local function factory(args)
     wallpaper.wp_timer.timeout = wallpaper.wp_timeout
     wallpaper.wp_timer:start()
   end
+
   wallpaper.stop = function()
     wallpaper.wp_timer:stop()
   end
