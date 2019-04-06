@@ -103,7 +103,7 @@ local markup = lain.util.markup
 local separators = lain.util.separators
 
 -- Textclock
-local textclock = awful.widget.textclock(" %a %d %b  %H:%M")
+local textclock = wibox.widget.textclock(" %a %d %b  %H:%M")
 
 -- Calendar
 theme.cal = lain.widget.cal({
