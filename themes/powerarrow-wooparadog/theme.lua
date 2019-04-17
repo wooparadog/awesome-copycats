@@ -326,7 +326,7 @@ function theme.at_screen_connect(s)
 
     -- Create a promptbox for each screen
     s.mypromptbox = {
-      run = function(self) awful.util.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun -show combi -modi combi") end
+      run = function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun -show combi -modi combi") end
     }
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.

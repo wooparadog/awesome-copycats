@@ -30,7 +30,7 @@ local function factory(args)
   wallpaper.wp_path = args.path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
   wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") end
   wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
-  wallpaper.wp_timer = timer { timeout = wallpaper.wp_timeout }
+  wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
