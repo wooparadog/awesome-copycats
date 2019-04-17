@@ -5,9 +5,7 @@
 [submodule "freedesktop"]
 	path = freedesktop
 	url = git://github.com/lcpz/awesome-freedesktop.git
-[submodule "modules/net_widgets"]
-	path = modules/net_widgets
-	url = git@github.com:pltanton/net_widgets.git
+
 [submodule "net_widgets"]
 	path = net_widgets
 	url = git@github.com:pltanton/net_widgets.git
