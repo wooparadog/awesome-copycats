@@ -94,7 +94,7 @@ local editor       = os.getenv("EDITOR") or "vim"
 local gui_editor   = "gedit"
 local browser      = "firefox"
 local guieditor    = "gedit"
-local scrlocker    = "slock"
+local scrlocker    = "dm-tool switch-to-greeter"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam" }
