@@ -99,6 +99,10 @@ theme.titlebar_maximized_button_normal_active   = theme.dir .. "/icons/titlebar/
 theme.titlebar_maximized_button_focus_inactive  = theme.dir .. "/icons/titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_inactive = theme.dir .. "/icons/titlebar/maximized_normal_inactive.png"
 
+theme.notification_max_height = 150
+theme.notification_max_width = 400
+theme.notification_opacity = 0.8
+
 local markup = lain.util.markup
 local separators = lain.util.separators
 

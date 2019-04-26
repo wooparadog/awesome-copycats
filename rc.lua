@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({"lxsession -s awesome -e LXDE", "urxvtd", "unclutter -root" }) -- entries must be separated by commas
+run_once({"compton", "lxsession -s awesome -e LXDE", "urxvtd", "unclutter -root" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
 --[[
@@ -97,7 +97,7 @@ local guieditor    = "gedit"
 local scrlocker    = "dm-tool switch-to-greeter"
 
 awful.util.terminal = terminal
-awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam" }
+awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.layouts = {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
@@ -656,6 +656,9 @@ awful.rules.rules = {
     -- Set Firefox to always map on the first tag on screen 1.
     { rule = { class = "Firefox" },
       properties = { screen = 1, tag = awful.util.tagnames[1] } },
+
+    { rule = { class = "Spotify" },
+      properties = { screen = 1, tag = awful.util.tagnames[6] } },
 
     { rule = { class = "TelegramDesktop" },
       properties = { screen = 1, tag = awful.util.tagnames[4] } },
