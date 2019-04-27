@@ -1,5 +1,6 @@
 local awful = require("awful")
 local gears = require("gears")
+local dbus = require("themes.powerarrow-wooparadog.dbus"){}
 
 local wallpaper = {}
 
@@ -38,7 +39,11 @@ local function factory(args)
     end
     -- set wallpaper to current index for all screens
     wallpaper.wp_index = math.random(#wallpaper.wp_files)
-    gears.wallpaper.maximized(wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index], nil)
+    wallpaper_path = wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index]
+    gears.wallpaper.maximized(wallpaper_path, nil)
+
+    -- Notify dbus we've changed wallpaper
+    dbus.refresh_user_wallpaper(wallpaper_path)
 
     -- stop the timer (we don't need multiple instances running at the same time)
     wallpaper.wp_timer:stop()

@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({"compton", "lxsession -s awesome -e LXDE", "urxvtd", "unclutter -root" }) -- entries must be separated by commas
+run_once({"compton", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
 --[[
@@ -98,6 +98,15 @@ local scrlocker    = "dm-tool switch-to-greeter"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
+awful.layout.taglayouts = {
+    awful.layout.suit.floating,
+    awful.layout.suit.tile,
+    awful.layout.suit.tile,
+    awful.layout.suit.tile,
+    awful.layout.suit.tile,
+    awful.layout.suit.tile,
+}
+
 awful.layout.layouts = {
     awful.layout.suit.floating,
     awful.layout.suit.tile,

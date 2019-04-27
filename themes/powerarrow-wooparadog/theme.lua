@@ -9,6 +9,7 @@ local gears = require("gears")
 local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
+local naughty = require("naughty")
 
 local net_widgets = require("net_widgets")
 
@@ -102,6 +103,8 @@ theme.titlebar_maximized_button_normal_inactive = theme.dir .. "/icons/titlebar/
 theme.notification_max_height = 150
 theme.notification_max_width = 400
 theme.notification_opacity = 0.8
+
+naughty.config.defaults.position = "top_middle"
 
 local markup = lain.util.markup
 local separators = lain.util.separators
@@ -326,7 +329,7 @@ function theme.at_screen_connect(s)
     s.quake = lain.util.quake({ app = awful.util.terminal })
 
     -- Tags
-    awful.tag(awful.util.tagnames, s, awful.layout.suit.tile)
+    awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
 
     -- Create a promptbox for each screen
     s.mypromptbox = {
@@ -348,7 +351,7 @@ function theme.at_screen_connect(s)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, awful.util.tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, height = 16, bg = theme.bg_normal, fg = theme.fg_normal })
+    s.mywibox = awful.wibar({ position = "top", screen = s, height = 16, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
