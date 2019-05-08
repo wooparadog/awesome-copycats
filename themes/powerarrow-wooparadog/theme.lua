@@ -12,6 +12,7 @@ local wibox = require("wibox")
 local naughty = require("naughty")
 
 local net_widgets = require("net_widgets")
+local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 
 local math, string, os = math, string, os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
@@ -224,9 +225,17 @@ local bat = lain.widget.bat({
 local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
 local net_wired = net_widgets.indicator({font=theme.font})
 
+-- launcher
+
+local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
+
+--
 -- Wallpaper
 local wall_icon = wibox.widget.imagebox(theme.widget_icon_wallpaper)
-local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){ path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME"))}
+local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){
+  path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
+  timeout = 600
+}
 wall_icon:buttons(
   my_table.join(
     awful.button({ }, 1, function()
@@ -360,6 +369,7 @@ function theme.at_screen_connect(s)
             layout = wibox.layout.fixed.horizontal,
             --spr,
             s.mytaglist,
+            mylb, 
             spr,
         },
         s.mytasklist, -- Middle widget

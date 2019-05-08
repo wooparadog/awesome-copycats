@@ -13,7 +13,6 @@ function scandir(directory, filter)
   if not filter then
     filter = function(s) return true end
   end
-  print(filter)
   for filename in popen('ls -a "'..directory..'"'):lines() do
     if filter(filename) then
       i = i + 1
@@ -46,7 +45,9 @@ local function factory(args)
     dbus.refresh_user_wallpaper(wallpaper_path)
 
     -- stop the timer (we don't need multiple instances running at the same time)
-    wallpaper.wp_timer:stop()
+    if wallpaper.wp_timer.started then
+      wallpaper.wp_timer:stop()
+    end
 
 
     --restart the timer

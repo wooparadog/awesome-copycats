@@ -94,7 +94,7 @@ local editor       = os.getenv("EDITOR") or "vim"
 local gui_editor   = "gedit"
 local browser      = "firefox"
 local guieditor    = "gedit"
-local scrlocker    = "dm-tool switch-to-greeter"
+local scrlocker    = "light-locker-command -l"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
@@ -660,14 +660,14 @@ awful.rules.rules = {
 
     -- Titlebars
     { rule_any = { type = { "dialog", "normal" } },
-      properties = { titlebars_enabled = false } },
+      properties = { titlebars_enabled = false, placement = awful.placement.next_to_mouse + awful.placement.no_offscreen  } },
 
     -- Set Firefox to always map on the first tag on screen 1.
     { rule = { class = "Firefox" },
       properties = { screen = 1, tag = awful.util.tagnames[1] } },
 
     { rule = { class = "Spotify" },
-      properties = { screen = 1, tag = awful.util.tagnames[6] } },
+      properties = { screen = 1, opacity=0.9, tag = awful.util.tagnames[6] } },
 
     { rule = { class = "TelegramDesktop" },
       properties = { screen = 1, tag = awful.util.tagnames[4] } },
@@ -676,13 +676,13 @@ awful.rules.rules = {
       properties = { screen = 1, tag = awful.util.tagnames[3] } },
 
     { rule = { class = "Nautilus" },
-      properties = { screen = 1, tag = awful.util.tagnames[3] } },
+      properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[3] } },
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
 
     { rule = { class = "Pavucontrol" },
-      properties = { floating = true } },
+      properties = { floating = true, ontop = true} },
 
     { rule = { class = "Gpicview" },
       properties = { floating = true, ontop = true },
