@@ -39,7 +39,6 @@ function launchbar.new(filedir)
    for f in files:lines() do
       local t = io.open(f):read("*all")
       local exec = getValue(t,"Exec")
-      exec = split(exec)[1]
       table.insert(items, { image = find_icon(getValue(t,"Icon")),
                             command = exec,
                             position = tonumber(getValue(t,"Position")) or 255 })

@@ -177,6 +177,7 @@ end)
 --]]
 -- Coretemp (lain, average)
 local temp = lain.widget.temp({
+    tempfile = "/sys/class/thermal/thermal_zone2/temp",
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
@@ -309,6 +310,7 @@ local net = lain.widget.net({
 
 -- Separators
 local arrow = separators.arrow_left
+local right_arrow = separators.arrow_right
 
 function theme.powerline_rl(cr, width, height)
     local arrow_depth, offset = height/2, 0
@@ -367,10 +369,10 @@ function theme.at_screen_connect(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            --spr,
             s.mytaglist,
-            mylb, 
-            spr,
+            right_arrow(theme.bg_normal, "#343434"),
+            wibox.container.background(wibox.container.margin(mylb, 4, 4), "#343434"),
+            right_arrow("#343434", theme.bg_normal),
         },
         s.mytasklist, -- Middle widget
         { -- Right widgets
