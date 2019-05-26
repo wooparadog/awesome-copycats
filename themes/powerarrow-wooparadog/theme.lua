@@ -181,9 +181,15 @@ end)
 
 -- First try find the tempfile
 
-local tempfile = "/sys/class/thermal/thermal_zone3/temp"
-if not pcall(open, tempfile) then
-  tempfile = "/sys/class/thermal/thermal_zone2/temp"
+for filename in io.popen('ls /sys/class/thermal/'):lines() do
+  base_dir = "/sys/class/thermal/" .. filename
+  f = io.open(base_dir  .. "/type")
+  content = f:read("*all"):gsub("^%s*(.-)%s*$", "%1")
+  f:close()
+  if content == "x86_pkg_temp" then
+    local tempfile = base_dir   .. "/temp"
+    break
+  end
 end
 
 local temp = lain.widget.temp({
