@@ -178,8 +178,16 @@ function(widget, stdout)
 end)
 --]]
 -- Coretemp (lain, average)
+
+-- First try find the tempfile
+
+local tempfile = "/sys/class/thermal/thermal_zone3/temp"
+if not pcall(open, tempfile) then
+  tempfile = "/sys/class/thermal/thermal_zone2/temp"
+end
+
 local temp = lain.widget.temp({
-    tempfile = "/sys/class/thermal/thermal_zone2/temp",
+    tempfile = tempfile,
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
