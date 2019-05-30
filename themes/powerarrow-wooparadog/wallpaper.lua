@@ -28,7 +28,7 @@ local function factory(args)
   wallpaper.wp_index = args.index or 1
   wallpaper.wp_timeout  = args.timeout or 300
   wallpaper.wp_path = args.path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
-  wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") end
+  wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
   wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
 
