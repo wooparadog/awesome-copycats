@@ -117,7 +117,7 @@ awful.layout.layouts = {
     --awful.layout.suit.fair.horizontal,
     --awful.layout.suit.spiral,
     --awful.layout.suit.spiral.dwindle,
-    --awful.layout.suit.max,
+    awful.layout.suit.max,
     --awful.layout.suit.max.fullscreen,
     --awful.layout.suit.magnifier,
     --awful.layout.suit.corner.nw,
@@ -608,6 +608,9 @@ awful.rules.rules = {
     { rule_any = { type = { "dialog", "normal" } },
       properties = { titlebars_enabled = false, placement = awful.placement.next_to_mouse + awful.placement.no_offscreen  } },
 
+    { rule_any = { type = { "dialog" } },
+      properties = { floating = true, ontop = true} },
+
     { rule = { class = "Gnome-screenshot" },
       properties = { ontop = true, floating = true } },
 
@@ -631,7 +634,7 @@ awful.rules.rules = {
       properties = { screen = 1, tag = awful.util.tagnames[3] } },
 
     { rule = { class = "Nautilus" },
-      properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[3] } },
+      properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[3], opacity=0.9 } },
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
@@ -715,7 +718,7 @@ end)
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
-    c:emit_signal("request::activate", "mouse_enter", {raise = true})
+    c:emit_signal("request::activate", "mouse_enter", {raise = false})
 end)
 
 -- No border for maximized clients

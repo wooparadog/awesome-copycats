@@ -181,16 +181,18 @@ end)
 
 -- First try find the tempfile
 
+local tempfile = ""
 for filename in io.popen('ls /sys/class/thermal/'):lines() do
   base_dir = "/sys/class/thermal/" .. filename
   f = io.open(base_dir  .. "/type")
   content = f:read("*all"):gsub("^%s*(.-)%s*$", "%1")
   f:close()
   if content == "x86_pkg_temp" then
-    local tempfile = base_dir   .. "/temp"
+    tempfile = base_dir   .. "/temp"
     break
   end
 end
+
 
 local temp = lain.widget.temp({
     tempfile = tempfile,
@@ -248,24 +250,46 @@ local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
 
 --
 -- Wallpaper
+
 local wall_icon = wibox.widget.imagebox(theme.widget_icon_wallpaper)
 local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){
   path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
-  timeout = 600
+  timeout = 600,
+  screen=1,
 }
+-- second screen
+local wallpaper_screen_2 = require("themes.powerarrow-wooparadog.wallpaper"){
+  path = string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
+  timeout = 600,
+  screen=2,
+}
+wallpaper_screen_2.start()
+
+
 wall_icon:buttons(
   my_table.join(
     awful.button({ }, 1, function()
-      wallpaper.start()
-      wall_icon.image = theme.widget_icon_wallpaper
+      local s = awful.screen.focused()
+      if s.index == 1 then
+        wallpaper.start()
+      elseif s.index == 2 then
+        wallpaper_screen_2.start()
+      end
+        wall_icon.image = theme.widget_icon_wallpaper
     end),
     awful.button({ }, 2, function()
-      wallpaper.stop()
+      local s = awful.screen.focused()
+      if s.index == 1 then
+        wallpaper.stop()
+      elseif s.index == 2 then
+        wallpaper_screen_2.stop()
+      end
       wall_icon.image = theme.widget_icon_wallpaper_paused
     end)
     )
   )
 wallpaper.start()
+
 
 -- ALSA volume bar
 local volicon = wibox.widget.imagebox(theme.widget_vol)

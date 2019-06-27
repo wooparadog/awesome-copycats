@@ -2,7 +2,6 @@ local awful = require("awful")
 local gears = require("gears")
 local dbus = require("themes.powerarrow-wooparadog.dbus"){}
 
-local wallpaper = {}
 
 -- configuration - edit to your liking
 
@@ -24,6 +23,7 @@ end
 
 local function factory(args)
   local args = args or {}
+  local wallpaper = {}
 
   wallpaper.wp_index = args.index or 1
   wallpaper.wp_timeout  = args.timeout or 300
@@ -31,15 +31,18 @@ local function factory(args)
   wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
   wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
+  wallpaper.wp_screen = args.screen or nil
+
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
       return
     end
+
     -- set wallpaper to current index for all screens
     wallpaper.wp_index = math.random(#wallpaper.wp_files)
     wallpaper_path = wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index]
-    gears.wallpaper.maximized(wallpaper_path, nil)
+    gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
 
     -- Notify dbus we've changed wallpaper
     dbus.refresh_user_wallpaper(wallpaper_path)
