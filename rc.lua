@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({"rescuetime", "compton", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root" }) -- entries must be separated by commas
+run_once({"rescuetime", "xcompmgr", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
 --[[
