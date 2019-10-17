@@ -258,41 +258,17 @@ local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){
   screen=1,
 }
 
--- second screen
-local wallpaper_screen_2 = require("themes.powerarrow-wooparadog.wallpaper"){
-  path = string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
-  timeout = 600,
-  screen=2,
-}
-wallpaper_screen_2.start()
-
-
 wall_icon:buttons(
   my_table.join(
     awful.button({ }, 1, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        wallpaper.start()
-      elseif s.index == 2 then
-        wallpaper_screen_2.start()
-      end
-        wall_icon.image = theme.widget_icon_wallpaper
+      wallpaper.start()
+      wall_icon.image = theme.widget_icon_wallpaper
     end),
     awful.button({ }, 2, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        awful.spawn("xdg-open " .. wallpaper.current)
-      elseif s.index == 2 then
-        awful.spawn("xdg-open " .. wallpaper_screen_2.current)
-      end
+      awful.spawn("xdg-open " .. wallpaper.current)
     end),
     awful.button({ }, 3, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        wallpaper.stop()
-      elseif s.index == 2 then
-        wallpaper_screen_2.stop()
-      end
+      wallpaper.stop()
       wall_icon.image = theme.widget_icon_wallpaper_paused
     end)
     )
