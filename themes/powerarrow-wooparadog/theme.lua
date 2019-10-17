@@ -19,7 +19,7 @@ local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
 
 local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
-theme.font                                      = "xos4 Terminus 9"
+theme.font                                      = "Terminus (TTF) 9"
 theme.fg_normal                                 = "#FEFEFE"
 theme.fg_focus                                  = "#32D6FF"
 theme.fg_urgent                                 = "#C83F11"
@@ -120,7 +120,7 @@ theme.cal = lain.widget.cal({
     --cal = "cal --color=always",
     attach_to = { textclock },
     notification_preset = {
-        font = "xos4 Terminus 10",
+        font = "Terminus (TTF) 9",
         fg   = theme.fg_normal,
         bg   = theme.bg_normal
     }
@@ -257,6 +257,7 @@ local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){
   timeout = 600,
   screen=1,
 }
+
 -- second screen
 local wallpaper_screen_2 = require("themes.powerarrow-wooparadog.wallpaper"){
   path = string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
@@ -278,6 +279,14 @@ wall_icon:buttons(
         wall_icon.image = theme.widget_icon_wallpaper
     end),
     awful.button({ }, 2, function()
+      local s = awful.screen.focused()
+      if s.index == 1 then
+        awful.spawn("xdg-open " .. wallpaper.current)
+      elseif s.index == 2 then
+        awful.spawn("xdg-open " .. wallpaper_screen_2.current)
+      end
+    end),
+    awful.button({ }, 3, function()
       local s = awful.screen.focused()
       if s.index == 1 then
         wallpaper.stop()

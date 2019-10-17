@@ -32,6 +32,7 @@ local function factory(args)
   wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.wp_screen = args.screen or nil
+  wallpaper.current = nil
 
 
   wallpaper.start = function()
@@ -43,6 +44,7 @@ local function factory(args)
     wallpaper.wp_index = math.random(#wallpaper.wp_files)
     wallpaper_path = wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index]
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
+    wallpaper.current = wallpaper_path
 
     -- Notify dbus we've changed wallpaper
     dbus.refresh_user_wallpaper(wallpaper_path)
