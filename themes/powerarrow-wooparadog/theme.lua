@@ -248,57 +248,6 @@ local net_wired = net_widgets.indicator({font=theme.font})
 
 local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
 
---
--- Wallpaper
-
-local wall_icon = wibox.widget.imagebox(theme.widget_icon_wallpaper)
-local wallpaper = require("themes.powerarrow-wooparadog.wallpaper"){
-  path = string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
-  timeout = 600,
-  screen=1,
-}
-
--- second screen
-local wallpaper_screen_2 = require("themes.powerarrow-wooparadog.wallpaper"){
-  path = string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
-  timeout = 600,
-  screen=2,
-}
-wallpaper_screen_2.start()
-
-
-wall_icon:buttons(
-  my_table.join(
-    awful.button({ }, 1, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        wallpaper.start()
-      elseif s.index == 2 then
-        wallpaper_screen_2.start()
-      end
-        wall_icon.image = theme.widget_icon_wallpaper
-    end),
-    awful.button({ }, 2, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        awful.spawn("xdg-open " .. wallpaper.current)
-      elseif s.index == 2 then
-        awful.spawn("xdg-open " .. wallpaper_screen_2.current)
-      end
-    end),
-    awful.button({ }, 3, function()
-      local s = awful.screen.focused()
-      if s.index == 1 then
-        wallpaper.stop()
-      elseif s.index == 2 then
-        wallpaper_screen_2.stop()
-      end
-      wall_icon.image = theme.widget_icon_wallpaper_paused
-    end)
-    )
-  )
-wallpaper.start()
-
 
 -- ALSA volume bar
 local volicon = wibox.widget.imagebox(theme.widget_vol)
@@ -393,7 +342,7 @@ function theme.at_screen_connect(s)
 
     -- Create a promptbox for each screen
     s.mypromptbox = {
-      run = function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun -show combi -modi combi") end
+      run = function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun,run -show combi -modi combi") end
     }
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
@@ -413,6 +362,17 @@ function theme.at_screen_connect(s)
     -- Create the wibox
     s.mywibox = awful.wibar({ position = "top", screen = s, height = 16, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
 
+    -- create wallpaper
+    local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
+      horizontal_path=string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
+      vertical_path=string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
+      timeout=600,
+      screen=s,
+      widget_icon_wallpaper=theme.widget_icon_wallpaper,
+      widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
+    }
+    wallpaper_changer.start()
+
     -- Add widgets to the wibox
     s.mywibox:setup {
         layout = wibox.layout.align.horizontal,
@@ -426,7 +386,7 @@ function theme.at_screen_connect(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            wibox.widget.systray(),
+            systray,
             wibox.container.margin(scissors, 4, 8),
             --[[ using shapes
             pl(wibox.widget { mpdicon, theme.mpd.widget, layout = wibox.layout.align.horizontal }, "#343434"),
@@ -459,7 +419,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
-            wall_icon,
+            wallpaper_changer.wp_wall_icon,
         },
     }
 end

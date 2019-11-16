@@ -1,6 +1,8 @@
 local awful = require("awful")
 local gears = require("gears")
 local dbus = require("themes.powerarrow-wooparadog.dbus"){}
+local wibox = require("wibox")
+local my_table = awful.util.table
 
 
 -- configuration - edit to your liking
@@ -26,14 +28,45 @@ local function factory(args)
   local wallpaper = {}
 
   wallpaper.wp_index = args.index or 1
+  wallpaper.wp_screen = args.screen or nil
   wallpaper.wp_timeout  = args.timeout or 300
-  wallpaper.wp_path = args.path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
+  wallpaper.wp_vertical_path = args.vertical_path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
+  wallpaper.wp_horizontal_path = args.horizontal_path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
   wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
+  wallpaper.wp_normal_icon = args.widget_icon_wallpaper
+  wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
+
+  if wallpaper.wp_screen then
+    if wallpaper.wp_screen.geometry.x > wallpaper.wp_screen.geometry.y then
+      wallpaper.wp_path = wallpaper.wp_horizontal_path
+    else
+      wallpaper.wp_path = wallpaper.wp_vertical_path
+    end
+  else
+      wallpaper.wp_path = wallpaper.wp_horizontal_path
+  end
+
   wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
-  wallpaper.wp_screen = args.screen or nil
   wallpaper.current = nil
 
+  wallpaper.wp_wall_icon = wibox.widget.imagebox(wallpaper.wp_normal_icon)
+
+  wallpaper.wp_wall_icon:buttons(
+    my_table.join(
+      awful.button({ }, 1, function()
+        wallpaper.start()
+        wallpaper.wp_wall_icon.image = wallpaper.wp_normal_icon
+      end),
+      awful.button({ }, 2, function()
+        awful.spawn("xdg-open " .. wallpaper.current)
+      end),
+      awful.button({ }, 3, function()
+        wallpaper.stop()
+        wallpaper.wp_wall_icon.image = wallpaper.wp_paused_icon
+      end)
+      )
+    )
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
