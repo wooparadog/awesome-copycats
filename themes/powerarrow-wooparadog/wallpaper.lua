@@ -35,19 +35,26 @@ local function factory(args)
   wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
   wallpaper.wp_normal_icon = args.widget_icon_wallpaper
   wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
+  wallpaper.wp_path = ''
 
   wallpaper.choose_wallpaper = function(s)
-    if not s.index == wallpaper.wp_screen.index then
+    local path
+
+    if s.index ~= wallpaper.wp_screen.index then
       return
     end
 
     if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then
-      wallpaper.wp_path = wallpaper.wp_horizontal_path
+      path = wallpaper.wp_horizontal_path
     else
-      wallpaper.wp_path = wallpaper.wp_vertical_path
+      path = wallpaper.wp_vertical_path
     end
-    gears.debug.print_warning(string.format("Chossing: %s for %sx%s", wallpaper.wp_path, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height))
-    wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
+
+    if wallpaper.wp_path ~= path then
+      gears.debug.print_warning(string.format("Chossing: %s for %sx%s, from: %s", path, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, wallpaper.wp_path))
+      wallpaper.wp_path = path
+      wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
+    end
   end
 
   wallpaper.choose_wallpaper(wallpaper.wp_screen)
