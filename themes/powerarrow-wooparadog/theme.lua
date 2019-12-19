@@ -333,6 +333,11 @@ local function pl(widget, bgcolor, padding)
     return wibox.container.background(wibox.container.margin(widget, 16, 16), bgcolor, theme.powerline_rl)
 end
 
+local systray = wibox.widget.systray()
+screen.connect_signal("screen.focus", function(c) 
+  asdfsystray:set_screen(awful.screen.focused())
+end)
+
 function theme.at_screen_connect(s)
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
@@ -386,7 +391,7 @@ function theme.at_screen_connect(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            systray,
+            systray, 
             wibox.container.margin(scissors, 4, 8),
             --[[ using shapes
             pl(wibox.widget { mpdicon, theme.mpd.widget, layout = wibox.layout.align.horizontal }, "#343434"),

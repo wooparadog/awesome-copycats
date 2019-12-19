@@ -36,17 +36,23 @@ local function factory(args)
   wallpaper.wp_normal_icon = args.widget_icon_wallpaper
   wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
 
-  if wallpaper.wp_screen then
-    if wallpaper.wp_screen.geometry.x > wallpaper.wp_screen.geometry.y then
+  wallpaper.choose_wallpaper = function(s)
+    if not s.index == wallpaper.wp_screen.index then
+      return
+    end
+
+    if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then
       wallpaper.wp_path = wallpaper.wp_horizontal_path
     else
       wallpaper.wp_path = wallpaper.wp_vertical_path
     end
-  else
-      wallpaper.wp_path = wallpaper.wp_horizontal_path
+    gears.debug.print_warning(string.format("Chossing: %s for %sx%s", wallpaper.wp_path, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height))
+    wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
   end
 
-  wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
+  wallpaper.choose_wallpaper(wallpaper.wp_screen)
+  screen.connect_signal("property::geometry", wallpaper.choose_wallpaper)
+  
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.current = nil
 
@@ -67,6 +73,7 @@ local function factory(args)
       end)
       )
     )
+
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
