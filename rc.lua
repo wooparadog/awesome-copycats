@@ -56,7 +56,7 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({"rescuetime", "xcompmgr", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root", "xrandr --output HDMI1 --primary" }) -- entries must be separated by commas
+run_once({"rescuetime", "xcompmgr", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root", "xbindkeys" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
 --[[
@@ -571,6 +571,10 @@ end
 clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
+    end),
+    awful.button({ }, 9, function (c)
+        c:emit_signal("request::activate", "mouse_click", {raise = true})
+        awful.mouse.client.move(c)
     end),
     awful.button({ modkey }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
