@@ -99,7 +99,7 @@ local scrlocker    = "light-locker-command -l"
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
-    awful.layout.suit.tile,
+    awful.layout.suit.max,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
@@ -109,15 +109,14 @@ awful.layout.taglayouts = {
 
 awful.layout.layouts = {
     awful.layout.suit.tile,
-    awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
+    awful.layout.suit.max,
     --awful.layout.suit.fair,
     --awful.layout.suit.fair.horizontal,
     --awful.layout.suit.spiral,
     --awful.layout.suit.spiral.dwindle,
-    awful.layout.suit.max,
     --awful.layout.suit.max.fullscreen,
     --awful.layout.suit.magnifier,
     --awful.layout.suit.corner.nw,
@@ -625,7 +624,7 @@ awful.rules.rules = {
       properties = { floating = true } },
 
     -- Set Firefox to always map on the first tag on screen 1.
-    { rule = { class = "Firefox" },
+    { rule = { class = "firefox" },
       properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[1] } },
 
     { rule = { class = "Spotify" },
