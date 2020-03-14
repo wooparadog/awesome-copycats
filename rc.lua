@@ -99,7 +99,7 @@ local scrlocker    = "light-locker-command -l"
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
-    awful.layout.suit.floating,
+    awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
