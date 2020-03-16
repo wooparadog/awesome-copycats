@@ -249,10 +249,10 @@ local net_wired = net_widgets.indicator({font=theme.font})
 local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
 
 
--- ALSA volume bar
+-- pulse volume bar
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
-theme.volume = lain.widget.alsabar {
+theme.volume = lain.widget.pulsebar {
     width = 59, border_width = 0, ticks = true, ticks_size = 6,
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
@@ -279,19 +279,19 @@ theme.volume.bar:buttons(my_table.join (
             awful.spawn("pavucontrol")
           end),
           awful.button({}, 2, function()
-            os.execute(string.format("%s set %s 100%%", theme.volume.cmd, theme.volume.channel))
+            os.execute(string.format("pactl set-sink-volume %s 100%%", theme.volume.device))
             theme.volume.update()
           end),
           awful.button({}, 3, function()
-            os.execute(string.format("%s set %s toggle", theme.volume.cmd, theme.volume.togglechannel or theme.volume.channel))
+            os.execute(string.format("pactl set-sink-mute %s toggle", theme.volume.device))
             theme.volume.update()
           end),
           awful.button({}, 4, function()
-            os.execute(string.format("%s set %s 1%%+", theme.volume.cmd, theme.volume.channel))
+            os.execute(string.format("pactl set-sink-volume %s +1%%", theme.volume.device))
             theme.volume.update()
           end),
           awful.button({}, 5, function()
-            os.execute(string.format("%s set %s 1%%-", theme.volume.cmd, theme.volume.channel))
+            os.execute(string.format("pactl set-sink-volume %s -1%%", theme.volume.device))
             theme.volume.update()
           end)
 ))
