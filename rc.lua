@@ -414,19 +414,19 @@ globalkeys = my_table.join(
     -- ALSA volume control
     awful.key({}, "#123",
         function ()
-            os.execute(string.format("amixer -q set %s 1%%+", beautiful.volume.channel))
+            os.execute(string.format("pactl set-sink-volume %s +5%%", beautiful.volume.device))
             beautiful.volume.update()
         end,
         {description = "volume up", group = "hotkeys"}),
     awful.key({}, "#122",
         function ()
-            os.execute(string.format("amixer -q set %s 1%%-", beautiful.volume.channel))
+            os.execute(string.format("pactl set-sink-volume %s -5%%", beautiful.volume.device))
             beautiful.volume.update()
         end,
         {description = "volume down", group = "hotkeys"}),
     awful.key({}, "#121",
         function ()
-            os.execute(string.format("amixer -q set %s toggle", beautiful.volume.togglechannel or beautiful.volume.channel))
+            os.execute(string.format("pactl set-sink-mute %s toggle", beautiful.volume.device))
             beautiful.volume.update()
         end,
         {description = "toggle mute", group = "hotkeys"}),

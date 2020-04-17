@@ -179,23 +179,8 @@ end)
 --]]
 -- Coretemp (lain, average)
 
--- First try find the tempfile
-
-local tempfile = ""
-for filename in io.popen('ls /sys/class/thermal/'):lines() do
-  base_dir = "/sys/class/thermal/" .. filename
-  f = io.open(base_dir  .. "/type")
-  content = f:read("*all"):gsub("^%s*(.-)%s*$", "%1")
-  f:close()
-  if content == "x86_pkg_temp" then
-    tempfile = base_dir   .. "/temp"
-    break
-  end
-end
-
-
 local temp = lain.widget.temp({
-    tempfile = tempfile,
+    tempfile = '/sys/class/hwmon/hwmon1/temp1_input',
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
@@ -259,10 +244,6 @@ theme.volume = lain.widget.pulsebar {
     settings = function()
         if volume_now.status == "off" then
             volicon:set_image(theme.widget_vol_mute)
-        elseif volume_now.level == 0 then
-            volicon:set_image(theme.widget_vol_no)
-        elseif volume_now.level <= 50 then
-            volicon:set_image(theme.widget_vol_low)
         else
             volicon:set_image(theme.widget_vol)
         end
@@ -287,11 +268,11 @@ theme.volume.bar:buttons(my_table.join (
             theme.volume.update()
           end),
           awful.button({}, 4, function()
-            os.execute(string.format("pactl set-sink-volume %s +1%%", theme.volume.device))
+            os.execute(string.format("pactl set-sink-volume %s +5%%", theme.volume.device))
             theme.volume.update()
           end),
           awful.button({}, 5, function()
-            os.execute(string.format("pactl set-sink-volume %s -1%%", theme.volume.device))
+            os.execute(string.format("pactl set-sink-volume %s -5%%", theme.volume.device))
             theme.volume.update()
           end)
 ))
