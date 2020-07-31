@@ -235,6 +235,7 @@ screen.connect_signal("property::geometry", function(s)
         gears.wallpaper.maximized(wallpaper, s, true)
     end
 end)
+
 -- Create a wibox for each screen and add it
 awful.screen.connect_for_each_screen(beautiful.at_screen_connect)
 -- }}}
@@ -261,6 +262,7 @@ globalkeys = my_table.join(
     -- Hotkeys
     awful.key({ modkey,           }, "s",      hotkeys_popup.show_help,
               {description = "show help", group="awesome"}),
+
     -- Tag browsing
     awful.key({ modkey,           }, "Left",   awful.tag.viewprev,
               {description = "view previous", group = "tag"}),

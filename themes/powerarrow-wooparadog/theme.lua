@@ -101,13 +101,13 @@ theme.titlebar_maximized_button_normal_active   = theme.dir .. "/icons/titlebar/
 theme.titlebar_maximized_button_focus_inactive  = theme.dir .. "/icons/titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_inactive = theme.dir .. "/icons/titlebar/maximized_normal_inactive.png"
 
-theme.notification_max_height = 100
-theme.notification_max_width = 400
-theme.notification_opacity = 0.8
+theme.notification_max_height = 200
+theme.notification_max_width = 800
+theme.notification_opacity = 0.9
 theme.notification_margin = 5
-theme.notification_icon_size = 64 
+theme.notification_icon_size = 128 
 
-naughty.config.defaults.position = "top_middle"
+naughty.config.defaults.position = "top_right"
 
 local markup = lain.util.markup
 local separators = lain.util.separators
@@ -117,7 +117,7 @@ local textclock = wibox.widget.textclock(" %a %d %b  %H:%M")
 
 -- Calendar
 theme.cal = lain.widget.cal({
-    --cal = "cal --color=always",
+    cal = "cal --color=always",
     attach_to = { textclock },
     notification_preset = {
         font = "Terminus (TTF) 9",
@@ -127,8 +127,8 @@ theme.cal = lain.widget.cal({
 })
 
 -- Scissors (xsel copy and paste)
-local scissors = wibox.widget.imagebox(theme.widget_scissors)
-scissors:buttons(my_table.join(awful.button({}, 1, function() awful.spawn.with_shell("xsel | xsel -i -b") end)))
+--local scissors = wibox.widget.imagebox(theme.widget_scissors)
+--scissors:buttons(my_table.join(awful.button({}, 1, function() awful.spawn.with_shell("xsel | xsel -i -b") end)))
 
 -- Mail IMAP check
 --[[ commented because it needs to be set before use
@@ -189,7 +189,7 @@ local temp = lain.widget.temp({
 local tempicon = wibox.widget.imagebox(theme.widget_temp)
 
 -- / fs
-local fsicon = wibox.widget.imagebox(theme.widget_hdd)
+--local fsicon = wibox.widget.imagebox(theme.widget_hdd)
 --[[ commented because it needs Gio/Glib >= 2.54
 theme.fs = lain.widget.fs({
     notification_preset = { fg = theme.fg_normal, bg = theme.bg_normal, font = "xos4 Terminus 10" },
@@ -230,7 +230,6 @@ local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
 local net_wired = net_widgets.indicator({font=theme.font})
 
 -- launcher
-
 local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
 
 
@@ -373,7 +372,7 @@ function theme.at_screen_connect(s)
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             systray, 
-            wibox.container.margin(scissors, 4, 8),
+            --wibox.container.margin(scissors, 4, 8),
             --[[ using shapes
             pl(wibox.widget { mpdicon, theme.mpd.widget, layout = wibox.layout.align.horizontal }, "#343434"),
             pl(task, "#343434"),
