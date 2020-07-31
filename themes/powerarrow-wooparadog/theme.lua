@@ -315,7 +315,7 @@ end
 
 local systray = wibox.widget.systray()
 screen.connect_signal("screen.focus", function(c) 
-  asdfsystray:set_screen(awful.screen.focused())
+  systray:set_screen(awful.screen.focused())
 end)
 
 function theme.at_screen_connect(s)
