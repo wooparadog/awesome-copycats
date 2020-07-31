@@ -636,8 +636,8 @@ awful.rules.rules = {
     { rule = { class = "Pcmanfm" },
       properties = { screen = 1, tag = awful.util.tagnames[3] } },
 
-    { rule = { class = "Nautilus" },
-      properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[3], opacity=0.9 } },
+    --{ rule = { class = "Nautilus" },
+      --properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[3], opacity=0.9 } },
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
