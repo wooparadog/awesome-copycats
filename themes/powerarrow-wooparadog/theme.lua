@@ -107,7 +107,7 @@ theme.notification_opacity = 0.9
 theme.notification_margin = 5
 theme.notification_icon_size = 128 
 
-naughty.config.defaults.position = "top_right"
+naughty.config.defaults.position = "top_middle"
 
 local markup = lain.util.markup
 local separators = lain.util.separators

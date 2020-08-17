@@ -739,6 +739,10 @@ end
 client.connect_signal("property::maximized", border_adjust)
 client.connect_signal("focus", border_adjust)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+client.connect_signal("property::urgent", function(c)
+    c.minimized = false
+    c:jump_to()
+end)
 
 -- possible workaround for tag preservation when switching back to default screen:
 -- https://github.com/lcpz/awesome-copycats/issues/251
