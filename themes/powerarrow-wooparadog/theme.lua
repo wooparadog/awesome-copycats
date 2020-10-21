@@ -321,9 +321,7 @@ end)
 local wallpaper_changers = {}
 root.keys(
   awful.key({ "Mod4",           }, "d", function()
-    for _, changer in ipairs(wallpaper_changers) do
-      changer.start()
-    end
+    wallpaper_changers[awful.screen.focused { client=true, mouse=false }.index].start()
   end, {description = "Refresh wallpaper", group = "screen"})
 )
 
@@ -366,7 +364,7 @@ function theme.at_screen_connect(s)
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
     }
     wallpaper_changer.start()
-    table.insert(wallpaper_changers, wallpaper_changer)
+    wallpaper_changers[s.index] = wallpaper_changer
 
     -- Add widgets to the wibox
     s.mywibox:setup {
