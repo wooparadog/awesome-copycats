@@ -321,7 +321,7 @@ end)
 local wallpaper_changers = {}
 root.keys(
   awful.key({ "Mod4",           }, "d", function()
-    wallpaper_changers[awful.screen.focused { client=true, mouse=false }.index].start()
+    wallpaper_changers[awful.screen.focused { client=false, mouse=true }.index].start()
   end, {description = "Refresh wallpaper", group = "screen"})
 )
 
