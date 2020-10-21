@@ -56,17 +56,15 @@ local function run_once(cmd_arr)
     end
 end
 
-run_once({"rescuetime", "xcompmgr", "lxsession -s awesome -e LXDE", "urxvtd -q -f -o", "unclutter -root", "xbindkeys" }) -- entries must be separated by commas
+run_once({"picom", "urxvtd -q -f -o", "unclutter -root", "xbindkeys" }) -- entries must be separated by commas
 
 -- This function implements the XDG autostart specification
---[[
 awful.spawn.with_shell(
     'if (xrdb -query | grep -q "^awesome\\.started:\\s*true$"); then exit; fi;' ..
     'xrdb -merge <<< "awesome.started:true";' ..
     -- list each of your autostart commands, followed by ; inside single quotes, followed by ..
-    'dex --environment Awesome --autostart --search-paths "$XDG_CONFIG_DIRS/autostart:$XDG_CONFIG_HOME/autostart"' -- https://github.com/jceb/dex
+    'dex --environment awesome --autostart' -- https://github.com/jceb/dex
 )
---]]
 
 -- }}}
 
@@ -93,17 +91,18 @@ local terminal     = "urxvtc"
 local editor       = os.getenv("EDITOR") or "vim"
 local gui_editor   = "gedit"
 local browser      = "firefox"
+local filemanager  = "nautilus"
 local guieditor    = "gedit"
 local scrlocker    = "light-locker-command -l"
 
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
-    awful.layout.suit.max,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
+    awful.layout.suit.floating,
     awful.layout.suit.tile,
 }
 
@@ -113,6 +112,7 @@ awful.layout.layouts = {
     awful.layout.suit.tile.bottom,
     awful.layout.suit.tile.top,
     awful.layout.suit.max,
+    awful.layout.suit.floating,
     --awful.layout.suit.fair,
     --awful.layout.suit.fair.horizontal,
     --awful.layout.suit.spiral,
@@ -247,14 +247,17 @@ root.buttons(my_table.join(
     awful.button({ }, 5, awful.tag.viewprev)
 ))
 -- }}}
+--
+
+function debug_table(table)
+  for s, v in pairs(table) do
+    gears.debug.print_warning(gears.debug.dump_return(v.key))
+  end
+end
 
 -- {{{ Key bindings
 globalkeys = my_table.join(
-    -- Take a screenshot
-    -- https://github.com/lcpz/dots/blob/master/bin/screenshot
-    awful.key({ altkey }, "p", function() os.execute("screenshot") end,
-              {description = "take a screenshot", group = "hotkeys"}),
-
+    root.keys(),
     -- X screen locker
     awful.key({ altkey, "Control" }, "l", function () os.execute(scrlocker) end,
               {description = "lock screen", group = "hotkeys"}),
@@ -332,7 +335,7 @@ globalkeys = my_table.join(
               {description = "jump to urgent client", group = "client"}),
     awful.key({ modkey,           }, "Tab",
         function ()
-            awful.util.spawn("rofi -show window -show-icons") 
+            awful.spawn("rofi -show window -show-icons") 
         end,
         {description = "switch client", group = "client"}),
 
@@ -413,6 +416,7 @@ globalkeys = my_table.join(
     awful.key({ }, "XF86MonBrightnessDown", function () os.execute("xbacklight -dec 10") end,
               {description = "-10%", group = "hotkeys"}),
 
+    awful.key({ }, "Print", function () awful.util.spawn("flameshot gui") end, {description = "Screenshot", group = "hotkeys"}),
     -- ALSA volume control
     awful.key({}, "#123",
         function ()
@@ -443,8 +447,8 @@ globalkeys = my_table.join(
     -- User programs
     awful.key({ modkey }, "q", function () awful.spawn(browser) end,
               {description = "run browser", group = "launcher"}),
-    awful.key({ modkey }, "a", function () awful.spawn(guieditor) end,
-              {description = "run gui editor", group = "launcher"}),
+    awful.key({ modkey }, "e", function () awful.spawn(filemanager) end,
+              {description = "run file manager", group = "launcher"}),
 
     -- Default
     --[[ Menubar
@@ -616,10 +620,7 @@ awful.rules.rules = {
     { rule_any = { type = { "dialog" } },
       properties = { floating = true, ontop = true} },
 
-    { rule = { class = "Gnome-screenshot" },
-      properties = { ontop = true, floating = true } },
-
-    { rule = { name = "Calculator" },
+    { rule_any = { class = { "Gnome-screenshot", "Calculator", "Blueman-manager"} },
       properties = { ontop = true, floating = true } },
 
     { rule = { class = "vlc" },

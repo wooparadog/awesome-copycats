@@ -318,6 +318,15 @@ screen.connect_signal("screen.focus", function(c)
   systray:set_screen(awful.screen.focused())
 end)
 
+local wallpaper_changers = {}
+root.keys(
+  awful.key({ "Mod4",           }, "d", function()
+    for _, changer in ipairs(wallpaper_changers) do
+      changer.start()
+    end
+  end, {description = "Refresh wallpaper", group = "screen"})
+)
+
 function theme.at_screen_connect(s)
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
@@ -357,6 +366,7 @@ function theme.at_screen_connect(s)
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
     }
     wallpaper_changer.start()
+    table.insert(wallpaper_changers, wallpaper_changer)
 
     -- Add widgets to the wibox
     s.mywibox:setup {

@@ -54,6 +54,7 @@ local function factory(args)
       gears.debug.print_warning(string.format("Chossing: %s for %sx%s, from: %s", path, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, wallpaper.wp_path))
       wallpaper.wp_path = path
       wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
+      gears.debug.print_warning(string.format("Files Count: %s", #wallpaper.wp_files))
     end
   end
 
@@ -69,18 +70,15 @@ local function factory(args)
     my_table.join(
       awful.button({ }, 1, function()
         wallpaper.start()
-        wallpaper.wp_wall_icon.image = wallpaper.wp_normal_icon
       end),
       awful.button({ }, 2, function()
-        awful.spawn("xdg-open " .. wallpaper.current)
+        awful.spawn("xdg-open '" .. wallpaper.current .. "'")
       end),
       awful.button({ }, 3, function()
         wallpaper.stop()
-        wallpaper.wp_wall_icon.image = wallpaper.wp_paused_icon
       end)
       )
     )
-
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
@@ -90,11 +88,15 @@ local function factory(args)
     -- set wallpaper to current index for all screens
     wallpaper.wp_index = math.random(#wallpaper.wp_files)
     wallpaper_path = wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index]
+    gears.debug.print_warning(string.format("New Wallpaper: %s", wallpaper_path))
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path
 
     -- Notify dbus we've changed wallpaper
     dbus.refresh_user_wallpaper(wallpaper_path)
+
+    -- Change icon
+    wallpaper.wp_wall_icon.image = wallpaper.wp_normal_icon
 
     -- stop the timer (we don't need multiple instances running at the same time)
     if wallpaper.wp_timer.started then
@@ -109,6 +111,8 @@ local function factory(args)
 
   wallpaper.stop = function()
     wallpaper.wp_timer:stop()
+    -- Change icon
+    wallpaper.wp_wall_icon.image = wallpaper.wp_paused_icon
   end
 
   wallpaper.wp_timer:connect_signal("timeout", wallpaper.start)
