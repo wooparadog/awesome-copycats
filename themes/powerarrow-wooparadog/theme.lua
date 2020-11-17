@@ -333,9 +333,8 @@ function theme.at_screen_connect(s)
     awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
 
     -- Create a promptbox for each screen
-    s.mypromptbox = {
-      run = function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun,run -show combi -modi combi") end
-    }
+    s.mypromptbox = awful.widget.prompt()
+
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     s.mylayoutbox = awful.widget.layoutbox(s)
@@ -375,6 +374,7 @@ function theme.at_screen_connect(s)
             right_arrow(theme.bg_normal, "#343434"),
             wibox.container.background(wibox.container.margin(mylb, 4, 4), "#343434"),
             right_arrow("#343434", theme.bg_normal),
+            s.mypromptbox,
         },
         s.mytasklist, -- Middle widget
         { -- Right widgets
