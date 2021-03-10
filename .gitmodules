@@ -9,3 +9,6 @@
 [submodule "net_widgets"]
 	path = net_widgets
 	url = git@github.com:pltanton/net_widgets.git
+[submodule "bling"]
+	path = bling
+	url = git@github.com:Nooo37/bling.git

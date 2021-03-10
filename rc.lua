@@ -7,10 +7,11 @@ local awful         = require("awful")
 local wibox         = require("wibox")
 local beautiful     = require("beautiful")
 local naughty       = require("naughty")
-local lain          = require("lain")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
+
+
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
 if awesome.startup_errors then
@@ -46,6 +47,7 @@ local autostarts = {
   "picom",
   "urxvtd -q -f -o",
   "unclutter -root",
+  "rescuetime",
   --"ibus-daemon -drx",
   --"light-locker",
   --"xbindkeys" 
@@ -62,7 +64,6 @@ awful.spawn.with_shell(
 )
 
 -- Variable definitions
-local chosen_theme = "powerarrow-wooparadog"
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local ctrlkey      = "Control"
@@ -78,10 +79,18 @@ local ctrl_alt = { ctrlkey, altkey }
 local ctrl_super = { ctrlkey, modkey }
 local mod_shift = { modkey, "Shift" }
 
+-- Set theme
+local chosen_theme = "powerarrow-wooparadog"
+beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme))
+
+-- Import bling to update layout icon
+local bling = require("bling")
+
+-- Layouts
 awful.util.terminal = terminal
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
-    awful.layout.suit.tile,
+    bling.layout.centered,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
@@ -90,10 +99,11 @@ awful.layout.taglayouts = {
 }
 
 awful.layout.layouts = {
+    bling.layout.centered,
     awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
-    awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
+    --awful.layout.suit.tile.left,
+    --awful.layout.suit.tile.bottom,
+    --awful.layout.suit.tile.top,
     awful.layout.suit.max,
     awful.layout.suit.floating,
 }
@@ -130,18 +140,6 @@ awful.util.tasklist_buttons = awful.util.table.join(
     awful.button({ }, 4, function () awful.client.focus.byidx(1) end),
     awful.button({ }, 5, function () awful.client.focus.byidx(-1) end)
 )
-
-lain.layout.termfair.nmaster           = 3
-lain.layout.termfair.ncol              = 1
-lain.layout.termfair.center.nmaster    = 3
-lain.layout.termfair.center.ncol       = 1
-lain.layout.cascade.tile.offset_x      = 2
-lain.layout.cascade.tile.offset_y      = 32
-lain.layout.cascade.tile.extra_padding = 5
-lain.layout.cascade.tile.nmaster       = 5
-lain.layout.cascade.tile.ncol          = 2
-
-beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme))
 
 -- Menu
 local myawesomemenu = {
@@ -222,8 +220,8 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey }, "l", function() awful.client.focus.global_bydirection("right") if client.focus then client.focus:raise() end end, {description = "focus right", group = "client: switch"}),
 
   -- Client: layout manipulation
-  --awful.key(mod_shift, "j", function () awful.client.swap.byidx(  1) end, {description = "swap with next client by index", group = "client: switch"}),
-  --awful.key(mod_shift, "k", function () awful.client.swap.byidx( -1) end, {description = "swap with previous client by index", group = "client: switch"}),
+  awful.key(mod_shift, "j", function () awful.client.swap.byidx(  1) end, {description = "swap with next client by index", group = "client: switch"}),
+  awful.key(mod_shift, "k", function () awful.client.swap.byidx( -1) end, {description = "swap with previous client by index", group = "client: switch"}),
 
   -- Client: window manipulation 
   awful.key({ modkey, "Control" }, "n",
@@ -290,7 +288,12 @@ clientkeys = awful.util.table.join(
   awful.key({ modkey, "Shift" }, "c", function (c) c:kill() end, {description = "close", group = "client"}),
 
   awful.key({ modkey, "Control" }, "space", awful.client.floating.toggle , {description = "toggle floating", group = "client"}),
-  awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end, {description = "move to master", group = "client"}),
+  awful.key({ modkey, "Control" }, "Return", function (c)
+    local current_master = awful.client.getmaster()
+    if current_master then
+      c:swap(current_master)
+    end
+  end, {description = "move to master", group = "client"}),
 
   awful.key({ modkey, }, "o", function (c) c:move_to_screen() end, {description = "move to screen", group = "client"}),
   awful.key({ modkey, }, "t", function (c) c.ontop = not c.ontop end, {description = "toggle keep on top", group = "client"}),
@@ -410,13 +413,10 @@ awful.rules.rules = {
       properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[1] } },
 
     { rule = { class = "Spotify" },
-      properties = { screen = 1, opacity=0.9, tag = awful.util.tagnames[6] } },
+      properties = { opacity=0.9, tag = awful.util.tagnames[6] } },
 
     { rule = { class = "TelegramDesktop" },
-      properties = { screen = 1, tag = awful.util.tagnames[4] } },
-
-    { rule = { class = "Pcmanfm" },
-      properties = { screen = 1, tag = awful.util.tagnames[3] } },
+      properties = { tag = awful.util.tagnames[4] } },
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
@@ -515,7 +515,3 @@ end
 client.connect_signal("property::maximized", border_adjust)
 client.connect_signal("focus", border_adjust)
 client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
-client.connect_signal("property::urgent", function(c)
-    c.minimized = false
-    c:jump_to()
-end)
