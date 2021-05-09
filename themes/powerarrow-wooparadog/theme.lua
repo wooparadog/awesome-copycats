@@ -13,6 +13,7 @@ local naughty = require("naughty")
 
 local net_widgets = require("net_widgets")
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
+local consts = require("themes.powerarrow-wooparadog.consts")
 
 local math, string, os = math, string, os
 local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
@@ -108,12 +109,6 @@ theme.notification_margin = 5
 theme.notification_icon_size = 128 
 
 naughty.config.defaults.position = "top_middle"
-
-local horizontal_taglayouts = awful.layout.layouts
-local vertical_taglayouts = {
-    awful.layout.suit.tile.top,
-    awful.layout.suit.tile.bottom,
-}
 
 local markup = lain.util.markup
 local separators = lain.util.separators
@@ -334,23 +329,22 @@ root.keys(
 function theme.at_screen_connect(s)
     -- Predicate orientation of screen
     if s.geometry.width >= s.geometry.height then
-      s.orientation = "Horizontal"
+      s.orientation = consts.orientation_horiontal 
     else
-      s.orientation = "Vertical"
+      s.orientation = consts.orientation_vertical
     end
 
-
-    -- Quake application
-    s.quake = lain.util.quake({ app = awful.util.terminal })
-
     -- Tags
-    if s.orientation == 'Horizontal' then
-      awful.tag(awful.util.tagnames, s, horizontal_taglayouts)
-    elseif s.orientation == 'Vertical' then
-      awful.tag(awful.util.tagnames, s, vertical_taglayouts)
+    if s.orientation == consts.orientation_horiontal then
+      awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
+    elseif s.orientation == consts.orientation_vertical then
+      awful.tag(awful.util.vertical_tagnames, s, awful.layout.vertical_taglayouts)
     else
       awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
     end
+
+    -- Quake application
+    s.quake = lain.util.quake({ app = awful.util.terminal })
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()

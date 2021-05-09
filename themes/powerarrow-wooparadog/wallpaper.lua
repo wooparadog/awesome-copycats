@@ -1,6 +1,7 @@
 local awful = require("awful")
 local gears = require("gears")
 local dbus = require("themes.powerarrow-wooparadog.dbus"){}
+local consts = require("themes.powerarrow-wooparadog.consts")
 local wibox = require("wibox")
 local my_table = awful.util.table
 
@@ -44,9 +45,9 @@ local function factory(args)
       return
     end
 
-    if wallpaper.orientation == "Horizontal" then
+    if wallpaper.orientation == consts.orientation_horiontal then
       path = wallpaper.wp_horizontal_path
-    elseif wallpaper.orientation == "Vertical" then
+    elseif wallpaper.orientation == consts.orientation_vertical then
       path = wallpaper.wp_vertical_path
     else -- Predicate screen orientation if not specified
       if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then

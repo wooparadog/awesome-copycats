@@ -88,6 +88,15 @@ local bling = require("bling")
 
 -- Layouts
 awful.util.terminal = terminal
+awful.layout.layouts = {
+    bling.layout.centered,
+    awful.layout.suit.tile,
+    awful.layout.suit.tile.top,
+    awful.layout.suit.tile.bottom,
+    awful.layout.suit.max,
+    awful.layout.suit.floating,
+}
+
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
     bling.layout.centered,
@@ -97,18 +106,13 @@ awful.layout.taglayouts = {
     awful.layout.suit.floating,
     awful.layout.suit.tile,
 }
-
-awful.layout.layouts = {
-    bling.layout.centered,
-    awful.layout.suit.tile,
+awful.layout.vertical_taglayouts = {
     awful.layout.suit.tile.top,
-    awful.layout.suit.tile.bottom,
-    --awful.layout.suit.tile.left,
-    --awful.layout.suit.tile.bottom,
-    --awful.layout.suit.tile.top,
-    awful.layout.suit.max,
-    awful.layout.suit.floating,
+    awful.layout.suit.tile.top,
+    awful.layout.suit.tile.top,
+    awful.layout.suit.tile.top,
 }
+awful.util.vertical_tagnames = { "Firefox", "Terminal", "Files", "IM" }
 
 awful.util.taglist_buttons = awful.util.table.join(
     awful.button({ }, 1, function(t) t:view_only() end),
