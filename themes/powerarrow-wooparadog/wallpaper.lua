@@ -44,10 +44,16 @@ local function factory(args)
       return
     end
 
-    if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then
+    if wallpaper.orientation == "Horizontal" then
       path = wallpaper.wp_horizontal_path
-    else
+    elseif wallpaper.orientation == "Vertical" then
       path = wallpaper.wp_vertical_path
+    else -- Predicate screen orientation if not specified
+      if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then
+        path = wallpaper.wp_horizontal_path
+      else
+        path = wallpaper.wp_vertical_path
+      end
     end
 
     if wallpaper.wp_path ~= path then

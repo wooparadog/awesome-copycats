@@ -45,9 +45,9 @@ end
 -- Entries
 local autostarts = {
   "picom",
-  "urxvtd -q -f -o",
   "unclutter -root",
   "rescuetime",
+  "urxvtd -q -f -o",
   --"ibus-daemon -drx",
   --"light-locker",
   --"xbindkeys" 
@@ -101,6 +101,8 @@ awful.layout.taglayouts = {
 awful.layout.layouts = {
     bling.layout.centered,
     awful.layout.suit.tile,
+    awful.layout.suit.tile.top,
+    awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.left,
     --awful.layout.suit.tile.bottom,
     --awful.layout.suit.tile.top,
@@ -161,9 +163,6 @@ awful.util.mymainmenu = freedesktop.menu.build({
         -- other triads can be put here
     }
 })
-
--- hide menu when mouse leaves it
-awful.util.mymainmenu.wibox:connect_signal("mouse::leave", function() awful.util.mymainmenu:hide() end)
 
 -- Screen
 -- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)

@@ -109,6 +109,12 @@ theme.notification_icon_size = 128
 
 naughty.config.defaults.position = "top_middle"
 
+local horizontal_taglayouts = awful.layout.layouts
+local vertical_taglayouts = {
+    awful.layout.suit.tile.top,
+    awful.layout.suit.tile.bottom,
+}
+
 local markup = lain.util.markup
 local separators = lain.util.separators
 
@@ -326,11 +332,25 @@ root.keys(
 )
 
 function theme.at_screen_connect(s)
+    -- Predicate orientation of screen
+    if s.geometry.width >= s.geometry.height then
+      s.orientation = "Horizontal"
+    else
+      s.orientation = "Vertical"
+    end
+
+
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
 
     -- Tags
-    awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
+    if s.orientation == 'Horizontal' then
+      awful.tag(awful.util.tagnames, s, horizontal_taglayouts)
+    elseif s.orientation == 'Vertical' then
+      awful.tag(awful.util.tagnames, s, vertical_taglayouts)
+    else
+      awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
+    end
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
@@ -362,6 +382,7 @@ function theme.at_screen_connect(s)
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
     }
+
     wallpaper_changer.start()
     wallpaper_changers[s.index] = wallpaper_changer
 
