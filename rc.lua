@@ -47,7 +47,7 @@ local autostarts = {
   "picom",
   "unclutter -root",
   "rescuetime",
-  "urxvtd -q -f -o",
+  --"urxvtd -q -f -o",
   --"ibus-daemon -drx",
   --"light-locker",
   --"xbindkeys" 
