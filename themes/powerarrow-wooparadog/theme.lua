@@ -113,6 +113,7 @@ naughty.config.defaults.position = "top_middle"
 local markup = lain.util.markup
 local separators = lain.util.separators
 
+
 -- Textclock
 local textclock = wibox.widget.textclock(" %a %d %b  %H:%M")
 
@@ -123,8 +124,19 @@ theme.cal = lain.widget.cal({
     notification_preset = {
         font = "Terminus (TTF) 9",
         fg   = theme.fg_normal,
-        bg   = theme.bg_normal
+        bg   = theme.bg_normal,
+        position = "top_right",
     }
+})
+
+-- weather
+local weather = lain.widget.weather({
+  APPID = "a58a85c3f4640139fc31ffb88b6d2331",
+  city_id=1787960,
+  weather_na_markup="NA",
+  settings = function()
+    widget:set_markup(weather_now["main"]["temp"] .. "°C")
+  end
 })
 
 -- Scissors (xsel copy and paste)
@@ -181,7 +193,7 @@ end)
 -- Coretemp (lain, average)
 
 local temp = lain.widget.temp({
-    tempfile = '/sys/class/hwmon/hwmon1/temp1_input',
+    tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon1/temp2_input',
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
@@ -424,6 +436,8 @@ function theme.at_screen_connect(s)
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             arrow("#5e3636", "#777E76"),
             wibox.container.background(wibox.container.margin(textclock, 4, 8), "#777E76"),
+            wibox.container.background(wibox.container.margin(weather.icon, 4, 8), "#777E76"),
+            wibox.container.background(wibox.container.margin(weather.widget, 4, 8), "#777E76"),
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
