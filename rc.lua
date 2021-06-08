@@ -11,6 +11,8 @@ local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
 
+local revelation=require("revelation")
+
 
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -82,6 +84,8 @@ local mod_shift = { modkey, "Shift" }
 -- Set theme
 local chosen_theme = "powerarrow-wooparadog"
 beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv("HOME"), chosen_theme))
+
+revelation.init()
 
 -- Import bling to update layout icon
 local bling = require("bling")
@@ -204,7 +208,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey }, "e", function () awful.spawn(filemanager) end, {description = "run file manager", group = "hotkeys"}),
 
   awful.key({ modkey }, "r", function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun,run -show combi -modi combi") end, {description = "Run launcher", group = "hotkeys"}),
-  awful.key({ modkey }, "Tab", function () awful.spawn("rofi -show window -show-icons") end, {description = "switch client", group = "hotkeys"}),
+  --awful.key({ modkey }, "Tab", function () awful.spawn("rofi -show window -show-icons") end, {description = "switch client", group = "hotkeys"}),
 
   awful.key({ modkey, }, "z", function () awful.screen.focused().quake:toggle() end, {description = "dropdown application", group = "hotkeys"}),
 
@@ -221,6 +225,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey }, "k", function() awful.client.focus.global_bydirection("up") if client.focus then client.focus:raise() end end, {description = "focus up", group = "client: switch"}),
   awful.key({ modkey }, "h", function() awful.client.focus.global_bydirection("left") if client.focus then client.focus:raise() end end, {description = "focus left", group = "client: switch"}),
   awful.key({ modkey }, "l", function() awful.client.focus.global_bydirection("right") if client.focus then client.focus:raise() end end, {description = "focus right", group = "client: switch"}),
+  awful.key({ modkey }, "Tab", revelation),
 
   -- Client: layout manipulation
   awful.key(mod_shift, "j", function () awful.client.swap.byidx(  1) end, {description = "swap with next client by index", group = "client: switch"}),
@@ -412,8 +417,11 @@ awful.rules.rules = {
     { rule = { class = "vlc" },
       properties = { floating = true } },
 
+    { rule = { class = "digikam" },
+      properties = { screen = 1, tag = awful.util.tagnames[3] } },
+
     { rule = { class = "firefox" },
-      properties = { screen = 1, switchtotag = true, tag = awful.util.tagnames[1] } },
+      properties = { screen = 1, tag = awful.util.tagnames[1] } },
 
     { rule = { class = "Spotify" },
       properties = { opacity=0.9, tag = awful.util.tagnames[6] } },

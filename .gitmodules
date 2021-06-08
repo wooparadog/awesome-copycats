@@ -12,3 +12,6 @@
 [submodule "bling"]
 	path = bling
 	url = git@github.com:Nooo37/bling.git
+[submodule "revelation"]
+	path = revelation
+	url = git@github.com:guotsuan/awesome-revelation.git
