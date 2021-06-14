@@ -122,6 +122,16 @@ local function factory(args)
     wallpaper.wp_wall_icon.image = wallpaper.wp_paused_icon
   end
 
+  root.buttons(gears.table.join(
+    root.buttons(),
+    awful.button({ }, 2, function (args)
+      if wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
+        gears.debug.print_warning(string.format("Upload Wallpaper: %s", wallpaper.current))
+        awful.util.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')
+      end
+    end)
+  ))
+
   wallpaper.wp_timer:connect_signal("timeout", wallpaper.start)
 
   return wallpaper
