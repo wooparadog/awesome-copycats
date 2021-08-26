@@ -13,6 +13,8 @@ local hotkeys_popup = require("awful.hotkeys_popup").widget
 
 local revelation=require("revelation")
 
+naughty.config.defaults.timeout = 60
+
 
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -412,7 +414,7 @@ awful.rules.rules = {
     { rule_any = { type = { "dialog" } },
       properties = { floating = true, ontop = true} },
 
-    { rule_any = { class = { "Gnome-screenshot", "Calculator", "Blueman-manager"} },
+    { rule_any = { class = { "Gnome-screenshot", "Calculator", "Blueman-manager", "1Password"} },
       properties = { ontop = true, floating = true } },
 
     { rule = { class = "vlc" },
@@ -425,7 +427,7 @@ awful.rules.rules = {
       properties = { screen = 1, tag = awful.util.tagnames[1] } },
 
     { rule = { class = "Spotify" },
-      properties = { opacity=0.9, tag = awful.util.tagnames[6] } },
+      properties = { tag = awful.util.tagnames[6] } },
 
     { rule = { class = "TelegramDesktop" },
       properties = { tag = awful.util.tagnames[4] } },

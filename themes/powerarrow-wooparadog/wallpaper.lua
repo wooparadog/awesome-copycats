@@ -31,12 +31,13 @@ local function factory(args)
   wallpaper.wp_index = args.index or 1
   wallpaper.wp_screen = args.screen or nil
   wallpaper.wp_timeout  = args.timeout or 300
-  wallpaper.wp_vertical_path = args.vertical_path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
-  wallpaper.wp_horizontal_path = args.horizontal_path or string.format("%s/Photos/wallpaper/", os.getenv("HOME"))
+  wallpaper.wp_vertical_path = args.vertical_path or { string.format("%s/Photos/wallpaper/", os.getenv("HOME")) }
+  wallpaper.wp_horizontal_path = args.horizontal_path or { string.format("%s/Photos/wallpaper/", os.getenv("HOME")) }
   wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
   wallpaper.wp_normal_icon = args.widget_icon_wallpaper
   wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
-  wallpaper.wp_path = ''
+  wallpaper.wp_files = {}
+  wallpaper.wp_paths = {}
 
   wallpaper.choose_wallpaper = function(s)
     local path
@@ -46,22 +47,23 @@ local function factory(args)
     end
 
     if wallpaper.orientation == consts.orientation_horiontal then
-      path = wallpaper.wp_horizontal_path
+      wallpaper.wp_paths = wallpaper.wp_horizontal_path
     elseif wallpaper.orientation == consts.orientation_vertical then
-      path = wallpaper.wp_vertical_path
+      wallpaper.wp_paths = wallpaper.wp_vertical_path
     else -- Predicate screen orientation if not specified
       if wallpaper.wp_screen.geometry.width >= wallpaper.wp_screen.geometry.height then
-        path = wallpaper.wp_horizontal_path
+        wallpaper.wp_paths = wallpaper.wp_horizontal_path
       else
-        path = wallpaper.wp_vertical_path
+        wallpaper.wp_paths = wallpaper.wp_vertical_path
       end
     end
 
-    if wallpaper.wp_path ~= path then
-      gears.debug.print_warning(string.format("Chossing: %s for %sx%s, from: %s", path, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, wallpaper.wp_path))
-      wallpaper.wp_path = path
-      wallpaper.wp_files = scandir(wallpaper.wp_path, wallpaper.wp_filter)
-      gears.debug.print_warning(string.format("Files Count: %s", #wallpaper.wp_files))
+    for key,value in ipairs(wallpaper.wp_paths) do
+      local folder_files = scandir(value, wallpaper.wp_filter)
+      for _,file_path in ipairs(folder_files) do
+        wallpaper.wp_files[#wallpaper.wp_files+1] = {key, file_path}
+      end
+      gears.debug.print_warning(string.format("Chossing: %s for %sx%s, Count: %s", value, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, #folder_files))
     end
   end
 
@@ -94,7 +96,7 @@ local function factory(args)
 
     -- set wallpaper to current index for all screens
     wallpaper.wp_index = math.random(#wallpaper.wp_files)
-    wallpaper_path = wallpaper.wp_path .. wallpaper.wp_files[wallpaper.wp_index]
+    wallpaper_path = wallpaper.wp_paths[wallpaper.wp_files[wallpaper.wp_index][1]] .. wallpaper.wp_files[wallpaper.wp_index][2]
     gears.debug.print_warning(string.format("New Wallpaper: %s", wallpaper_path))
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path

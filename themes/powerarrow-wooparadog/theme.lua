@@ -136,7 +136,13 @@ local weather = lain.widget.weather({
   weather_na_markup="NA",
   settings = function()
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
-  end
+  end,
+  notification_preset = {
+      font = "Terminus (TTF) 12",
+      fg   = theme.fg_normal,
+      bg   = theme.bg_normal,
+      position = "top_right",
+  }
 })
 
 -- Scissors (xsel copy and paste)
@@ -240,7 +246,7 @@ local bat = lain.widget.bat({
 
 -- net indicator
 local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
-local net_wired = net_widgets.indicator({font=theme.font})
+local net_wired = net_widgets.indicator({font=theme.font, interfaces={"enp5s0"}})
 
 -- launcher
 local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
@@ -381,8 +387,8 @@ function theme.at_screen_connect(s)
 
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
-      horizontal_path=string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
-      vertical_path=string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
+      horizontal_path={string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME"))},
+      vertical_path={string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME"))},
       timeout=600,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
