@@ -429,9 +429,6 @@ awful.rules.rules = {
     { rule = { class = "Spotify" },
       properties = { tag = awful.util.tagnames[6] } },
 
-    { rule = { class = "TelegramDesktop" },
-      properties = { tag = awful.util.tagnames[4] } },
-
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
 

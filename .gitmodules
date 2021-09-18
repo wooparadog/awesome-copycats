@@ -14,4 +14,4 @@
 	url = git@github.com:Nooo37/bling.git
 [submodule "revelation"]
 	path = revelation
-	url = git@github.com:guotsuan/awesome-revelation.git
+	url = git@github.com:thiru/awesome-revelation.git

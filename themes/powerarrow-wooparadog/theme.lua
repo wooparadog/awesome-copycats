@@ -387,8 +387,14 @@ function theme.at_screen_connect(s)
 
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
-      horizontal_path={string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME"))},
-      vertical_path={string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME"))},
+      horizontal_path={
+        string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
+        string.format("%s/Nextcloud/Wallpaper/DesktopNSFW/", os.getenv("HOME"))
+      },
+      vertical_path={
+        string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
+        string.format("%s/Nextcloud/Wallpaper/PhonesNSFW/", os.getenv("HOME"))
+      },
       timeout=600,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
