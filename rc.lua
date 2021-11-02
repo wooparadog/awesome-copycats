@@ -51,6 +51,7 @@ local autostarts = {
   "picom",
   "unclutter -root",
   "rescuetime",
+  "lxsession -a -s awesome -e LXDE", 
   --"urxvtd -q -f -o",
   --"ibus-daemon -drx",
   --"light-locker",
