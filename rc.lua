@@ -220,6 +220,9 @@ globalkeys = awful.util.table.join(
   awful.key({}, "#122", function () os.execute(string.format("pactl set-sink-volume %s -5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume down", group = "hotkeys"}),
   awful.key({}, "#121", function () os.execute(string.format("pactl set-sink-mute %s toggle", beautiful.volume.device)) beautiful.volume.update() end, {description = "toggle mute", group = "hotkeys"}),
 
+  -- Hotkeys: Calculator
+  awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
+
   -- Client: Focus
   awful.key({ modkey }, "u", awful.client.urgent.jumpto, {description = "jump to urgent client", group = "client: switch"}),
 
@@ -419,6 +422,12 @@ awful.rules.rules = {
 
     { rule = { class = "vlc" },
       properties = { floating = true } },
+
+    { rule = { class = "Gnome-calculator" },
+      properties = { floating = true } },
+
+    { rule = { class = "TelegramDesktop" },
+      properties = { screen = 2 } },
 
     { rule = { class = "digikam" },
       properties = { screen = 1, tag = awful.util.tagnames[3] } },
