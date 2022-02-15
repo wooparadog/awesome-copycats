@@ -10,6 +10,7 @@ local naughty       = require("naughty")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
+local capi = {mousegrabber = mousegrabber}
 
 local revelation=require("revelation")
 
@@ -50,10 +51,9 @@ end
 local autostarts = {
   "picom",
   "unclutter -root",
-  "rescuetime",
-  "lxsession -a -s awesome -e LXDE", 
-  --"urxvtd -q -f -o",
-  --"ibus-daemon -drx",
+  "lxpolkit",
+  -- "rescuetime",
+  --"lxsession -a -s awesome -e LXDE",
   --"light-locker",
   --"xbindkeys" 
 }
@@ -223,6 +223,8 @@ globalkeys = awful.util.table.join(
 
   -- Hotkeys: Calculator
   awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
+  -- Hotkeys: Enpass
+  awful.key({ ctrlkey, "Shift" }, "\\", function () awful.util.spawn('/opt/enpass/Enpass showassistant') end, {description = "Enpass Quick Access", group = "hotkeys"}),
 
   -- Client: Focus
   awful.key({ modkey }, "u", awful.client.urgent.jumpto, {description = "jump to urgent client", group = "client: switch"}),
@@ -312,6 +314,7 @@ clientkeys = awful.util.table.join(
 
   awful.key({ modkey, }, "o", function (c) c:move_to_screen() end, {description = "move to screen", group = "client"}),
   awful.key({ modkey, }, "t", function (c) c.ontop = not c.ontop end, {description = "toggle keep on top", group = "client"}),
+  awful.key({ modkey, "Shift" }, "t", awful.titlebar.toggle, {description = "toggle titlebar", group = "client"}),
   awful.key({ modkey, }, "y", function (c) c.sticky = not c.sticky end, {description = "toggle sticky on top", group = "client"}),
   awful.key({ modkey, }, "n", function (c) c.minimized = true end , {description = "minimize", group = "client"}),
   awful.key({ modkey, }, "m", function (c) c.maximized = not c.maximized c:raise() end , {description = "maximize", group = "client"})
@@ -381,10 +384,6 @@ clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
     end),
-    awful.button({ }, 9, function (c)
-        c:emit_signal("request::activate", "mouse_click", {raise = true})
-        awful.mouse.client.move(c)
-    end),
     awful.button({ modkey }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.move(c)
@@ -392,7 +391,21 @@ clientbuttons = gears.table.join(
     awful.button({ modkey }, 3, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
         awful.mouse.client.resize(c)
-    end)
+    end),
+    awful.button({ modkey }, 4, function (c)
+      c:emit_signal("request::activate", "mouse_click", {raise = true})
+      capi.mousegrabber.run(function (_mouse)
+        c.opacity = c.opacity + 0.1
+        return false
+      end, 'mouse')
+    end, nil),
+    awful.button({ modkey }, 5, function (c)
+      c:emit_signal("request::activate", "mouse_click", {raise = true})
+      capi.mousegrabber.run(function (_mouse)
+        c.opacity = c.opacity - 0.1
+        return false
+      end, 'mouse')
+    end, nil)
 )
 
 
@@ -428,6 +441,7 @@ awful.rules.rules = {
       properties = { floating = true } },
 
     { rule = { class = "TelegramDesktop" },
+      except = { modal = true },
       properties = { screen = 2 } },
 
     { rule = { class = "digikam" },
