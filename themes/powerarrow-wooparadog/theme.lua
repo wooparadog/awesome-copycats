@@ -15,8 +15,7 @@ local net_widgets = require("net_widgets")
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local consts = require("themes.powerarrow-wooparadog.consts")
 
-local math, string, os = math, string, os
-local my_table = awful.util.table or gears.table -- 4.{0,1} compatibility
+local local_configs = require("local")
 
 local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
@@ -147,12 +146,12 @@ local weather = lain.widget.weather({
 
 -- Scissors (xsel copy and paste)
 --local scissors = wibox.widget.imagebox(theme.widget_scissors)
---scissors:buttons(my_table.join(awful.button({}, 1, function() awful.spawn.with_shell("xsel | xsel -i -b") end)))
+--scissors:buttons(gears.table.join(awful.button({}, 1, function() awful.spawn.with_shell("xsel | xsel -i -b") end)))
 
 -- Mail IMAP check
 --[[ commented because it needs to be set before use
 local mailicon = wibox.widget.imagebox(theme.widget_mail)
-mailicon:buttons(my_table.join(awful.button({ }, 1, function () awful.spawn(mail) end)))
+mailicon:buttons(gears.table.join(awful.button({ }, 1, function () awful.spawn(mail) end)))
 theme.mail = lain.widget.imap({
     timeout  = 180,
     server   = "server",
@@ -273,7 +272,7 @@ theme.volume = lain.widget.pulsebar {
     }
 }
 theme.volume.tooltip.wibox.fg = theme.fg_focus
-theme.volume.bar:buttons(my_table.join (
+theme.volume.bar:buttons(gears.table.join (
           awful.button({}, 1, function()
             awful.spawn("pavucontrol")
           end),
@@ -345,21 +344,39 @@ root.keys(
 )
 
 function theme.at_screen_connect(s)
+    local is_horizon = s.geometry.width >= s.geometry.height
+
     -- Predicate orientation of screen
-    if s.geometry.width >= s.geometry.height then
-      s.orientation = consts.orientation_horiontal 
+    if is_horizon then
+      awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
     else
-      s.orientation = consts.orientation_vertical
+      awful.tag(awful.util.vertical_tagnames, s, awful.layout.vertical_taglayouts)
     end
 
-    -- Tags
-    if s.orientation == consts.orientation_horiontal then
-      awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
-    elseif s.orientation == consts.orientation_vertical then
-      awful.tag(awful.util.vertical_tagnames, s, awful.layout.vertical_taglayouts)
-    else
-      awful.tag(awful.util.tagnames, s, awful.layout.taglayouts)
-    end
+    -- create wallpaper
+    local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
+      paths=is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path,
+      timeout=600,
+      screen=s,
+      widget_icon_wallpaper=theme.widget_icon_wallpaper,
+      widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
+    }
+
+    screen.connect_signal("property::geometry", function(signal_screen)
+      if s.index == signal_screen.index then
+        if is_horizon ~= (s.geometry.width >= s.geometry.height) then
+          is_horizon = not is_horizon
+          gears.debug.print_warning(string.format("Changing wallpaper path by resolution change: %sx%s", s.geometry.width, s.geometry.height))
+          wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
+        end
+      else
+        -- Also reset wallpaper of unchanged screen to prevent tearing
+        wallpaper_changer.set_wallpaper(wallpaper_changer.current)
+      end
+    end)
+
+    wallpaper_changer.start()
+    wallpaper_changers[s.index] = wallpaper_changer
 
     -- Quake application
     s.quake = lain.util.quake({ app = awful.util.terminal })
@@ -370,7 +387,7 @@ function theme.at_screen_connect(s)
     -- Create an imagebox widget which will contains an icon indicating which layout we're using.
     -- We need one layoutbox per screen.
     s.mylayoutbox = awful.widget.layoutbox(s)
-    s.mylayoutbox:buttons(my_table.join(
+    s.mylayoutbox:buttons(gears.table.join(
                            awful.button({}, 1, function () awful.layout.inc( 1) end),
                            awful.button({}, 2, function () awful.layout.set( awful.layout.layouts[1] ) end),
                            awful.button({}, 3, function () awful.layout.inc(-1) end),
@@ -384,25 +401,6 @@ function theme.at_screen_connect(s)
 
     -- Create the wibox
     s.mywibox = awful.wibar({ position = "top", screen = s, height = 16, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
-
-    -- create wallpaper
-    local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
-      horizontal_path={
-        string.format("%s/Nextcloud/Wallpaper/Desktop/", os.getenv("HOME")),
-        string.format("%s/Nextcloud/Wallpaper/DesktopNSFW/", os.getenv("HOME"))
-      },
-      vertical_path={
-        string.format("%s/Nextcloud/Wallpaper/Phones/", os.getenv("HOME")),
-        string.format("%s/Nextcloud/Wallpaper/PhonesNSFW/", os.getenv("HOME"))
-      },
-      timeout=600,
-      screen=s,
-      widget_icon_wallpaper=theme.widget_icon_wallpaper,
-      widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
-    }
-
-    wallpaper_changer.start()
-    wallpaper_changers[s.index] = wallpaper_changer
 
     -- Add widgets to the wibox
     s.mywibox:setup {
