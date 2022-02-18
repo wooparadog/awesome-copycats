@@ -198,7 +198,7 @@ end)
 -- Coretemp (lain, average)
 
 local temp = lain.widget.temp({
-    tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon1/temp2_input',
+    tempfile = '/sys/class/hwmon/hwmon2/temp1_input',
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
@@ -244,8 +244,8 @@ local bat = lain.widget.bat({
 ]]
 
 -- net indicator
-local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
-local net_wired = net_widgets.indicator({font=theme.font, interfaces={"enp5s0"}})
+-- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
+local net_wired = net_widgets.indicator({font=theme.font, interfaces={"lan"}})
 
 -- launcher
 local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
@@ -442,7 +442,7 @@ function theme.at_screen_connect(s)
             -- arrow("#4B3B51", "#CB755B"),
             -- wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#CB755B"),
             arrow("#4B3B51", "#5e3636"),
-            wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
+            --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             arrow("#5e3636", "#777E76"),
             wibox.container.background(wibox.container.margin(textclock, 4, 8), "#777E76"),
