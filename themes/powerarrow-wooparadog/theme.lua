@@ -198,7 +198,7 @@ end)
 -- Coretemp (lain, average)
 
 local temp = lain.widget.temp({
-    tempfile = '/sys/class/hwmon/hwmon2/temp1_input',
+    tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input',
     settings = function()
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
@@ -356,7 +356,7 @@ function theme.at_screen_connect(s)
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
       paths=is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path,
-      timeout=600,
+      timeout=180,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
