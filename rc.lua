@@ -72,7 +72,7 @@ awful.spawn.with_shell(
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local ctrlkey      = "Control"
-local terminal     = "terminal.sh"
+local terminal     = "urxvtc"
 local editor       = "vim"
 local gui_editor   = "gedit"
 local browser      = "firefox"
