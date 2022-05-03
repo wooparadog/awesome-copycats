@@ -206,6 +206,8 @@ globalkeys = awful.util.table.join(
 
   -- Hotkeys
   awful.key({ }, "Print", function () awful.util.spawn("flameshot gui") end, {description = "Screenshot", group = "hotkeys"}),
+  awful.key({ modkey }, "Next", function () awful.util.spawn("playerctl next") end, {description = "Player Next", group = "hotkeys"}),
+  awful.key({ modkey }, "Prior", function () awful.util.spawn("playerctl previous") end, {description = "Player Next", group = "hotkeys"}),
   awful.key({ modkey }, "s", hotkeys_popup.show_help, {description = "show help", group="awesome"}),
   awful.key({ modkey }, "Return", function () awful.spawn(terminal) end, {description = "open a terminal", group = "hotkeys"}),
   awful.key({ modkey }, "q", function () awful.spawn(browser) end, {description = "run browser", group = "hotkeys"}),
