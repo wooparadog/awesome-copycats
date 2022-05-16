@@ -105,7 +105,7 @@ theme.notification_max_height = 200
 theme.notification_max_width = 800
 theme.notification_opacity = 0.9
 theme.notification_margin = 5
-theme.notification_icon_size = 128 
+theme.notification_icon_size = 128
 
 naughty.config.defaults.position = "top_middle"
 
@@ -332,7 +332,7 @@ local function pl(widget, bgcolor, padding)
 end
 
 local systray = wibox.widget.systray()
-screen.connect_signal("screen.focus", function(c) 
+screen.connect_signal("screen.focus", function(c)
   systray:set_screen(awful.screen.focused())
 end)
 
@@ -379,7 +379,7 @@ function theme.at_screen_connect(s)
     wallpaper_changers[s.index] = wallpaper_changer
 
     -- Quake application
-    s.quake = lain.util.quake({ app = awful.util.terminal })
+    s.quake = lain.util.quake({ app = "urxvt", followtag = true })
 
     -- Create a promptbox for each screen
     s.mypromptbox = awful.widget.prompt()
