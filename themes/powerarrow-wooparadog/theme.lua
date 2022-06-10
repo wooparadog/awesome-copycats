@@ -248,7 +248,10 @@ local bat = lain.widget.bat({
 local net_wired = net_widgets.indicator({font=theme.font, interfaces={"lan"}})
 
 -- launcher
-local mylb = launchbar(string.format("%s/Applications/", os.getenv("HOME")))
+local mylb = launchbar {
+  filedir = string.format("%s/Applications/", os.getenv("HOME")),
+  spacing = 5
+}
 
 
 -- pulse volume bar

@@ -21,35 +21,41 @@ function split(str)
 end
 
 local function getValue(t, key)
-   local _, _, res = string.find(t, key .. " *= *([^%c]+)%c")
-   return res
+  local _, _, res = string.find(t, key .. " *= *([^%c]+)%c")
+  return res
 end
 
 local function find_icon(icon_name)
-   return icon_theme():find_icon_path(icon_name, 16)
+  return icon_theme():find_icon_path(icon_name, 16)
 end
 
-function launchbar.new(filedir)
-   if not filedir then
-      error("Launchbar: filedir was not specified")
-   end
-   local items = {}
-   local widget = layout.fixed.horizontal()
-   local files = io.popen("ls " .. filedir .. "*.desktop")
-   for f in files:lines() do
-      local t = io.open(f):read("*all")
-      local exec = getValue(t,"Exec")
-      table.insert(items, { image = find_icon(getValue(t,"Icon")),
-                            command = exec,
-                            position = tonumber(getValue(t,"Position")) or 255 })
-   end
-   table.sort(items, function(a,b) return a.position < b.position end)
-   for _, v in ipairs(items) do
-      if v.image then
-        widget:add(launcher(v))
-      end
-   end
-   return widget
+function launchbar.new(args)
+  local filedir = args.filedir
+  if not filedir then
+    error("Launchbar: filedir was not specified")
+  end
+
+  local spacing = args.spacing or 5
+
+
+  local items = {}
+  local widget = layout.fixed.horizontal()
+  widget.spacing = spacing
+  local files = io.popen("ls " .. filedir .. "*.desktop")
+  for f in files:lines() do
+    local t = io.open(f):read("*all")
+    local exec = getValue(t,"Exec")
+    table.insert(items, { image = find_icon(getValue(t,"Icon")),
+    command = exec,
+    position = tonumber(getValue(t,"Position")) or 255 })
+  end
+  table.sort(items, function(a,b) return a.position < b.position end)
+  for _, v in ipairs(items) do
+    if v.image then
+      widget:add(launcher(v))
+    end
+  end
+  return widget
 end
 
 return setmetatable(launchbar, { __call = function(_, ...) return launchbar.new(...) end })
