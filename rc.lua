@@ -439,7 +439,7 @@ awful.rules.rules = {
     { rule = { class = "vlc" },
       properties = { floating = true } },
 
-    { rule = { class = "Gnome-calculator" },
+    { rule = { class = "gnome-calculator" },
       properties = { floating = true } },
 
     { rule = { class = "TelegramDesktop" },
