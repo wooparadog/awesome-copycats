@@ -55,7 +55,7 @@ local autostarts = {
   -- "rescuetime",
   --"lxsession -a -s awesome -e LXDE",
   --"light-locker",
-  --"xbindkeys" 
+  --"xbindkeys"
 }
 
 run_once(autostarts)
@@ -227,7 +227,8 @@ globalkeys = awful.util.table.join(
   awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
   -- Hotkeys: Enpass
   awful.key({ ctrlkey, "Shift" }, "\\", function () awful.util.spawn('/opt/enpass/Enpass showassistant') end, {description = "Enpass Quick Access", group = "hotkeys"}),
-
+  -- Hotkeys: Htop
+  awful.key({ ctrlkey, "Shift" }, "Escape", function () awful.util.spawn(terminal .. " -e htop") end, {description = "Htop", group = "hotkeys"}),
   -- Client: Focus
   awful.key({ modkey }, "u", awful.client.urgent.jumpto, {description = "jump to urgent client", group = "client: switch"}),
 
