@@ -40,26 +40,6 @@ do
 end
 
 -- Autostart
--- This function will run once every time Awesome is started
-local function run_once(cmd_arr)
-    for _, cmd in ipairs(cmd_arr) do
-        awful.spawn.with_shell(string.format("pgrep -u $USER -fx '%s' > /dev/null || (%s)", cmd, cmd))
-    end
-end
-
--- Entries
-local autostarts = {
-  "picom",
-  "unclutter -root",
-  "lxpolkit",
-  -- "rescuetime",
-  --"lxsession -a -s awesome -e LXDE",
-  --"light-locker",
-  --"xbindkeys"
-}
-
-run_once(autostarts)
-
 -- This function implements the XDG autostart specification
 awful.spawn.with_shell(
     'if (xrdb -query | grep -q "^awesome\\.started:\\s*true$"); then exit; fi;' ..
