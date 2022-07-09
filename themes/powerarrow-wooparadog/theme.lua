@@ -108,6 +108,7 @@ theme.notification_margin = 5
 theme.notification_icon_size = 128
 
 naughty.config.defaults.position = "top_middle"
+naughty.config.defaults.timeout = 10
 
 local markup = lain.util.markup
 local separators = lain.util.separators
