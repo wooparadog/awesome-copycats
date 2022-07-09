@@ -366,6 +366,9 @@ function theme.at_screen_connect(s)
     }
 
     screen.connect_signal("property::geometry", function(signal_screen)
+      if not s.valid then
+        return
+      end
       if s.index == signal_screen.index then
         if is_horizon ~= (s.geometry.width >= s.geometry.height) then
           is_horizon = not is_horizon

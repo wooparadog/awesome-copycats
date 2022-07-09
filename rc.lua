@@ -14,7 +14,7 @@ local capi = {mousegrabber = mousegrabber}
 
 local revelation=require("revelation")
 
-naughty.config.defaults.timeout = 60
+naughty.config.defaults.timeout = 30
 
 
 -- Check if awesome encountered an error during startup and fell back to
