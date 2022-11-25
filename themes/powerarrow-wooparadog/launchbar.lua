@@ -9,6 +9,7 @@ local layout = require("wibox.layout")
 local util = require("awful.util")
 local launcher = require("awful.widget.launcher")
 local icon_theme = require("menubar.icon_theme")
+local gears = require("gears")
 
 local launchbar = {}
 
@@ -43,11 +44,16 @@ function launchbar.new(args)
   widget.spacing = spacing
   local files = io.popen("ls " .. filedir .. "*.desktop")
   for f in files:lines() do
-    local t = io.open(f):read("*all")
-    local exec = getValue(t,"Exec")
-    table.insert(items, { image = find_icon(getValue(t,"Icon")),
-    command = exec,
-    position = tonumber(getValue(t,"Position")) or 255 })
+    local ft = io.open(f)
+    if ft then
+      local t = ft:read("*all")
+      local exec = getValue(t,"Exec")
+      table.insert(items, { image = find_icon(getValue(t,"Icon")),
+      command = exec,
+      position = tonumber(getValue(t,"Position")) or 255 })
+    else
+      gears.debug.print_error("Failed to open " .. f)
+    end
   end
   table.sort(items, function(a,b) return a.position < b.position end)
   for _, v in ipairs(items) do
