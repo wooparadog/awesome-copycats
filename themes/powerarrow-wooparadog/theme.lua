@@ -199,14 +199,14 @@ end)
 --]]
 -- Coretemp (lain, average)
 
-local temp = lain.widget.temp({
-    tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input',
-    settings = function()
-        widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
-    end
-})
---]]
-local tempicon = wibox.widget.imagebox(theme.widget_temp)
+--local temp = lain.widget.temp({
+    --tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input',
+    --settings = function()
+        --widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
+    --end
+--})
+----]]
+--local tempicon = wibox.widget.imagebox(theme.widget_temp)
 
 -- / fs
 --local fsicon = wibox.widget.imagebox(theme.widget_hdd)
@@ -221,6 +221,7 @@ theme.fs = lain.widget.fs({
 --]]
 
 --[[ Battery
+]]
 local baticon = wibox.widget.imagebox(theme.widget_battery)
 local bat = lain.widget.bat({
     settings = function()
@@ -243,7 +244,6 @@ local bat = lain.widget.bat({
         end
     end
 })
-]]
 
 -- net indicator
 -- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
@@ -408,7 +408,7 @@ function theme.at_screen_connect(s)
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, awful.util.tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, height = 16, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
+    s.mywibox = awful.wibar({ position = "top", screen = s, height = 18, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
