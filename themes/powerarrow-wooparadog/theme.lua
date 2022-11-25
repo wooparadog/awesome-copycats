@@ -199,14 +199,14 @@ end)
 --]]
 -- Coretemp (lain, average)
 
---local temp = lain.widget.temp({
-    --tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon2/temp1_input',
-    --settings = function()
-        --widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
-    --end
---})
-----]]
---local tempicon = wibox.widget.imagebox(theme.widget_temp)
+local temp = lain.widget.temp({
+    tempfile = local_configs.tempfile,
+    settings = function()
+        widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
+    end
+})
+--]]
+local tempicon = wibox.widget.imagebox(theme.widget_temp)
 
 -- / fs
 --local fsicon = wibox.widget.imagebox(theme.widget_hdd)
@@ -424,7 +424,7 @@ function theme.at_screen_connect(s)
         s.mytasklist, -- Middle widget
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
-            systray, 
+            systray,
             --wibox.container.margin(scissors, 4, 8),
             --[[ using shapes
             pl(wibox.widget { mpdicon, theme.mpd.widget, layout = wibox.layout.align.horizontal }, "#343434"),
