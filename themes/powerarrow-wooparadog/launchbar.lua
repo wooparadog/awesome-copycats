@@ -5,6 +5,7 @@
 --   local mylb = launchbar("/path/to/directory/with/shortcuts/")
 -- Then add mylb to the wibox.
 
+local wibox = require("wibox")
 local layout = require("wibox.layout")
 local util = require("awful.util")
 local launcher = require("awful.widget.launcher")
@@ -48,7 +49,7 @@ function launchbar.new(args)
     if ft then
       local t = ft:read("*all")
       local exec = getValue(t,"Exec")
-      table.insert(items, { image = find_icon(getValue(t,"Icon")),
+      table.insert(items, {image = find_icon(getValue(t,"Icon")),
       command = exec,
       position = tonumber(getValue(t,"Position")) or 255 })
     else
@@ -58,7 +59,7 @@ function launchbar.new(args)
   table.sort(items, function(a,b) return a.position < b.position end)
   for _, v in ipairs(items) do
     if v.image then
-      widget:add(launcher(v))
+      widget:add(wibox.container.margin(wibox.widget{launcher(v), layout = layout.align.horizontal}, 0, 0, 2, 2))
     end
   end
   return widget
