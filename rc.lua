@@ -417,6 +417,9 @@ awful.rules.rules = {
     { rule = { class = "vlc" },
       properties = { floating = true } },
 
+    { rule = { class = "Lightdm-gtk-greeter-settings" },
+      properties = { floating = true } },
+
     { rule = { class = "gnome-calculator" },
       properties = { floating = true } },
 
