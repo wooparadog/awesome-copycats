@@ -190,7 +190,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey }, "q", function () awful.spawn(browser) end, {description = "run browser", group = "hotkeys"}),
   awful.key({ modkey }, "e", function () awful.spawn(filemanager) end, {description = "run file manager", group = "hotkeys"}),
 
-  awful.key({ modkey }, "r", function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. " -show-icons -combi-modi window,drun,run -show combi -modi combi") end, {description = "Run launcher", group = "hotkeys"}),
+  awful.key({ modkey }, "r", function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. ' -show-icons -combi-modi window,drun,run -show combi -modes combi,calc -calc-command "echo -n \'{result}\' | xclip -sel clip"') end, {description = "Run launcher", group = "hotkeys"}),
   --awful.key({ modkey }, "Tab", function () awful.spawn("rofi -show window -show-icons") end, {description = "switch client", group = "hotkeys"}),
 
   awful.key({ modkey, }, "z", function () awful.screen.focused().quake:toggle() end, {description = "dropdown application", group = "hotkeys"}),
