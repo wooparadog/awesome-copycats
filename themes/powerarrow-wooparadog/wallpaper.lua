@@ -1,6 +1,7 @@
 local awful = require("awful")
 local gears = require("gears")
-local dbus = require("themes.powerarrow-wooparadog.dbus"){}
+local dbus_caller = require("themes.powerarrow-wooparadog.dbus"){}
+local dbus = dbus
 local consts = require("themes.powerarrow-wooparadog.consts")
 local wibox = require("wibox")
 local my_table = awful.util.table
@@ -79,9 +80,28 @@ local function factory(args)
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path
 
-    -- Notify dbus we've changed wallpaper
-    dbus.refresh_user_wallpaper(wallpaper_path)
+    -- Notify dbus_caller we've changed wallpaper
+    dbus_caller.refresh_user_wallpaper(wallpaper_path)
   end
+
+  local restart_timer = function ()
+    --restart the timer
+    wallpaper.wp_timer.timeout = wallpaper.wp_timeout
+    wallpaper.wp_timer:start()
+  end
+
+  dbus.connect_signal("org.freedesktop.portal.Wallpaper",
+    function (screen, uri, options)
+        local height = options and options.height or 0
+        local width = options and options.width or 0
+        gears.debug.print_warning(string.format("getting new wallpaper from dbus %s: %s x %s", uri, width, height))
+        if (width > height) == (wallpaper.wp_screen.geometry.width > wallpaper.wp_screen.geometry.height) then
+          wallpaper.set_wallpaper(uri)
+          wallpaper:stop()
+        end
+    end
+    )
+  dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpaper,path=/org/freedesktop/portal/desktop")
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
@@ -102,10 +122,7 @@ local function factory(args)
     if wallpaper.wp_timer.started then
       wallpaper.wp_timer:stop()
     end
-
-    --restart the timer
-    wallpaper.wp_timer.timeout = wallpaper.wp_timeout
-    wallpaper.wp_timer:start()
+    restart_timer()
   end
 
   wallpaper.stop = function()
