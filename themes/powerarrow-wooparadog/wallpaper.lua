@@ -5,11 +5,26 @@ local dbus = dbus
 local consts = require("themes.powerarrow-wooparadog.consts")
 local wibox = require("wibox")
 local my_table = awful.util.table
-
-
--- configuration - edit to your liking
+local instances = {}
 
 math.randomseed(os.time())
+
+dbus.connect_signal("org.freedesktop.portal.Wallpaper",
+  function (screen, uri, options)
+      local height = options and options.height or 0
+      local width = options and options.width or 0
+      gears.debug.print_warning(string.format("getting new wallpaper from dbus %s: %s x %s", uri, width, height))
+
+      for _, wallpaper in pairs(instances) do
+        if (width > height) == (wallpaper.wp_screen.geometry.width > wallpaper.wp_screen.geometry.height) then
+          gears.debug.print_warning(string.format("Setting wallpaper %s: %s x %s", uri, width, height))
+          wallpaper.set_wallpaper(uri)
+          wallpaper.stop()
+        end
+      end
+  end
+  )
+dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpaper,path=/org/freedesktop/portal/desktop")
 
 function scandir(directory, filter)
   local i, t, popen = 0, {}, io.popen
@@ -58,7 +73,6 @@ local function factory(args)
   wallpaper.scan_files()
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.current = nil
-
   wallpaper.wp_wall_icon = wibox.widget.imagebox(wallpaper.wp_normal_icon)
 
   wallpaper.wp_wall_icon:buttons(
@@ -90,18 +104,6 @@ local function factory(args)
     wallpaper.wp_timer:start()
   end
 
-  dbus.connect_signal("org.freedesktop.portal.Wallpaper",
-    function (screen, uri, options)
-        local height = options and options.height or 0
-        local width = options and options.width or 0
-        gears.debug.print_warning(string.format("getting new wallpaper from dbus %s: %s x %s", uri, width, height))
-        if (width > height) == (wallpaper.wp_screen.geometry.width > wallpaper.wp_screen.geometry.height) then
-          wallpaper.set_wallpaper(uri)
-          wallpaper:stop()
-        end
-    end
-    )
-  dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpaper,path=/org/freedesktop/portal/desktop")
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
@@ -142,6 +144,8 @@ local function factory(args)
   ))
 
   wallpaper.wp_timer:connect_signal("timeout", wallpaper.start)
+
+  instances[#instances+1] = wallpaper
 
   return wallpaper
 end
