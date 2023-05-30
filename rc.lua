@@ -465,6 +465,10 @@ client.connect_signal("manage", function (c)
         -- Prevent clients from being unreachable after screen count changes.
         awful.placement.no_offscreen(c)
     end
+
+    if c.size_hints.program_position then
+      c.floating = true
+    end
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
