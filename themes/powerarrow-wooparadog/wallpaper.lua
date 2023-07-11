@@ -15,12 +15,10 @@ dbus.connect_signal("org.freedesktop.portal.Wallpaper",
       local width = options and options.width or 0
       gears.debug.print_warning(string.format("getting new wallpaper from dbus %s: %s x %s", uri, width, height))
 
-      for _, wallpaper in pairs(instances) do
-        if (width > height) == (wallpaper.wp_screen.geometry.width > wallpaper.wp_screen.geometry.height) then
-          gears.debug.print_warning(string.format("Setting wallpaper %s: %s x %s", uri, width, height))
-          wallpaper.set_wallpaper(uri)
-          wallpaper.stop()
-        end
+      local wallpaper =  instances[math.random(#instances)]
+      if (width > height) == (wallpaper.wp_screen.geometry.width > wallpaper.wp_screen.geometry.height) then
+        gears.debug.print_warning(string.format("Setting wallpaper %s: %s x %s", uri, width, height))
+        wallpaper.set_wallpaper(uri)
       end
   end
   )

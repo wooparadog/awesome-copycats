@@ -122,6 +122,7 @@ local textclock = wibox.widget.textclock(markup.font(theme.font, " %a %d %b  %H:
 theme.cal = lain.widget.cal({
     cal = "cal --color=always",
     attach_to = { textclock },
+    followtag = true,
     notification_preset = {
         font = "Terminus (TTF) 9",
         fg   = theme.fg_normal,
