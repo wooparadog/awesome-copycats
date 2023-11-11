@@ -414,13 +414,7 @@ awful.rules.rules = {
     { rule_any = { class = { "Gnome-screenshot", "Calculator", "Blueman-manager", "1Password"} },
       properties = { ontop = true, floating = true } },
 
-    { rule = { class = "vlc" },
-      properties = { floating = true } },
-
-    { rule = { class = "Lightdm-gtk-greeter-settings" },
-      properties = { floating = true } },
-
-    { rule = { class = "gnome-calculator" },
+    { rule_any = { class = { "vlc", "Lightdm-gtk-greeter-settings", "gnome-calculator", "Evolution-alarm-notify", "Pavucontrol"} },
       properties = { floating = true } },
 
     { rule = { class = "TelegramDesktop" },
@@ -438,9 +432,6 @@ awful.rules.rules = {
 
     { rule = { class = "Gimp", role = "gimp-image-window" },
           properties = { maximized = true } },
-
-    { rule = { class = "Pavucontrol" },
-      properties = { floating = true, ontop = true} },
 
     { rule = { class = "Gpicview" },
       properties = { floating = true, ontop = true },
@@ -466,9 +457,9 @@ client.connect_signal("manage", function (c)
         awful.placement.no_offscreen(c)
     end
 
-    if c.size_hints.program_position then
-      c.floating = true
-    end
+    --if c.size_hints.program_position then
+      --c.floating = true
+    --end
 end)
 
 -- Add a titlebar if titlebars_enabled is set to true in the rules.
