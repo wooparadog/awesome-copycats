@@ -14,6 +14,7 @@ local naughty = require("naughty")
 local net_widgets = require("net_widgets")
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local consts = require("themes.powerarrow-wooparadog.consts")
+local pipewire = require("themes.powerarrow-wooparadog.pipewire")
 
 local local_configs = require("local")
 
@@ -260,7 +261,7 @@ local mylb = launchbar {
 -- pulse volume bar
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
-theme.volume = lain.widget.pulsebar {
+theme.volume = pipewire {
     width = 59, border_width = 0, ticks = true, ticks_size = 6,
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
