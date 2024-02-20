@@ -421,6 +421,12 @@ awful.rules.rules = {
       except = { modal = true },
       properties = { screen = 2 } },
 
+    { rule = { modal = true },
+      properties = { floating = true }},
+
+    { rule = { class = "digikam" ,  modal = true },
+      properties = { ontop=true}},
+
     { rule = { class = "digikam" },
       properties = { screen = 1, tag = awful.util.tagnames[3] } },
 
