@@ -75,6 +75,7 @@ awful.util.terminal = terminal
 awful.layout.layouts = {
     bling.layout.centered,
     awful.layout.suit.tile,
+    awful.layout.suit.tile.left,
     awful.layout.suit.tile.top,
     awful.layout.suit.tile.bottom,
     awful.layout.suit.max,
@@ -423,6 +424,15 @@ awful.rules.rules = {
 
     { rule = { modal = true },
       properties = { floating = true }},
+
+    { rule = { class = "Bytedance-feishu", name ="Picture" },
+      properties = { floating = true }},
+
+    { rule = { class = "wechat" },
+      properties = { screen = 1, tag = awful.util.tagnames[4] } },
+
+    { rule = { class = "Lark" },
+      properties = { screen = 1, tag = awful.util.tagnames[4] } },
 
     { rule = { class = "digikam" ,  modal = true },
       properties = { ontop=true}},
