@@ -53,7 +53,7 @@ local function factory(args)
 
   wallpaper.scan_files = function()
     wallpaper.wp_files = {}
-    for key,value in ipairs(wallpaper.wp_paths) do
+    for key, value in ipairs(wallpaper.wp_paths) do
       local folder_files = scandir(value, wallpaper.wp_filter)
       for _, file_path in ipairs(folder_files) do
         wallpaper.wp_files[#wallpaper.wp_files+1] = {key, file_path}
@@ -88,7 +88,7 @@ local function factory(args)
     )
 
   wallpaper.set_wallpaper = function(wallpaper_path)
-    gears.debug.print_warning(string.format("New Wallpaper: %s", wallpaper_path))
+    gears.debug.print_warning(string.format("New Wallpaper: %s -> %s", wallpaper.wp_index, wallpaper_path))
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path
 
