@@ -342,7 +342,7 @@ root.keys(
 
 function theme.at_screen_connect(s)
     gears.debug.print_warning(string.format("DPII: %s", s.dpi))
-    if s.dpi > 200 then
+    if s.dpi >= 192 then
       xresources.set_dpi(192, s)
     else
       xresources.set_dpi(96, s)
