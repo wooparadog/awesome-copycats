@@ -264,7 +264,7 @@ local mylb = launchbar {
 -- Volume
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
-volume = pipewire {
+theme.volume = pipewire {
     width = dpi(59, s), border_width = 0, ticks = true, ticks_size = dpi(6, s),
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
@@ -307,7 +307,7 @@ volume = pipewire {
     }
 
 function buildVolume(screen)
-    local bar = volume.add_screen(screen)
+    local bar = theme.volume.add_screen(screen)
     local volumebg = wibox.container.background(bar, "#474747", gears.shape.rectangle)
     return wibox.widget{
       volicon,

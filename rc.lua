@@ -204,6 +204,9 @@ globalkeys = awful.util.table.join(
   awful.key({}, "#123", function () os.execute(string.format("pactl set-sink-volume %s +5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume up", group = "hotkeys"}),
   awful.key({}, "#122", function () os.execute(string.format("pactl set-sink-volume %s -5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume down", group = "hotkeys"}),
   awful.key({}, "#121", function () os.execute(string.format("pactl set-sink-mute %s toggle", beautiful.volume.device)) beautiful.volume.update() end, {description = "toggle mute", group = "hotkeys"}),
+  -- Hotkeys: Backlight
+  awful.key({}, "XF86MonBrightnessUp", function () os.execute("brightnessctl s +10%") end, {description = "Increase Screen Brightness", group = "hotkeys"}),
+  awful.key({}, "XF86MonBrightnessDown", function () os.execute("brightnessctl s 10%-") end, {description = "Decrease Screen Brightness", group = "hotkeys"}),
 
   -- Hotkeys: Calculator
   awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
