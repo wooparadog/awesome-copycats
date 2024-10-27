@@ -10,9 +10,13 @@ local naughty       = require("naughty")
 local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
+
+awful.screen.set_auto_dpi_enabled(true)
+
 local capi = {mousegrabber = mousegrabber}
 
 local revelation=require("revelation")
+
 
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)

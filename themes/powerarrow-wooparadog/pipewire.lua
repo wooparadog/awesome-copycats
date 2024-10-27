@@ -6,14 +6,17 @@
 
 --]]
 
-local helpers  = require("lain.helpers")
-local awful    = require("awful")
-local naughty  = require("naughty")
-local wibox    = require("wibox")
+local helpers    = require("lain.helpers")
+local gears      = require("gears")
+local awful      = require("awful")
+local naughty    = require("naughty")
+local wibox      = require("wibox")
+local xresources = require("beautiful.xresources")
 local math     = math
 local string   = string
 local type     = type
 local tonumber = tonumber
+local dpi      = xresources.apply_dpi
 
 -- PipeWire-Pulse volume bar
 -- lain.widget.pipe_pulsebar
@@ -21,10 +24,11 @@ local tonumber = tonumber
 local function factory(args)
     local pipe_pulsebar = {
         colors = {
-            background      = "#000000",
-            mute_background = "#000000",
-            mute            = "#EB8F8F",
-            unmute          = "#A4CE8A"
+            background       = "#000000",
+            mute_background  = "#000000",
+            mute             = "#EB8F8F",
+            unmute           = "#A4CE8A",
+            tooltip_fg_focus = "#32D6FF"
         },
 
         _current_level = 0,
@@ -40,12 +44,22 @@ local function factory(args)
     local height     = args.height or 1
     local margins    = args.margins or 1
     local paddings   = args.paddings or 1
-    local ticks      = args.ticks or false
     local ticks_size = args.ticks_size or 7
+    local ticks      = args.ticks or false
     local tick       = args.tick or "|"
     local tick_pre   = args.tick_pre or "["
     local tick_post  = args.tick_post or "]"
     local tick_none  = args.tick_none or " "
+    local volume_now = {
+      index = "N/A",
+      muted  = "N/A",
+      channel = {},
+      left = "N/a",
+      right = "N/A",
+    }
+    local widgets    = {}
+    local screen     = args.screen
+    local button_handlers = args.button_handlers 
 
     pipe_pulsebar.colors              = args.colors or pipe_pulsebar.colors
     pipe_pulsebar.followtag           = args.followtag or false
@@ -61,19 +75,46 @@ local function factory(args)
         }
     end
 
-    pipe_pulsebar.bar = wibox.widget {
+    pipe_pulsebar.add_screen = function(screen)
+      local bar = wibox.widget {
         color            = pipe_pulsebar.colors.unmute,
         background_color = pipe_pulsebar.colors.background,
-        forced_height    = height,
-        forced_width     = width,
-        margins          = margins,
-        paddings         = paddings,
         ticks            = ticks,
-        ticks_size       = ticks_size,
         widget           = wibox.widget.progressbar,
-    }
+        forced_height    = dpi(height, screen),
+        forced_width     = dpi(width, screen),
+        paddings         = dpi(paddings, screen),
+        ticks_size       = dpi(ticks_size, screen),
+        margins          = dpi(margins, screen),
+      }
+      if button_handlers then
+        bar:buttons(button_handlers(pipe_pulsebar))
+      end
+      local tooltip = awful.tooltip({
+        objects = { bar },
+        wibox = {
+          fg = pipe_pulsebar.colors.tooltip_fg_focus
+        }
+      })
 
-    pipe_pulsebar.tooltip = awful.tooltip({ objects = { pipe_pulsebar.bar } })
+      widgets[#widgets+1] = {
+        bar = bar ,
+        tooltip = tooltip
+      }
+      gears.debug.print_warning(string.format("Adding widget!"))
+      return bar
+    end
+
+    -- Find the device
+    helpers.async({
+        awful.util.shell,
+        "-c",
+        type(pipe_pulsebar.scmd) == "string" and pipe_pulsebar.scmd or pipe_pulsebar.scmd()
+      },
+      function(s)
+        volume_now.device = string.match(s, "device.string = \"(%S+)\"") or "N/A"
+      end
+    )
 
     function pipe_pulsebar.update(callback)
         helpers.async({ awful.util.shell, "-c", type(pipe_pulsebar.cmd) == "string" and pipe_pulsebar.cmd or pipe_pulsebar.cmd() },
@@ -101,30 +142,29 @@ local function factory(args)
             if volu:match("N/A") or mute:match("N/A") then return end
 
             if volu ~= pipe_pulsebar._current_level or mute ~= pipe_pulsebar._mute then
-                pipe_pulsebar._current_level = tonumber(volu)
-                pipe_pulsebar.bar:set_value(pipe_pulsebar._current_level / 100)
-                if pipe_pulsebar._current_level == 0 or mute == "yes" then
-                    pipe_pulsebar._mute = mute
-                    pipe_pulsebar.tooltip:set_text ("[muted]")
-                    pipe_pulsebar.bar.color = pipe_pulsebar.colors.mute
-                    pipe_pulsebar.bar.background_color = pipe_pulsebar.colors.mute_background
-                else
-                    pipe_pulsebar._mute = "no"
-                    pipe_pulsebar.tooltip:set_text(string.format("%s %s: %s", pipe_pulsebar.devicetype, pipe_pulsebar.device, volu))
-                    pipe_pulsebar.bar.color = pipe_pulsebar.colors.unmute
-                    pipe_pulsebar.bar.background_color = pipe_pulsebar.colors.background
+                for _, w in ipairs(widgets) do
+                  pipe_pulsebar._current_level = tonumber(volu)
+                  w.bar:set_value(pipe_pulsebar._current_level / 100)
+                  if pipe_pulsebar._current_level == 0 or mute == "yes" then
+                      pipe_pulsebar._mute = mute
+                      w.tooltip:set_text ("[muted]")
+                      w.bar.color = pipe_pulsebar.colors.mute
+                      w.bar.background_color = pipe_pulsebar.colors.mute_background
+                  else
+                      pipe_pulsebar._mute = "no"
+                      w.tooltip:set_text(string.format("%s %s: %s", pipe_pulsebar.devicetype, pipe_pulsebar.device, volu))
+                      w.bar.color = pipe_pulsebar.colors.unmute
+                      w.bar.background_color = pipe_pulsebar.colors.background
+                  end
                 end
 
-                settings()
+                settings(volume_now)
 
                 if type(callback) == "function" then callback() end
             end
         end)
     end
-        helpers.async({ awful.util.shell, "-c", type(pipe_pulsebar.scmd) == "string" and pipe_pulsebar.scmd or pipe_pulsebar.scmd() },
-        function(s)
-            volume_now.device = string.match(s, "device.string = \"(%S+)\"") or "N/A"
-        end)
+
 
     function pipe_pulsebar.notify()
         pipe_pulsebar.update(function()

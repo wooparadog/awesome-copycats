@@ -16,11 +16,14 @@ local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local consts = require("themes.powerarrow-wooparadog.consts")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
 
+local xresources = require("beautiful.xresources")
+local dpi = xresources.apply_dpi
+
 local local_configs = require("local")
 
 local theme                                     = {}
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
-theme.font                                      = "Terminus (TTF) 9"
+theme.font                                      = "Terminus Nerd Font 9"
 theme.fg_normal                                 = "#FEFEFE"
 theme.fg_focus                                  = "#32D6FF"
 theme.fg_urgent                                 = "#C83F11"
@@ -125,7 +128,7 @@ theme.cal = lain.widget.cal({
     attach_to = { textclock },
     followtag = true,
     notification_preset = {
-        font = "Terminus (TTF) 9",
+        font = "Terminus Nerd Font 9",
         fg   = theme.fg_normal,
         bg   = theme.bg_normal,
         position = "top_right",
@@ -141,7 +144,7 @@ local weather = lain.widget.weather({
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
   end,
   notification_preset = {
-      font = "Terminus (TTF) 12",
+      font = "Terminus Nerd Font 12",
       fg   = theme.fg_normal,
       bg   = theme.bg_normal,
       position = "top_right",
@@ -258,14 +261,14 @@ local mylb = launchbar {
 }
 
 
--- pulse volume bar
+-- Volume
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
-theme.volume = pipewire {
-    width = 59, border_width = 0, ticks = true, ticks_size = 6,
+volume = pipewire {
+    width = dpi(59, s), border_width = 0, ticks = true, ticks_size = dpi(6, s),
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
-    settings = function()
+    settings = function(volume_now)
         if volume_now.status == "off" then
             volicon:set_image(theme.widget_vol_mute)
         else
@@ -275,33 +278,43 @@ theme.volume = pipewire {
     colors = {
         background   = "#343434",
         mute         = red,
-        unmute       = theme.fg_normal
-    }
-}
-theme.volume.tooltip.wibox.fg = theme.fg_focus
-theme.volume.bar:buttons(gears.table.join (
+        unmute       = theme.fg_normal,
+        tooltip_fg_focus = theme.fg_focus
+      },
+      button_handlers = function(volume) 
+        return gears.table.join (
           awful.button({}, 1, function()
             awful.spawn("pavucontrol")
           end),
           awful.button({}, 2, function()
-            os.execute(string.format("pactl set-sink-volume %s 100%%", theme.volume.device))
-            theme.volume.update()
+            os.execute(string.format("pactl set-sink-volume %s 100%%", volume.device))
+            volume.update()
           end),
           awful.button({}, 3, function()
-            os.execute(string.format("pactl set-sink-mute %s toggle", theme.volume.device))
-            theme.volume.update()
+            os.execute(string.format("pactl set-sink-mute %s toggle", volume.device))
+            volume.update()
           end),
           awful.button({}, 4, function()
-            os.execute(string.format("pactl set-sink-volume %s +5%%", theme.volume.device))
-            theme.volume.update()
+            os.execute(string.format("pactl set-sink-volume %s +5%%", volume.device))
+            volume.update()
           end),
           awful.button({}, 5, function()
-            os.execute(string.format("pactl set-sink-volume %s -5%%", theme.volume.device))
-            theme.volume.update()
+            os.execute(string.format("pactl set-sink-volume %s -5%%", volume.device))
+            volume.update()
           end)
-))
-local volumebg = wibox.container.background(theme.volume.bar, "#474747", gears.shape.rectangle)
-local volumewidget = wibox.widget{volicon, wibox.container.margin(volumebg, 2, 7, 4, 4), layout=wibox.layout.align.horizontal}
+          )
+        end
+    }
+
+function buildVolume(screen)
+    local bar = volume.add_screen(screen)
+    local volumebg = wibox.container.background(bar, "#474747", gears.shape.rectangle)
+    return wibox.widget{
+      volicon,
+      wibox.container.margin(volumebg, dpi(2, s), dpi(7, s), dpi(4, s), dpi(4, s)),
+      layout=wibox.layout.align.horizontal
+    }
+end
 
 
 -- Net
@@ -314,29 +327,6 @@ local net = lain.widget.net({
 -- Separators
 local arrow = separators.arrow_left
 local right_arrow = separators.arrow_right
-
-function theme.powerline_rl(cr, width, height)
-    local arrow_depth, offset = height/2, 0
-
-    -- Avoid going out of the (potential) clip area
-    if arrow_depth < 0 then
-        width  =  width + 2*arrow_depth
-        offset = -arrow_depth
-    end
-
-    cr:move_to(offset + arrow_depth         , 0        )
-    cr:line_to(offset + width               , 0        )
-    cr:line_to(offset + width - arrow_depth , height/2 )
-    cr:line_to(offset + width               , height   )
-    cr:line_to(offset + arrow_depth         , height   )
-    cr:line_to(offset                       , height/2 )
-
-    cr:close_path()
-end
-
-local function pl(widget, bgcolor, padding)
-    return wibox.container.background(wibox.container.margin(widget, 16, 16), bgcolor, theme.powerline_rl)
-end
 
 local systray = wibox.widget.systray()
 screen.connect_signal("screen.focus", function(c)
@@ -351,6 +341,15 @@ root.keys(
 )
 
 function theme.at_screen_connect(s)
+    gears.debug.print_warning(string.format("DPII: %s", s.dpi))
+    if s.dpi > 200 then
+      xresources.set_dpi(192, s)
+    else
+      xresources.set_dpi(96, s)
+    end
+
+    gears.debug.print_warning(string.format("DPI: %s", s.dpi))
+
     local is_horizon = s.geometry.width >= s.geometry.height
 
     -- Predicate orientation of screen
@@ -404,13 +403,24 @@ function theme.at_screen_connect(s)
                            awful.button({}, 4, function () awful.layout.inc( 1) end),
                            awful.button({}, 5, function () awful.layout.inc(-1) end)))
     -- Create a taglist widget
-    s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, awful.util.taglist_buttons)
+    s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, awful.util.taglist_buttons, {
+      squares_resize = true,
+      bg_focus = "#343434",
+      spacing = dpi(1, s)
+    })
 
     -- Create a tasklist widget
     s.mytasklist = awful.widget.tasklist(s, awful.widget.tasklist.filter.currenttags, awful.util.tasklist_buttons)
 
     -- Create the wibox
-    s.mywibox = awful.wibar({ position = "top", screen = s, height = 18, bg = theme.bg_normal, fg = theme.fg_normal, opacity=0.8 })
+    s.mywibox = awful.wibar({
+      position = "top",
+      screen = s,
+      height = dpi(18, s),
+      bg = theme.bg_normal,
+      fg = theme.fg_normal,
+      opacity = 0.8
+    })
 
     -- Add widgets to the wibox
     s.mywibox:setup {
@@ -419,7 +429,7 @@ function theme.at_screen_connect(s)
             layout = wibox.layout.fixed.horizontal,
             s.mytaglist,
             right_arrow(theme.bg_normal, "#343434"),
-            wibox.container.background(wibox.container.margin(mylb, 4, 4), "#343434"),
+            wibox.container.background(wibox.container.margin(mylb, dpi(4, s), dpi(4, s)), "#343434"),
             right_arrow("#343434", theme.bg_normal),
             s.mypromptbox,
         },
@@ -427,37 +437,24 @@ function theme.at_screen_connect(s)
         { -- Right widgets
             layout = wibox.layout.fixed.horizontal,
             systray,
-            --wibox.container.margin(scissors, 4, 8),
-            --[[ using shapes
-            pl(wibox.widget { mpdicon, theme.mpd.widget, layout = wibox.layout.align.horizontal }, "#343434"),
-            pl(task, "#343434"),
-            --pl(wibox.widget { mailicon, mail and theme.mail.widget, layout = wibox.layout.align.horizontal }, "#343434"),
-            pl(wibox.widget { memicon, mem.widget, layout = wibox.layout.align.horizontal }, "#777E76"),
-            pl(wibox.widget { cpuicon, cpu.widget, layout = wibox.layout.align.horizontal }, "#4B696D"),
-            pl(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, "#4B3B51"),
-            --pl(wibox.widget { fsicon, theme.fs and theme.fs.widget, layout = wibox.layout.align.horizontal }, "#CB755B"),
-            pl(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, "#8DAA9A"),
-            pl(wibox.widget { neticon, net.widget, layout = wibox.layout.align.horizontal }, "#5e3636"),
-            pl(binclock.widget, "#777E76"),
-            --]]
             -- using separators
             arrow(theme.bg_normal, "#343434"),
-            wibox.container.background(volumewidget, "#343434"),
+            wibox.container.background(buildVolume(s), "#343434"),
             arrow("#343434", "#777E76"),
-            wibox.container.background(wibox.container.margin(wibox.widget { memicon, mem.widget, layout = wibox.layout.align.horizontal }, 2, 3), "#777E76"),
+            wibox.container.background(wibox.container.margin(wibox.widget { memicon, mem.widget, layout = wibox.layout.align.horizontal }, dpi(2, s), dpi(3, s)), "#777E76"),
             arrow("#777E76", "#4B696D"),
-            wibox.container.background(wibox.container.margin(wibox.widget { cpuicon, cpu.widget, layout = wibox.layout.align.horizontal }, 3, 4), "#4B696D"),
+            wibox.container.background(wibox.container.margin(wibox.widget { cpuicon, cpu.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(4, s)), "#4B696D"),
             arrow("#4B696D", "#4B3B51"),
-            wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, 4, 4), "#4B3B51"),
+            wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
             -- arrow("#4B3B51", "#CB755B"),
-            -- wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#CB755B"),
+            wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B"),
             arrow("#4B3B51", "#5e3636"),
             --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
-            wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
+            wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
             arrow("#5e3636", "#777E76"),
-            wibox.container.background(wibox.container.margin(textclock, 4, 8), "#777E76"),
-            wibox.container.background(wibox.container.margin(weather.icon, 4, 8), "#777E76"),
-            wibox.container.background(wibox.container.margin(weather.widget, 4, 8), "#777E76"),
+            wibox.container.background(wibox.container.margin(textclock, dpi(4, s), dpi(8, s)), "#777E76"),
+            wibox.container.background(wibox.container.margin(weather.icon, dpi(4, s), dpi(8, s)), "#777E76"),
+            wibox.container.background(wibox.container.margin(weather.widget, dpi(4, s), dpi(8, s)), "#777E76"),
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
