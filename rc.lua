@@ -425,10 +425,6 @@ awful.rules.rules = {
     { rule_any = { class = { "vlc", "Lightdm-gtk-greeter-settings", "gnome-calculator", "Evolution-alarm-notify", "Pavucontrol"} },
       properties = { floating = true } },
 
-    { rule = { class = "TelegramDesktop" },
-      except = { modal = true },
-      properties = { screen = 2 } },
-
     { rule = { modal = true },
       properties = { floating = true }},
 

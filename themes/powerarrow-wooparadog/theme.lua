@@ -265,7 +265,7 @@ local mylb = launchbar {
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
 theme.volume = pipewire {
-    width = dpi(59, s), border_width = 0, ticks = true, ticks_size = dpi(6, s),
+g   width = 59, border_width = 0, ticks = true, ticks_size = 6,
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
     settings = function(volume_now)
@@ -281,7 +281,7 @@ theme.volume = pipewire {
         unmute       = theme.fg_normal,
         tooltip_fg_focus = theme.fg_focus
       },
-      button_handlers = function(volume) 
+      button_handlers = function(volume)
         return gears.table.join (
           awful.button({}, 1, function()
             awful.spawn("pavucontrol")
