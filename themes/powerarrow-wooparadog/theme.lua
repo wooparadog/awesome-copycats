@@ -403,10 +403,15 @@ function theme.at_screen_connect(s)
                            awful.button({}, 4, function () awful.layout.inc( 1) end),
                            awful.button({}, 5, function () awful.layout.inc(-1) end)))
     -- Create a taglist widget
-    s.mytaglist = awful.widget.taglist(s, awful.widget.taglist.filter.all, awful.util.taglist_buttons, {
-      squares_resize = true,
-      bg_focus = "#343434",
-      spacing = dpi(1, s)
+    s.mytaglist = awful.widget.taglist({
+      screen=s,
+      filter=awful.widget.taglist.filter.all,
+      buttons=awful.util.taglist_buttons,
+      style={
+        bg_focus = "#343434",
+        spacing = dpi(1, s),
+        squares_resize = true,
+      }
     })
 
     -- Create a tasklist widget
@@ -427,7 +432,7 @@ function theme.at_screen_connect(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            s.mytaglist,
+            wibox.container.margin(s.mytaglist, dpi(10, s)),
             right_arrow(theme.bg_normal, "#343434"),
             wibox.container.background(wibox.container.margin(mylb, dpi(4, s), dpi(4, s)), "#343434"),
             right_arrow("#343434", theme.bg_normal),
@@ -458,7 +463,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
-            wallpaper_changer.wp_wall_icon,
+            wibox.container.margin(wallpaper_changer.wp_wall_icon, 0, dpi(10, s)),
         },
     }
 end
