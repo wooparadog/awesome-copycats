@@ -265,7 +265,7 @@ local mylb = launchbar {
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
 theme.volume = pipewire {
-g   width = 59, border_width = 0, ticks = true, ticks_size = 6,
+    width = 59, border_width = 0, ticks = true, ticks_size = 6,
     notification_preset = { font = theme.font },
     --togglechannel = "IEC958,3",
     settings = function(volume_now)
