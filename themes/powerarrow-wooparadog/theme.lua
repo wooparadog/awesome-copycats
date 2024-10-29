@@ -22,8 +22,10 @@ local dpi = xresources.apply_dpi
 local local_configs = require("local")
 
 local theme                                     = {}
+theme.wibar_margin_left                         = local_configs.wibar_margin_left or 0
+theme.wibar_margin_right                        = local_configs.wibar_margin_right or 0
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
-theme.font                                      = "Terminus Nerd Font 9"
+theme.font                                      = "Terminus 9"
 theme.fg_normal                                 = "#FEFEFE"
 theme.fg_focus                                  = "#32D6FF"
 theme.fg_urgent                                 = "#C83F11"
@@ -126,7 +128,7 @@ theme.cal = lain.widget.cal({
     attach_to = { textclock },
     followtag = true,
     notification_preset = {
-        font = "Terminus Nerd Font 9",
+        font = "Terminus 9",
         fg   = theme.fg_normal,
         bg   = theme.bg_normal,
         position = "top_right",
@@ -142,7 +144,7 @@ local weather = lain.widget.weather({
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
   end,
   notification_preset = {
-      font = "Terminus Nerd Font 12",
+      font = "Terminus 12",
       fg   = theme.fg_normal,
       bg   = theme.bg_normal,
       position = "top_right",
@@ -432,7 +434,7 @@ function theme.at_screen_connect(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            wibox.container.margin(s.mytaglist, dpi(10, s)),
+            wibox.container.margin(s.mytaglist, dpi(theme.wibar_margin_left, s)),
             right_arrow(theme.bg_normal, "#343434"),
             wibox.container.background(wibox.container.margin(mylb, dpi(4, s), dpi(4, s)), "#343434"),
             right_arrow("#343434", theme.bg_normal),
@@ -463,7 +465,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
-            wibox.container.margin(wallpaper_changer.wp_wall_icon, 0, dpi(10, s)),
+            wibox.container.margin(wallpaper_changer.wp_wall_icon, 0, dpi(theme.wibar_margin_right, s)),
         },
     }
 end
