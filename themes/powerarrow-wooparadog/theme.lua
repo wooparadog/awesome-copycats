@@ -225,28 +225,30 @@ theme.fs = lain.widget.fs({
 
 --[[ Battery
 ]]
-local baticon = wibox.widget.imagebox(theme.widget_battery)
-local bat = lain.widget.bat({
-    settings = function()
-        if bat_now.status and bat_now.status ~= "N/A" then
-            if bat_now.ac_status == 1 then
-                widget:set_markup(markup.font(theme.font, " AC "))
-                baticon:set_image(theme.widget_ac)
-                return
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
-                baticon:set_image(theme.widget_battery_empty)
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
-                baticon:set_image(theme.widget_battery_low)
-            else
-                baticon:set_image(theme.widget_battery)
-            end
-            widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
-        else
-            widget:set_markup()
-            baticon:set_image(theme.widget_ac)
-        end
-    end
-})
+if local_configs.enable_bat then
+  theme.baticon = wibox.widget.imagebox(theme.widget_battery)
+  theme.bat = lain.widget.bat({
+      settings = function()
+          if bat_now.status and bat_now.status ~= "N/A" then
+              if bat_now.ac_status == 1 then
+                  widget:set_markup(markup.font(theme.font, " AC "))
+                  baticon:set_image(theme.widget_ac)
+                  return
+              elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
+                  baticon:set_image(theme.widget_battery_empty)
+              elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
+                  baticon:set_image(theme.widget_battery_low)
+              else
+                  baticon:set_image(theme.widget_battery)
+              end
+              widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
+          else
+              widget:set_markup()
+              theme.baticon:set_image(theme.widget_ac)
+          end
+      end
+  })
+end
 
 -- net indicator
 -- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
@@ -450,7 +452,7 @@ function theme.at_screen_connect(s)
             arrow("#4B696D", "#4B3B51"),
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
             -- arrow("#4B3B51", "#CB755B"),
-            wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B"),
+            local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { theme.baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or wibox.container.background(),
             arrow("#4B3B51", "#5e3636"),
             --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
