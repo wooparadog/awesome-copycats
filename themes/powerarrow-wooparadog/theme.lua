@@ -226,7 +226,8 @@ theme.fs = lain.widget.fs({
 --[[ Battery
 ]]
 local baticon = wibox.widget.imagebox(theme.widget_battery)
-local bat = lain.widget.bat({
+theme.bat = lain.widget.bat({
+    ac = "ACAD",
     settings = function()
         if bat_now.status and bat_now.status ~= "N/A" then
             if bat_now.ac_status == 1 then
@@ -339,14 +340,13 @@ root.keys(
 )
 
 function theme.at_screen_connect(s)
-    gears.debug.print_warning(string.format("DPII: %s", s.dpi))
     if s.dpi >= 192 then
       xresources.set_dpi(192, s)
     else
       xresources.set_dpi(96, s)
     end
 
-    gears.debug.print_warning(string.format("DPI: %s", s.dpi))
+    gears.debug.print_warning(string.format("Setting Up Screen %s %sx%s DPI: %s", s.index, s.geometry.width, s.geometry.height, s.dpi))
 
     local is_horizon = s.geometry.width >= s.geometry.height
 
@@ -450,7 +450,7 @@ function theme.at_screen_connect(s)
             arrow("#4B696D", "#4B3B51"),
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
             -- arrow("#4B3B51", "#CB755B"),
-            wibox.container.background(wibox.container.margin(wibox.widget { baticon, bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B"),
+            wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B"),
             arrow("#4B3B51", "#5e3636"),
             --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
