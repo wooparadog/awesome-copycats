@@ -365,7 +365,7 @@ function theme.at_screen_connect(s)
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
       paths=is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path,
-      timeout=180,
+      timeout=local_configs.wallpapers.tiemout or 300,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
