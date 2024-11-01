@@ -42,7 +42,6 @@ local function factory(args)
   local args = args or {}
   local wallpaper = {}
 
-  wallpaper.wp_index = args.index or 1
   wallpaper.wp_screen = args.screen or nil
   wallpaper.wp_timeout  = args.timeout or 300
   wallpaper.wp_paths = args.paths or {}
@@ -88,7 +87,7 @@ local function factory(args)
     )
 
   wallpaper.set_wallpaper = function(wallpaper_path)
-    gears.debug.print_warning(string.format("New Wallpaper: %s -> %s", wallpaper.wp_index, wallpaper_path))
+    gears.debug.print_warning(string.format("New Wallpaper[of %s]: %s", #wallpaper.wp_files, wallpaper_path))
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path
 
@@ -105,12 +104,16 @@ local function factory(args)
 
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
-      return
+      wallpaper.scan_files()
+      if #wallpaper.wp_files < 1 then
+        return false
+      end
     end
 
     -- Choose one wallpaper
-    wallpaper.wp_index = math.random(#wallpaper.wp_files)
-    wallpaper_path = wallpaper.wp_paths[wallpaper.wp_files[wallpaper.wp_index][1]] .. wallpaper.wp_files[wallpaper.wp_index][2]
+    local wp_index = math.random(#wallpaper.wp_files)
+    local wallpaper_item = table.remove(wallpaper.wp_files, wp_index)
+    local wallpaper_path = wallpaper.wp_paths[wallpaper_item[1]] .. wallpaper_item[2]
 
     -- Set wallpaper to current index
     wallpaper.set_wallpaper(wallpaper_path)
@@ -118,11 +121,12 @@ local function factory(args)
     -- Change icon
     wallpaper.wp_wall_icon.image = wallpaper.wp_normal_icon
 
-    -- stop the timer (we don't need multiple instances running at the same time)
-    if wallpaper.wp_timer.started then
-      wallpaper.wp_timer:stop()
+    -- Start the timer if not started
+    if not wallpaper.wp_timer.started then
+      gears.debug.print_warning("Starting wallpaper changer timer...")
+      wallpaper.wp_timer:start()
     end
-    restart_timer()
+    return true
   end
 
   wallpaper.stop = function()

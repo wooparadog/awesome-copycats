@@ -10,6 +10,7 @@ local configs = {
 
   -- Wallpaper
   wallpapers = {
+    timeout = 300,
     horizontal_path = {
         string.format("%s/Wallpaper/", os.getenv("HOME")),
     },
