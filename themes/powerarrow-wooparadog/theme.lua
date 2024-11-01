@@ -22,8 +22,10 @@ local dpi = xresources.apply_dpi
 local local_configs = require("local")
 
 local theme                                     = {}
+theme.wibar_margin_left                         = local_configs.wibar_margin_left or 0
+theme.wibar_margin_right                        = local_configs.wibar_margin_right or 0
 theme.dir                                       = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
-theme.font                                      = "Terminus Nerd Font 9"
+theme.font                                      = "Terminus 9"
 theme.fg_normal                                 = "#FEFEFE"
 theme.fg_focus                                  = "#32D6FF"
 theme.fg_urgent                                 = "#C83F11"
@@ -126,7 +128,7 @@ theme.cal = lain.widget.cal({
     attach_to = { textclock },
     followtag = true,
     notification_preset = {
-        font = "Terminus Nerd Font 9",
+        font = "Terminus 9",
         fg   = theme.fg_normal,
         bg   = theme.bg_normal,
         position = "top_right",
@@ -142,7 +144,7 @@ local weather = lain.widget.weather({
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
   end,
   notification_preset = {
-      font = "Terminus Nerd Font 12",
+      font = "Terminus 12",
       fg   = theme.fg_normal,
       bg   = theme.bg_normal,
       position = "top_right",
@@ -225,30 +227,32 @@ theme.fs = lain.widget.fs({
 
 --[[ Battery
 ]]
-local baticon = wibox.widget.imagebox(theme.widget_battery)
-theme.bat = lain.widget.bat({
-    battery = local_configs.battery,
-    ac = local_configs.ac,
-    settings = function()
-        if bat_now.status and bat_now.status ~= "N/A" then
-            if bat_now.ac_status == 1 then
-                widget:set_markup(markup.font(theme.font, " AC "))
-                baticon:set_image(theme.widget_ac)
-                return
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
-                baticon:set_image(theme.widget_battery_empty)
-            elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
-                baticon:set_image(theme.widget_battery_low)
-            else
-                baticon:set_image(theme.widget_battery)
-            end
-            widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
-        else
-            widget:set_markup()
-            baticon:set_image(theme.widget_ac)
-        end
-    end
-})
+if local_configs.enable_bat then
+  local baticon = wibox.widget.imagebox(theme.widget_battery)
+  theme.bat = lain.widget.bat({
+      battery = local_configs.battery,
+      ac = local_configs.ac,
+      settings = function()
+          if bat_now.status and bat_now.status ~= "N/A" then
+              if bat_now.ac_status == 1 then
+                  widget:set_markup(markup.font(theme.font, " AC "))
+                  baticon:set_image(theme.widget_ac)
+                  return
+              elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
+                  baticon:set_image(theme.widget_battery_empty)
+              elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
+                  baticon:set_image(theme.widget_battery_low)
+              else
+                  baticon:set_image(theme.widget_battery)
+              end
+              widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
+          else
+              widget:set_markup()
+              baticon:set_image(theme.widget_ac)
+          end
+      end
+  })
+end
 
 -- net indicator
 -- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
@@ -431,7 +435,7 @@ function theme.at_screen_connect(s)
         layout = wibox.layout.align.horizontal,
         { -- Left widgets
             layout = wibox.layout.fixed.horizontal,
-            wibox.container.margin(s.mytaglist, dpi(10, s)),
+            wibox.container.margin(s.mytaglist, dpi(theme.wibar_margin_left, s)),
             right_arrow(theme.bg_normal, "#343434"),
             wibox.container.background(wibox.container.margin(mylb, dpi(4, s), dpi(4, s)), "#343434"),
             right_arrow("#343434", theme.bg_normal),
@@ -451,7 +455,7 @@ function theme.at_screen_connect(s)
             arrow("#4B696D", "#4B3B51"),
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
             -- arrow("#4B3B51", "#CB755B"),
-            wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B"),
+            local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or wibox.container.background(),
             arrow("#4B3B51", "#5e3636"),
             --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
@@ -462,7 +466,7 @@ function theme.at_screen_connect(s)
             arrow("#777E76", "alpha"),
             --]]
             s.mylayoutbox,
-            wibox.container.margin(wallpaper_changer.wp_wall_icon, 0, dpi(10, s)),
+            wibox.container.margin(wallpaper_changer.wp_wall_icon, 0, dpi(theme.wibar_margin_right, s)),
         },
     }
 end
