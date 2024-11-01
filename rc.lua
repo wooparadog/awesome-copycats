@@ -434,9 +434,6 @@ awful.rules.rules = {
     { rule = { class = "wechat" },
       properties = { screen = 1, tag = awful.util.tagnames[4] } },
 
-    { rule = { class = "Lark" },
-      properties = { screen = 1, tag = awful.util.tagnames[4] } },
-
     { rule = { class = "digikam" ,  modal = true },
       properties = { ontop=true}},
 

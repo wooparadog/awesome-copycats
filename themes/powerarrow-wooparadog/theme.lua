@@ -227,7 +227,8 @@ theme.fs = lain.widget.fs({
 ]]
 local baticon = wibox.widget.imagebox(theme.widget_battery)
 theme.bat = lain.widget.bat({
-    ac = "ACAD",
+    battery = configs.battery,
+    ac = configs.ac,
     settings = function()
         if bat_now.status and bat_now.status ~= "N/A" then
             if bat_now.ac_status == 1 then

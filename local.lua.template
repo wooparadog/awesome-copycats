@@ -1,0 +1,21 @@
+#! /usr/bin/env lua
+
+local configs = {
+  -- Power config
+  battery = "BAT0",
+  ac = "ACAD",
+
+  -- Cpu Temperature
+  tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input',
+
+  -- Wallpaper
+  wallpapers = {
+    horizontal_path = {
+        string.format("%s/Wallpaper/", os.getenv("HOME")),
+    },
+    vertical_path = {
+    },
+  },
+}
+
+return configs

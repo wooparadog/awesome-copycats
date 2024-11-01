@@ -101,7 +101,6 @@ local function factory(args)
         bar = bar ,
         tooltip = tooltip
       }
-      gears.debug.print_warning(string.format("Adding widget!"))
       return bar
     end
 
