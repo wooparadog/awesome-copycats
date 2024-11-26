@@ -110,6 +110,7 @@ local function factory(args)
     end
 
     -- Choose one wallpaper
+    math.randomseed(os.time() + wallpaper.wp_screen.index)
     local wp_index = math.random(#wallpaper.wp_files)
     local wallpaper_item = table.remove(wallpaper.wp_files, wp_index)
     local wallpaper_path = wallpaper.wp_paths[wallpaper_item[1]] .. wallpaper_item[2]

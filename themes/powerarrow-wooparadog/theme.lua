@@ -345,10 +345,12 @@ root.keys(
 )
 
 function theme.at_screen_connect(s)
-    if s.dpi >= local_configs.screen_dpi.high then
-      xresources.set_dpi(local_configs.screen_dpi.high, s)
-    else
-      xresources.set_dpi(local_configs.screen_dpi.low, s)
+    if local_configs.screen_dpi then
+        if s.dpi >= local_configs.screen_dpi.high then
+            xresources.set_dpi(local_configs.screen_dpi.high, s)
+        else
+            xresources.set_dpi(local_configs.screen_dpi.low, s)
+        end
     end
 
     gears.debug.print_warning(string.format("Setting Up Screen %s %sx%s DPI: %s", s.index, s.geometry.width, s.geometry.height, s.dpi))
