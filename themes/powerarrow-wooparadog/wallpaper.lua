@@ -7,7 +7,6 @@ local wibox = require("wibox")
 local my_table = awful.util.table
 local instances = {}
 
-math.randomseed(os.time())
 
 dbus.connect_signal("org.freedesktop.portal.Wallpaper",
   function (screen, uri, options)

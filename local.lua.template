@@ -1,6 +1,11 @@
 #! /usr/bin/env lua
 
 local configs = {
+  -- screen
+  screen_dpi = {
+    high = 96,
+    low = 96,
+  },
   -- Power config
   battery = "BAT0",
   ac = "ACAD",
