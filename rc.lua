@@ -158,19 +158,6 @@ awful.util.mymainmenu = freedesktop.menu.build({
 })
 
 -- Screen
--- Re-set wallpaper when a screen's geometry changes (e.g. different resolution)
-screen.connect_signal("property::geometry", function(s)
-    -- Wallpaper
-    if beautiful.wallpaper then
-        local wallpaper = beautiful.wallpaper
-        -- If wallpaper is a function, call it with the screen
-        if type(wallpaper) == "function" then
-            wallpaper = wallpaper(s)
-        end
-        gears.wallpaper.maximized(wallpaper, s, true)
-    end
-end)
-
 -- Create a wibox for each screen and add it
 awful.screen.connect_for_each_screen(beautiful.at_screen_connect)
 
@@ -228,7 +215,7 @@ globalkeys = awful.util.table.join(
   awful.key(mod_shift, "j", function () awful.client.swap.byidx(  1) end, {description = "swap with next client by index", group = "client: switch"}),
   awful.key(mod_shift, "k", function () awful.client.swap.byidx( -1) end, {description = "swap with previous client by index", group = "client: switch"}),
 
-  -- Client: window manipulation 
+  -- Client: window manipulation
   awful.key({ modkey, "Control" }, "n",
             function ()
                 local c = awful.client.restore()
