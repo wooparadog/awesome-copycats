@@ -1,8 +1,9 @@
+---@diagnostic disable-next-line
+local dbus, root = dbus, root
+
 local awful = require("awful")
 local gears = require("gears")
 local dbus_caller = require("themes.powerarrow-wooparadog.dbus"){}
-local dbus = dbus
-local consts = require("themes.powerarrow-wooparadog.consts")
 local wibox = require("wibox")
 local my_table = awful.util.table
 local instances = {}
@@ -23,10 +24,10 @@ dbus.connect_signal("org.freedesktop.portal.Wallpaper",
   )
 dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpaper,path=/org/freedesktop/portal/desktop")
 
-function scandir(directory, filter)
+local function scandir(directory, filter)
   local i, t, popen = 0, {}, io.popen
   if not filter then
-    filter = function(s) return true end
+    filter = function(_) return true end
   end
   for filename in popen('ls -a "'..directory..'"'):lines() do
     if filter(filename) then
@@ -37,8 +38,8 @@ function scandir(directory, filter)
   return t
 end
 
-local function factory(args)
-  local args = args or {}
+local function factory(input_args)
+  local args = input_args or {}
   local wallpaper = {}
 
   wallpaper.wp_screen = args.screen or nil
@@ -94,13 +95,6 @@ local function factory(args)
     dbus_caller.refresh_user_wallpaper(wallpaper_path)
   end
 
-  local restart_timer = function ()
-    --restart the timer
-    wallpaper.wp_timer.timeout = wallpaper.wp_timeout
-    wallpaper.wp_timer:start()
-  end
-
-
   wallpaper.start = function()
     if #wallpaper.wp_files < 1 then
       wallpaper.scan_files()
@@ -137,7 +131,7 @@ local function factory(args)
 
   root.buttons(gears.table.join(
     root.buttons(),
-    awful.button({ }, 2, function (args)
+    awful.button({ }, 2, function ()
       if wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
         gears.debug.print_warning(string.format("Upload Wallpaper: %s", wallpaper.current))
         awful.util.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')

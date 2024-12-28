@@ -1,9 +1,5 @@
---[[
-
-     Powerarrow Awesome WM theme
-     github.com/lcpz
-
---]]
+---@diagnostic disable-next-line
+local screen, root = screen, root
 
 local gears = require("gears")
 local lain  = require("lain")
@@ -11,9 +7,7 @@ local awful = require("awful")
 local wibox = require("wibox")
 local naughty = require("naughty")
 
-local net_widgets = require("net_widgets")
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
-local consts = require("themes.powerarrow-wooparadog.consts")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
 
 local xresources = require("beautiful.xresources")
@@ -256,7 +250,7 @@ end
 
 -- net indicator
 -- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
-local net_wired = net_widgets.indicator({font=theme.font, interfaces={"lan"}})
+-- local net_wired = net_widgets.indicator({font=theme.font, interfaces={"lan"}})
 
 -- launcher
 local mylb = launchbar {
@@ -269,49 +263,43 @@ local mylb = launchbar {
 local volicon = wibox.widget.imagebox(theme.widget_vol)
 
 theme.volume = pipewire {
-    width = 59, border_width = 0, ticks = true, ticks_size = 6,
-    notification_preset = { font = theme.font },
-    --togglechannel = "IEC958,3",
-    settings = function(volume_now)
-        if volume_now.status == "off" then
-            volicon:set_image(theme.widget_vol_mute)
-        else
-            volicon:set_image(theme.widget_vol)
-        end
-    end,
-    colors = {
-        background   = "#343434",
-        mute         = red,
-        unmute       = theme.fg_normal,
-        tooltip_fg_focus = theme.fg_focus
-      },
-      button_handlers = function(volume)
-        return gears.table.join (
-          awful.button({}, 1, function()
-            awful.spawn("pavucontrol")
-          end),
-          awful.button({}, 2, function()
-            os.execute(string.format("pactl set-sink-volume %s 100%%", volume.device))
-            volume.update()
-          end),
-          awful.button({}, 3, function()
-            os.execute(string.format("pactl set-sink-mute %s toggle", volume.device))
-            volume.update()
-          end),
-          awful.button({}, 4, function()
-            os.execute(string.format("pactl set-sink-volume %s +5%%", volume.device))
-            volume.update()
-          end),
-          awful.button({}, 5, function()
-            os.execute(string.format("pactl set-sink-volume %s -5%%", volume.device))
-            volume.update()
-          end)
-          )
-        end
-    }
+  width = 59, border_width = 0, ticks = true, ticks_size = 6,
+  notification_preset = { font = theme.font },
+  --togglechannel = "IEC958,3",
+  settings = function(volume_now)
+    if volume_now.status == "off" then
+      volicon:set_image(theme.widget_vol_mute)
+    else
+      volicon:set_image(theme.widget_vol)
+    end
+  end,
+  button_handlers = function(volume)
+    return gears.table.join (
+    awful.button({}, 1, function()
+      awful.spawn("pavucontrol")
+    end),
+    awful.button({}, 2, function()
+      os.execute(string.format("pactl set-sink-volume %s 100%%", volume.device))
+      volume.update()
+    end),
+    awful.button({}, 3, function()
+      os.execute(string.format("pactl set-sink-mute %s toggle", volume.device))
+      volume.update()
+    end),
+    awful.button({}, 4, function()
+      os.execute(string.format("pactl set-sink-volume %s +5%%", volume.device))
+      volume.update()
+    end),
+    awful.button({}, 5, function()
+      os.execute(string.format("pactl set-sink-volume %s -5%%", volume.device))
+      volume.update()
+    end)
+    )
+  end
+}
 
-function buildVolume(screen)
-    local bar = theme.volume.add_screen(screen)
+local function buildVolume(s)
+    local bar = theme.volume.add_screen(s)
     local volumebg = wibox.container.background(bar, "#474747", gears.shape.rectangle)
     return wibox.widget{
       volicon,
@@ -333,7 +321,7 @@ local arrow = separators.arrow_left
 local right_arrow = separators.arrow_right
 
 local systray = wibox.widget.systray()
-screen.connect_signal("screen.focus", function(c)
+screen.connect_signal("screen.focus", function()
   systray:set_screen(awful.screen.focused())
 end)
 
@@ -459,7 +447,6 @@ function theme.at_screen_connect(s)
             -- arrow("#4B3B51", "#CB755B"),
             local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or wibox.container.background(),
             arrow("#4B3B51", "#5e3636"),
-            --wibox.container.background(wibox.container.margin(wibox.widget { nil, net_wired, net_wireless, layout = wibox.layout.align.horizontal }, 3, 3), "#5e3636"),
             wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
             arrow("#5e3636", "#777E76"),
             wibox.container.background(wibox.container.margin(textclock, dpi(4, s), dpi(8, s)), "#777E76"),

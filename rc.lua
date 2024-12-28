@@ -1,5 +1,5 @@
-local awesome, client, mouse, screen, tag = awesome, client, mouse, screen, tag
-local ipairs, string, os, table, tostring, tonumber, type = ipairs, string, os, table, tostring, tonumber, type
+---@diagnostic disable-next-line
+local awesome, client, screen, root, mousegrabber = awesome, client, screen, root, mousegrabber
 
 local gears         = require("gears")
 local awful         = require("awful")
@@ -55,14 +55,8 @@ local altkey       = "Mod1"
 local ctrlkey      = "Control"
 local terminal     = "terminal.sh"
 local editor       = "vim"
-local gui_editor   = "gedit"
 local browser      = "firefox"
 local filemanager  = "nautilus"
-local guieditor    = "gedit"
-local scrlocker    = "light-locker-command -l"
-
-local ctrl_alt = { ctrlkey, altkey }
-local ctrl_super = { ctrlkey, modkey }
 local mod_shift = { modkey, "Shift" }
 
 -- Set theme
@@ -170,7 +164,7 @@ root.buttons(gears.table.join(
 ))
 
 -- {{{ Key bindings
-globalkeys = awful.util.table.join(
+local globalkeys = awful.util.table.join(
   root.keys(),
 
   -- Hotkeys
@@ -182,7 +176,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey }, "q", function () awful.spawn(browser) end, {description = "run browser", group = "hotkeys"}),
   awful.key({ modkey }, "e", function () awful.spawn(filemanager) end, {description = "run file manager", group = "hotkeys"}),
 
-  awful.key({ modkey }, "r", function(self) awful.spawn("rofi -terminal " .. awful.util.terminal .. ' -show-icons -combi-modi window,drun,run -show combi -modes combi,calc -calc-command "echo -n \'{result}\' | xclip -sel clip"') end, {description = "Run launcher", group = "hotkeys"}),
+  awful.key({ modkey }, "r", function() awful.spawn("rofi -terminal " .. awful.util.terminal .. ' -show-icons -combi-modi window,drun,run -show combi -modes combi,calc -calc-command "echo -n \'{result}\' | xclip -sel clip"') end, {description = "Run launcher", group = "hotkeys"}),
   --awful.key({ modkey }, "Tab", function () awful.spawn("rofi -show window -show-icons") end, {description = "switch client", group = "hotkeys"}),
 
   awful.key({ modkey, }, "z", function () awful.screen.focused().quake:toggle() end, {description = "dropdown application", group = "hotkeys"}),
@@ -275,7 +269,7 @@ globalkeys = awful.util.table.join(
   awful.key({ modkey, "Shift" }, "l", function () awful.tag.incnmaster(-1, nil, true) end, {description = "decrease the number of master clients", group = "layout: modify"})
 )
 
-clientkeys = awful.util.table.join(
+local clientkeys = awful.util.table.join(
   awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
   awful.key({ modkey, "Shift" }, "c", function (c) c:kill() end, {description = "close", group = "client"}),
 
@@ -311,8 +305,7 @@ for i = 1, 9 do
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
                   function ()
-                        local screen = awful.screen.focused()
-                        local tag = screen.tags[i]
+                        local tag = awful.screen.focused().tags[i]
                         if tag then
                            tag:view_only()
                         end
@@ -321,8 +314,7 @@ for i = 1, 9 do
         -- Toggle tag display.
         awful.key({ modkey, "Control" }, "#" .. i + 9,
                   function ()
-                      local screen = awful.screen.focused()
-                      local tag = screen.tags[i]
+                      local tag = awful.screen.focused().tags[i]
                       if tag then
                          awful.tag.viewtoggle(tag)
                       end
@@ -355,7 +347,7 @@ end
 root.keys(globalkeys)
 
 -- Client: buttons
-clientbuttons = gears.table.join(
+local clientbuttons = gears.table.join(
     awful.button({ }, 1, function (c)
         c:emit_signal("request::activate", "mouse_click", {raise = true})
     end),
@@ -369,14 +361,14 @@ clientbuttons = gears.table.join(
     end),
     awful.button({ modkey }, 4, function (c)
       c:emit_signal("request::activate", "mouse_click", {raise = true})
-      capi.mousegrabber.run(function (_mouse)
+      capi.mousegrabber.run(function ()
         c.opacity = c.opacity + 0.1
         return false
       end, 'mouse')
     end, nil),
     awful.button({ modkey }, 5, function (c)
       c:emit_signal("request::activate", "mouse_click", {raise = true})
-      capi.mousegrabber.run(function (_mouse)
+      capi.mousegrabber.run(function ()
         c.opacity = c.opacity - 0.1
         return false
       end, 'mouse')
@@ -522,7 +514,7 @@ client.connect_signal("mouse::enter", function(c)
 end)
 
 -- No border for maximized clients
-function border_adjust(c)
+local function border_adjust(c)
     if c.maximized then -- no borders if only 1 client visible
         c.border_width = 0
     elseif #awful.screen.focused().clients > 1 then
