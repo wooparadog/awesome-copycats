@@ -407,7 +407,10 @@ awful.rules.rules = {
     { rule = { modal = true },
       properties = { floating = true }},
 
-    { rule = { class = "Bytedance-feishu", name ="Picture" },
+    { rule = { class = "Bytedance-feishu" },
+      properties = { floating = true }},
+
+    { rule = { class = "flameshot" },
       properties = { floating = true }},
 
     { rule = { class = "wechat" },
