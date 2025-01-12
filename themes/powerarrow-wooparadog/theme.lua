@@ -273,6 +273,11 @@ theme.volume = pipewire {
       volicon:set_image(theme.widget_vol)
     end
   end,
+  colors = {
+    background   = "#343434",
+    unmute       = theme.fg_normal,
+    tooltip_fg_focus = theme.fg_focus
+  },
   button_handlers = function(volume)
     return gears.table.join (
     awful.button({}, 1, function()
