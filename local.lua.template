@@ -16,10 +16,16 @@ local configs = {
   -- Wallpaper
   wallpapers = {
     timeout = 300,
+    enable_wifi_specific_sources = false,
     horizontal_path = {
         string.format("%s/Wallpaper/", os.getenv("HOME")),
     },
     vertical_path = {
+    },
+    wifi_specific_sources = {
+      douhome = {
+        string.format("%s/Wallpaper/douhome", os.getenv("HOME")),
+      }
     },
   },
 }

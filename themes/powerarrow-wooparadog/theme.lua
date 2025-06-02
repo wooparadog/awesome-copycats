@@ -9,6 +9,7 @@ local naughty = require("naughty")
 
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
+local wifi = require("themes.powerarrow-wooparadog.wifi")
 
 local xresources = require("beautiful.xresources")
 local dpi = xresources.apply_dpi
@@ -359,12 +360,24 @@ function theme.at_screen_connect(s)
 
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
-      paths=is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path,
       timeout=local_configs.wallpapers.tiemout or 300,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
     }
+
+    if local_configs.wallpapers.enable_wifi_specific_sources then
+      wifi.get_wifi_info_async(function(wifi_data)
+          if wifi_data and wifi_data.name then
+            local path = (is_horizon and local_configs.wallpapers.wifi_specific_sources[wifi_data.name] or local_configs.wallpapers.vertical_path) or {}
+            wallpaper_changer.change_path(path)
+            return
+          end
+          wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
+      end, "wlan0")
+    else
+      wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
+    end
 
     screen.connect_signal("property::geometry", function(signal_screen)
       if not s.valid then

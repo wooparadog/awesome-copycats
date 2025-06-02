@@ -62,12 +62,12 @@ local function factory(input_args)
   end
 
   wallpaper.change_path = function(new_paths)
+    gears.debug.print_warning(gears.debug.dump_return(new_paths, 'Changing Wallpaper Path:'))
     wallpaper.wp_paths = new_paths
     wallpaper.scan_files()
     wallpaper.start()
   end
 
-  wallpaper.scan_files()
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.current = nil
   wallpaper.wp_wall_icon = wibox.widget.imagebox(wallpaper.wp_normal_icon)
