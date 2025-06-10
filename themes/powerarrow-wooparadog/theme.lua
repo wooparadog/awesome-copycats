@@ -369,7 +369,13 @@ function theme.at_screen_connect(s)
     if local_configs.wallpapers.enable_wifi_specific_sources then
       wifi.get_wifi_info_async(function(wifi_data)
           if wifi_data and wifi_data.name then
-            local path = (is_horizon and local_configs.wallpapers.wifi_specific_sources[wifi_data.name] or local_configs.wallpapers.vertical_path) or {}
+            local path
+            if is_horizon then
+              path = local_configs.wallpapers.wifi_specific_sources[wifi_data.name] and local_configs.wallpapers.wifi_specific_sources[wifi_data.name].horizontal_path or local_configs.wallpapers.horizontal_path
+            else
+              path = local_configs.wallpapers.wifi_specific_sources[wifi_data.name] and local_configs.wallpapers.wifi_specific_sources[wifi_data.name].vertical_path  or local_configs.wallpapers.vertical_path
+            end
+
             wallpaper_changer.change_path(path)
             return
           end
