@@ -414,7 +414,7 @@ awful.rules.rules = {
       properties = { floating = true }},
 
     { rule = { class = "wechat" },
-      properties = { screen = 1, tag = awful.util.tagnames[4] } },
+      properties = { screen = 1, tag = awful.util.tagnames[4], focus=false } },
 
     { rule = { class = "Nextcloud" },
       properties = { floating = true }},
@@ -513,7 +513,10 @@ end)
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
-    c:emit_signal("request::activate", "mouse_enter", {raise = false})
+    -- Skip activation for wechat windows
+    if c.class ~= "wechat" then
+        c:emit_signal("request::activate", "mouse_enter", {raise = false})
+    end
 end)
 
 -- No border for maximized clients
