@@ -413,6 +413,9 @@ awful.rules.rules = {
     { rule = { class = "flameshot" },
       properties = { floating = true }},
 
+    { rule = { class = "wechat" },
+      properties = { focus=false }},
+
     { rule = { class = "Nextcloud" },
       properties = { floating = true }},
 
