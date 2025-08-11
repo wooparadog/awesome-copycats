@@ -77,6 +77,33 @@ local function factory(input_args)
       awful.button({ }, 1, function()
         wallpaper.start()
       end),
+      awful.button({ "Mod4" }, 1, function()
+        local naughty = require("naughty")
+        
+        if not wallpaper.current then
+          naughty.notify({
+            preset = naughty.config.presets.normal,
+            title = "Delete Wallpaper",
+            text = "No wallpaper to delete"
+          })
+          return
+        end
+
+        local filename = wallpaper.current:match("([^/]+)$")
+        if wallpaper.delete_current() then
+          naughty.notify({
+            preset = naughty.config.presets.normal,
+            title = "Delete Wallpaper", 
+            text = "Wallpaper '" .. filename .. "' deleted successfully"
+          })
+        else
+          naughty.notify({
+            preset = naughty.config.presets.critical,
+            title = "Delete Wallpaper",
+            text = "Failed to delete wallpaper '" .. filename .. "'"
+          })
+        end
+      end),
       awful.button({ }, 2, function()
         awful.spawn("xdg-open '" .. wallpaper.current .. "'")
       end),
@@ -127,6 +154,22 @@ local function factory(input_args)
     wallpaper.wp_timer:stop()
     -- Change icon
     wallpaper.wp_wall_icon.image = wallpaper.wp_paused_icon
+  end
+
+  wallpaper.delete_current = function()
+    if not wallpaper.current then
+      return false
+    end
+
+    local success = os.remove(wallpaper.current)
+    if success then
+      gears.debug.print_warning(string.format("Deleted wallpaper: %s", wallpaper.current))
+      wallpaper.start()
+      return true
+    else
+      gears.debug.print_warning(string.format("Failed to delete wallpaper: %s", wallpaper.current))
+      return false
+    end
   end
 
   root.buttons(gears.table.join(
