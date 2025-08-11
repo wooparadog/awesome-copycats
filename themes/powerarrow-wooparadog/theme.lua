@@ -331,15 +331,6 @@ screen.connect_signal("screen.focus", function()
   systray:set_screen(awful.screen.focused())
 end)
 
-local wallpaper_changers = {}
-root.keys(
-  gears.table.join(
-    root.keys(),
-    awful.key({ "Mod4",           }, "d", function()
-      wallpaper_changers[awful.screen.focused { client=false, mouse=true }.index].start()
-    end, {description = "Refresh wallpaper", group = "screen"})
-  )
-)
 
 function theme.at_screen_connect(s)
     if local_configs.screen_dpi then
@@ -405,7 +396,6 @@ function theme.at_screen_connect(s)
     end)
 
     wallpaper_changer.start()
-    wallpaper_changers[s.index] = wallpaper_changer
 
     -- Quake application
     s.quake = lain.util.quake({ app = "urxvt", followtag = true })

@@ -71,6 +71,11 @@ local function factory(input_args)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.current = nil
   wallpaper.wp_wall_icon = wibox.widget.imagebox(wallpaper.wp_normal_icon)
+  
+  local tooltip = awful.tooltip({
+    objects = { wallpaper.wp_wall_icon },
+    text = "Wallpaper Operations:\n• Left click: Change wallpaper\n• Meta+Left click: Delete current\n• Middle click: Open in viewer\n• Right click: Pause rotation\n• Mod4+d: Change wallpaper (keyboard)"
+  })
 
   wallpaper.wp_wall_icon:buttons(
     my_table.join(
@@ -79,7 +84,7 @@ local function factory(input_args)
       end),
       awful.button({ "Mod4" }, 1, function()
         local naughty = require("naughty")
-        
+
         if not wallpaper.current then
           naughty.notify({
             preset = naughty.config.presets.normal,
@@ -183,6 +188,18 @@ local function factory(input_args)
   ))
 
   wallpaper.wp_timer:connect_signal("timeout", wallpaper.start)
+
+  -- Add global keybinding for this wallpaper instance
+  root.keys(
+    gears.table.join(
+      root.keys(),
+      awful.key({ "Mod4" }, "d", function()
+        if awful.screen.focused { client=false, mouse=true }.index == wallpaper.wp_screen.index then
+          wallpaper.start()
+        end
+      end, {description = "Refresh wallpaper", group = "screen"})
+    )
+  )
 
   instances[#instances+1] = wallpaper
 
