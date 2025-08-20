@@ -132,9 +132,9 @@ theme.cal = lain.widget.cal({
 
 -- weather
 local weather = lain.widget.weather({
-  APPID = "a58a85c3f4640139fc31ffb88b6d2331",
-  city_id=1787960,
-  weather_na_markup="NA",
+  APPID = local_configs.openweathermap_key,
+  lat=31.327888134513756,
+  lon=121.26448673058344,
   settings = function()
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
   end,

@@ -148,10 +148,7 @@ local function factory(input_args)
     wallpaper.wp_wall_icon.image = wallpaper.wp_normal_icon
 
     -- Start the timer if not started
-    if not wallpaper.wp_timer.started then
-      gears.debug.print_warning("Starting wallpaper changer timer...")
-      wallpaper.wp_timer:start()
-    end
+    wallpaper.wp_timer:again()
     return true
   end
 
