@@ -410,6 +410,14 @@ awful.rules.rules = {
     { rule = { class = "Bytedance-feishu" },
       properties = { floating = true }},
 
+     { rule = { class = "Lark" },
+       callback = function(c)
+         local focused_screen = awful.screen.focused()
+         if focused_screen.tags[4] and focused_screen.tags[4].name == "IM" then
+           c:move_to_tag(focused_screen.tags[4])
+         end
+       end },
+
     { rule = { class = "flameshot" },
       properties = { floating = true }},
 
