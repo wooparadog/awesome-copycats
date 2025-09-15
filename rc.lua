@@ -189,7 +189,7 @@ local globalkeys = awful.util.table.join(
   -- Hotkeys: Backlight
   awful.key({}, "XF86MonBrightnessUp", function () os.execute("brightnessctl s +10%") end, {description = "Increase Screen Brightness", group = "hotkeys"}),
   awful.key({}, "XF86MonBrightnessDown", function () os.execute("brightnessctl s 10%-") end, {description = "Decrease Screen Brightness", group = "hotkeys"}),
-  awful.key({ modkey, "Shift" }, "l", function () os.execute("xset s activate") end, {description = "Lock current screen", group = "hotkeys"}),
+  awful.key({ ctrlkey, modkey, "Shift" }, "l", function () os.execute("xset s activate") end, {description = "Lock current screen", group = "hotkeys"}),
 
   -- Hotkeys: Calculator
   awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
