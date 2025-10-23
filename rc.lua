@@ -176,7 +176,7 @@ local globalkeys = awful.util.table.join(
   awful.key({ modkey }, "q", function () awful.spawn(browser) end, {description = "run browser", group = "hotkeys"}),
   awful.key({ modkey }, "e", function () awful.spawn(filemanager) end, {description = "run file manager", group = "hotkeys"}),
 
-  awful.key({ modkey }, "r", function() awful.spawn("rofi -terminal " .. awful.util.terminal .. ' -show-icons -combi-modi window,drun,run -show combi -modes combi,calc -calc-command "echo -n \'{result}\' | xclip -sel clip"') end, {description = "Run launcher", group = "hotkeys"}),
+  awful.key({ modkey }, "r", function() awful.spawn("vicinae toggle") end, {description = "Run launcher", group = "hotkeys"}),
   --awful.key({ modkey }, "Tab", function () awful.spawn("rofi -show window -show-icons") end, {description = "switch client", group = "hotkeys"}),
 
   awful.key({ modkey, }, "z", function () awful.screen.focused().quake:toggle() end, {description = "dropdown application", group = "hotkeys"}),
@@ -426,6 +426,9 @@ awful.rules.rules = {
     { rule = { class = "wechat" },
       properties = { focus=false }},
 
+    { rule = { class = "com.alibabainc.dingtalk" },
+      properties = { focus=false }},
+
     { rule = { class = "Nextcloud" },
       properties = { floating = true }},
 
@@ -525,6 +528,10 @@ end)
 client.connect_signal("mouse::enter", function(c)
     -- Skip activation for wechat windows
     if c.class ~= "wechat" then
+        c:emit_signal("request::activate", "mouse_enter", {raise = false})
+    end
+
+    if c.class ~= "com.alibabainc.dingtalk" then
         c:emit_signal("request::activate", "mouse_enter", {raise = false})
     end
 end)
