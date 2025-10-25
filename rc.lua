@@ -455,6 +455,12 @@ awful.rules.rules = {
 
     { rule = { class = "Steam" },
       properties = { screen = 1, tag = awful.util.tagnames[5] } },
+
+    { rule = { class = "vicinae" },
+      properties = { floating = true },
+      callback = function(c)
+        awful.placement.centered(c, nil)
+      end},
 }
 
 -- {{{ Signals
