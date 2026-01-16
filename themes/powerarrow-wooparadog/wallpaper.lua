@@ -51,6 +51,10 @@ local function factory(input_args)
   wallpaper.wp_files = {}
 
   wallpaper.scan_files = function()
+    if not wallpaper.wp_screen.valid then
+      gears.debug.print_warning("Screen is no longer valid, cannot scan files")
+      return
+    end
     wallpaper.wp_files = {}
     for key, value in ipairs(wallpaper.wp_paths) do
       local folder_files = scandir(value, wallpaper.wp_filter)
@@ -119,6 +123,10 @@ local function factory(input_args)
     )
 
   wallpaper.set_wallpaper = function(wallpaper_path)
+    if not wallpaper.wp_screen.valid then
+      gears.debug.print_warning("Screen is no longer valid, cannot set wallpaper")
+      return
+    end
     gears.debug.print_warning(string.format("New Wallpaper[of %s]: %s", #wallpaper.wp_files, wallpaper_path))
     gears.wallpaper.maximized(wallpaper_path, wallpaper.wp_screen)
     wallpaper.current = wallpaper_path
@@ -128,6 +136,13 @@ local function factory(input_args)
   end
 
   wallpaper.start = function()
+    -- Check if screen is still valid
+    if not wallpaper.wp_screen.valid then
+      gears.debug.print_warning("Screen is no longer valid, stopping wallpaper rotation")
+      wallpaper.wp_timer:stop()
+      return false
+    end
+
     if #wallpaper.wp_files < 1 then
       wallpaper.scan_files()
       if #wallpaper.wp_files < 1 then
@@ -177,7 +192,7 @@ local function factory(input_args)
   root.buttons(gears.table.join(
     root.buttons(),
     awful.button({ }, 2, function ()
-      if wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
+      if wallpaper.wp_screen.valid and wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
         gears.debug.print_warning(string.format("Upload Wallpaper: %s", wallpaper.current))
         awful.util.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')
       end
@@ -191,7 +206,7 @@ local function factory(input_args)
     gears.table.join(
       root.keys(),
       awful.key({ "Mod4" }, "d", function()
-        if awful.screen.focused { client=false, mouse=true }.index == wallpaper.wp_screen.index then
+        if wallpaper.wp_screen.valid and awful.screen.focused { client=false, mouse=true }.index == wallpaper.wp_screen.index then
           wallpaper.start()
         end
       end, {description = "Refresh wallpaper", group = "screen"})

@@ -54,7 +54,7 @@ awful.spawn.with_shell(
 local modkey       = "Mod4"
 local altkey       = "Mod1"
 local ctrlkey      = "Control"
-local terminal     = "terminal.sh"
+local terminal     = "kitty -1"
 local editor       = "vim"
 local browser      = "firefox"
 local filemanager  = "nautilus"
