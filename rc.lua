@@ -398,7 +398,7 @@ awful.rules.rules = {
     { rule_any = { type = { "dialog", "normal" } },
       properties = { titlebars_enabled = false, placement = awful.placement.next_to_mouse + awful.placement.no_offscreen  } },
 
-    { rule_any = { type = { "dialog" } },
+    { rule_any = { type = { "dialog", "notification", "splash", "utility", "toolbar", "tooltip", "popup_menu", "dropdown_menu", "combo", "dnd" } },
       properties = { floating = true, ontop = true} },
 
     { rule_any = { class = { "Gnome-screenshot", "Calculator", "Blueman-manager", "1Password"} },
