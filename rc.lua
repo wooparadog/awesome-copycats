@@ -233,11 +233,10 @@ local globalkeys = awful.util.table.join(
 
   -- Awesome: Show/Hide Wibox
   awful.key({ modkey }, "b", function ()
-          for s in screen do
-              s.mywibox.visible = not s.mywibox.visible
-              if s.mybottomwibox then
-                  s.mybottomwibox.visible = not s.mybottomwibox.visible
-              end
+          local s = awful.screen.focused()
+          s.mywibox.visible = not s.mywibox.visible
+          if s.mybottomwibox then
+              s.mybottomwibox.visible = not s.mybottomwibox.visible
           end
       end,
       {description = "toggle wibox", group = "awesome"}),
