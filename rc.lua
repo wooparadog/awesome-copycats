@@ -58,7 +58,6 @@ local terminal     = "kitty -1"
 local editor       = "vim"
 local browser      = "firefox"
 local filemanager  = "nautilus"
-local mod_shift = { modkey, "Shift" }
 
 -- Set theme
 local chosen_theme = "powerarrow-wooparadog"
@@ -209,8 +208,10 @@ local globalkeys = awful.util.table.join(
   awful.key({ modkey }, "Tab", revelation),
 
   -- Client: layout manipulation
-  awful.key(mod_shift, "j", function () awful.client.swap.byidx(  1) end, {description = "swap with next client by index", group = "client: switch"}),
-  awful.key(mod_shift, "k", function () awful.client.swap.byidx( -1) end, {description = "swap with previous client by index", group = "client: switch"}),
+  awful.key({ modkey, "Shift" }, "h", function () awful.client.swap.bydirection("left") end, {description = "swap with client on the left", group = "client: switch"}),
+  awful.key({ modkey, "Shift" }, "j", function () awful.client.swap.bydirection("down") end, {description = "swap with client below", group = "client: switch"}),
+  awful.key({ modkey, "Shift" }, "k", function () awful.client.swap.bydirection("up") end, {description = "swap with client above", group = "client: switch"}),
+  awful.key({ modkey, "Shift" }, "l", function () awful.client.swap.bydirection("right") end, {description = "swap with client on the right", group = "client: switch"}),
 
   -- Client: window manipulation
   awful.key({ modkey, "Control" }, "n",
@@ -267,8 +268,8 @@ local globalkeys = awful.util.table.join(
   awful.key({ altkey, "Shift" }, "l", function () awful.tag.incmwfact( 0.05) end, {description = "increase master width factor", group = "layout: modify"}),
   awful.key({ altkey, "Shift" }, "h", function () awful.tag.incmwfact(-0.05) end, {description = "decrease master width factor", group = "layout: modify"}),
 
-  awful.key({ modkey, "Shift" }, "h", function () awful.tag.incnmaster( 1, nil, true) end, {description = "increase the number of master clients", group = "layout: modify"}),
-  awful.key({ modkey, "Shift" }, "l", function () awful.tag.incnmaster(-1, nil, true) end, {description = "decrease the number of master clients", group = "layout: modify"})
+  awful.key({ modkey, "Control", "Shift" }, "h", function () awful.tag.incnmaster( 1, nil, true) end, {description = "increase the number of master clients", group = "layout: modify"}),
+  awful.key({ modkey, "Control", "Shift" }, "l", function () awful.tag.incnmaster(-1, nil, true) end, {description = "decrease the number of master clients", group = "layout: modify"})
 )
 
 local clientkeys = awful.util.table.join(
