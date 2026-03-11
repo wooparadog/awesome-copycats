@@ -391,7 +391,9 @@ function theme.at_screen_connect(s)
         end
       else
         -- Also reset wallpaper of unchanged screen to prevent tearing
-        wallpaper_changer.set_wallpaper(wallpaper_changer.current)
+        if wallpaper_changer.current then
+          wallpaper_changer.set_wallpaper(wallpaper_changer.current)
+        end
       end
     end)
 
