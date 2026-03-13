@@ -327,9 +327,15 @@ local arrow = separators.arrow_left
 local right_arrow = separators.arrow_right
 
 local systray = wibox.widget.systray()
-screen.connect_signal("screen.focus", function()
-  systray:set_screen(awful.screen.focused())
-end)
+
+-- Move systray to the screen under the mouse cursor
+local function update_systray_screen()
+    local s = mouse.screen
+    systray:set_screen(s)
+end
+
+tag.connect_signal("property::selected", update_systray_screen)
+client.connect_signal("focus", update_systray_screen)
 
 
 function theme.at_screen_connect(s)
