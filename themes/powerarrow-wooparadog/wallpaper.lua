@@ -76,7 +76,7 @@ local function factory(input_args)
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
   wallpaper.current = nil
   wallpaper.wp_wall_icon = wibox.widget.imagebox(wallpaper.wp_normal_icon)
-  
+
   local tooltip = awful.tooltip({
     objects = { wallpaper.wp_wall_icon },
     text = "Wallpaper Operations:\n• Left click: Change wallpaper\n• Meta+Left click: Delete current\n• Middle click: Open in viewer\n• Right click: Pause rotation\n• Mod4+d: Change wallpaper (keyboard)"
@@ -147,7 +147,7 @@ local function factory(input_args)
     end
 
     -- Choose one wallpaper
-    math.randomseed(math.tointeger(os.time() * 1000000 + wallpaper.wp_screen.index * 1024))
+    math.randomseed(os.time() * 1000000 + wallpaper.wp_screen.index * 1024)
     local wp_index = math.random(#wallpaper.wp_files)
     local wallpaper_item = table.remove(wallpaper.wp_files, wp_index)
     local wallpaper_path = wallpaper.wp_paths[wallpaper_item[1]] .. wallpaper_item[2]
