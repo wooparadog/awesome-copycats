@@ -66,13 +66,9 @@ beautiful.init(string.format("%s/.config/awesome/themes/%s/theme.lua", os.getenv
 
 revelation.init()
 
--- Import bling to update layout icon
-local bling = require("bling")
-
 -- Layouts
 awful.util.terminal = terminal
 awful.layout.layouts = {
-    bling.layout.centered,
     awful.layout.suit.tile,
     awful.layout.suit.tile.left,
     awful.layout.suit.tile.top,
@@ -83,7 +79,6 @@ awful.layout.layouts = {
 
 awful.util.tagnames = { "Firefox", "Terminal", "Files", "IM", "Steam", "Spotify" }
 awful.layout.taglayouts = {
-    bling.layout.centered,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
     awful.layout.suit.tile,
