@@ -328,10 +328,13 @@ local right_arrow = separators.arrow_right
 
 local systray = wibox.widget.systray()
 
--- Move systray to the screen under the mouse cursor
+-- Move systray to the screen under the mouse cursor,
+-- but only if that screen's wibar is visible.
 local function update_systray_screen()
     local s = mouse.screen
-    systray:set_screen(s)
+    if s and s.mywibox and s.mywibox.visible then
+        systray:set_screen(s)
+    end
 end
 
 tag.connect_signal("property::selected", update_systray_screen)
