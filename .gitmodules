@@ -6,6 +6,3 @@
 	path = freedesktop
 	url = git://github.com/lcpz/awesome-freedesktop.git
 
-[submodule "revelation"]
-	path = revelation
-	url = git@github.com:thiru/awesome-revelation.git
