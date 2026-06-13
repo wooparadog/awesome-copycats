@@ -80,6 +80,7 @@ theme.widget_icon_wallpaper                     = theme.dir .. "/icons/wall.png"
 theme.widget_icon_wallpaper_paused              = theme.dir .. "/icons/wall_paused.png"
 theme.tasklist_plain_task_name                  = true
 theme.tasklist_disable_icon                     = true
+theme.icon_theme                                 = "breeze-dark"
 theme.useless_gap                               = 2
 theme.titlebar_close_button_focus               = theme.dir .. "/icons/titlebar/close_focus.png"
 theme.titlebar_close_button_normal              = theme.dir .. "/icons/titlebar/close_normal.png"

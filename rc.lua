@@ -47,7 +47,7 @@ awful.spawn.with_shell(
     'xrdb -merge <<< "awesome.started:true";' ..
     -- list each of your autostart commands, followed by ; inside single quotes, followed by ..
     'dex --environment awesome --autostart;' .. -- https://github.com/jceb/dex
-    'snixembed --fork;' .. -- https://github.com/awesomeWM/awesome/issues/2995 for cloudflare warp-taskbar
+    --'snixembed --fork;' .. -- https://github.com/awesomeWM/awesome/issues/2995 for cloudflare warp-taskbar
     'vicinae server;'
 )
 
