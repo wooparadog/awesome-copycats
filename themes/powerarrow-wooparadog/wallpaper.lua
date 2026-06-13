@@ -5,7 +5,6 @@ local awful = require("awful")
 local gears = require("gears")
 local dbus_caller = require("themes.powerarrow-wooparadog.dbus"){}
 local wibox = require("wibox")
-local my_table = awful.util.table
 local instances = {}
 
 
@@ -24,19 +23,9 @@ dbus.connect_signal("org.freedesktop.portal.Wallpaper",
   )
 dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpaper,path=/org/freedesktop/portal/desktop")
 
-local function scandir(directory, filter)
-  local i, t, popen = 0, {}, io.popen
-  if not filter then
-    filter = function(_) return true end
-  end
-  for filename in popen('ls -a "'..directory..'"'):lines() do
-    if filter(filename) then
-      i = i + 1
-      t[i] = filename
-    end
-  end
-  return t
-end
+-- Seed the RNG once at module load. Reseeding on every rotation barely
+-- changes a time-based seed and is an anti-pattern.
+math.randomseed(os.time())
 
 local function factory(input_args)
   local args = input_args or {}
@@ -45,32 +34,69 @@ local function factory(input_args)
   wallpaper.wp_screen = args.screen or nil
   wallpaper.wp_timeout  = args.timeout or 300
   wallpaper.wp_paths = args.paths or {}
-  wallpaper.wp_filter = function(s) return string.match(s,"%.png$") or string.match(s,"%.jpg$") or string.match(s,"%.jpeg$") or string.match(s,"%.JPG$") end
   wallpaper.wp_normal_icon = args.widget_icon_wallpaper
   wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
   wallpaper.wp_files = {}
+  wallpaper._scanning = false
+  wallpaper._scan_callbacks = {}
 
   local function is_screen_valid()
     return wallpaper.wp_screen and wallpaper.wp_screen.valid
   end
 
-  wallpaper.scan_files = function()
-    if not is_screen_valid() then return end
+  -- Scan all configured paths for images asynchronously, then invoke callback.
+  -- Uses `find` via easy_async_with_shell so a slow/stale mount (e.g. Nextcloud)
+  -- never blocks the WM main loop. Concurrent calls share the in-flight scan.
+  wallpaper.scan_files = function(callback)
+    if not is_screen_valid() then
+      if callback then callback() end
+      return
+    end
+
+    if callback then
+      wallpaper._scan_callbacks[#wallpaper._scan_callbacks+1] = callback
+    end
+    if wallpaper._scanning then return end
+    wallpaper._scanning = true
+
     wallpaper.wp_files = {}
+
+    local function flush_callbacks()
+      wallpaper._scanning = false
+      local cbs = wallpaper._scan_callbacks
+      wallpaper._scan_callbacks = {}
+      for _, cb in ipairs(cbs) do cb() end
+    end
+
+    local pending = #wallpaper.wp_paths
+    if pending == 0 then
+      flush_callbacks()
+      return
+    end
+
     for key, value in ipairs(wallpaper.wp_paths) do
-      local folder_files = scandir(value, wallpaper.wp_filter)
-      for _, file_path in ipairs(folder_files) do
-        wallpaper.wp_files[#wallpaper.wp_files+1] = {key, file_path}
-      end
-      gears.debug.print_warning(string.format("Adding wallpaper: %s for %sx%s, Count: %s", value, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, #folder_files))
+      local cmd = "find '" .. value .. "' -maxdepth 1 -type f " ..
+                  "\\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \\) " ..
+                  "-printf '%f\\n' 2>/dev/null"
+      awful.spawn.easy_async_with_shell(cmd, function(stdout)
+        local count = 0
+        for filename in stdout:gmatch("[^\r\n]+") do
+          wallpaper.wp_files[#wallpaper.wp_files+1] = {key, filename}
+          count = count + 1
+        end
+        if is_screen_valid() then
+          gears.debug.print_warning(string.format("Adding wallpaper: %s for %sx%s, Count: %s", value, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, count))
+        end
+        pending = pending - 1
+        if pending == 0 then flush_callbacks() end
+      end)
     end
   end
 
   wallpaper.change_path = function(new_paths)
     gears.debug.print_warning(gears.debug.dump_return(new_paths, 'Changing Wallpaper Path:'))
     wallpaper.wp_paths = new_paths
-    wallpaper.scan_files()
-    wallpaper.start()
+    wallpaper.scan_files(function() wallpaper.start() end)
   end
 
   wallpaper.wp_timer = gears.timer { timeout = wallpaper.wp_timeout }
@@ -83,7 +109,7 @@ local function factory(input_args)
   })
 
   wallpaper.wp_wall_icon:buttons(
-    my_table.join(
+    gears.table.join(
       awful.button({ }, 1, function()
         wallpaper.start()
       end),
@@ -133,21 +159,12 @@ local function factory(input_args)
     dbus_caller.refresh_user_wallpaper(wallpaper_path)
   end
 
-  wallpaper.start = function()
-    if not is_screen_valid() then
-      wallpaper.wp_timer:stop()
-      return false
+  -- Pick a random scanned wallpaper and display it. Assumes wp_files is populated.
+  local function pick_and_set()
+    if not is_screen_valid() or #wallpaper.wp_files < 1 then
+      return
     end
 
-    if #wallpaper.wp_files < 1 then
-      wallpaper.scan_files()
-      if #wallpaper.wp_files < 1 then
-        return false
-      end
-    end
-
-    -- Choose one wallpaper
-    math.randomseed(os.time() * 1000000 + wallpaper.wp_screen.index * 1024)
     local wp_index = math.random(#wallpaper.wp_files)
     local wallpaper_item = table.remove(wallpaper.wp_files, wp_index)
     local wallpaper_path = wallpaper.wp_paths[wallpaper_item[1]] .. wallpaper_item[2]
@@ -160,7 +177,20 @@ local function factory(input_args)
 
     -- Start the timer if not started
     wallpaper.wp_timer:again()
-    return true
+  end
+
+  wallpaper.start = function()
+    if not is_screen_valid() then
+      wallpaper.wp_timer:stop()
+      return
+    end
+
+    -- The pool empties as wallpapers are consumed; rescan (async) when drained.
+    if #wallpaper.wp_files < 1 then
+      wallpaper.scan_files(pick_and_set)
+    else
+      pick_and_set()
+    end
   end
 
   wallpaper.stop = function()
@@ -190,7 +220,7 @@ local function factory(input_args)
     awful.button({ }, 2, function ()
       if is_screen_valid() and wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
         gears.debug.print_warning(string.format("Upload Wallpaper: %s", wallpaper.current))
-        awful.util.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')
+        awful.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')
       end
     end)
   ))
