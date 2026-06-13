@@ -93,7 +93,7 @@ awful.layout.vertical_taglayouts = {
 }
 awful.util.vertical_tagnames = { "Firefox", "Terminal", "Files", "IM" }
 
-awful.util.taglist_buttons = awful.util.table.join(
+awful.util.taglist_buttons = gears.table.join(
     awful.button({ }, 1, function(t) t:view_only() end),
     awful.button({ modkey }, 1, function(t) if client.focus then client.focus:move_to_tag(t) end end),
     awful.button({ }, 3, awful.tag.viewtoggle),
@@ -102,7 +102,7 @@ awful.util.taglist_buttons = awful.util.table.join(
     awful.button({ }, 5, function(t) awful.tag.viewprev(t.screen) end)
 )
 
-awful.util.tasklist_buttons = awful.util.table.join(
+awful.util.tasklist_buttons = gears.table.join(
     awful.button({ }, 1, function (c)
         if c == client.focus then
             c.minimized = true
@@ -160,13 +160,13 @@ root.buttons(gears.table.join(
 ))
 
 -- {{{ Key bindings
-local globalkeys = awful.util.table.join(
+local globalkeys = gears.table.join(
   root.keys(),
 
   -- Hotkeys
-  awful.key({ }, "Print", function () awful.util.spawn("flameshot gui") end, {description = "Screenshot", group = "hotkeys"}),
-  awful.key({ modkey }, "Next", function () awful.util.spawn("playerctl next") end, {description = "Player Next", group = "hotkeys"}),
-  awful.key({ modkey }, "Prior", function () awful.util.spawn("playerctl previous") end, {description = "Player Next", group = "hotkeys"}),
+  awful.key({ }, "Print", function () awful.spawn("flameshot gui") end, {description = "Screenshot", group = "hotkeys"}),
+  awful.key({ modkey }, "Next", function () awful.spawn("playerctl next") end, {description = "Player Next", group = "hotkeys"}),
+  awful.key({ modkey }, "Prior", function () awful.spawn("playerctl previous") end, {description = "Player Previous", group = "hotkeys"}),
   awful.key({ modkey }, "s", hotkeys_popup.show_help, {description = "show help", group="awesome"}),
   awful.key({ modkey }, "Return", function () awful.spawn(terminal) end, {description = "open a terminal", group = "hotkeys"}),
   awful.key({ modkey }, "q", function () awful.spawn(browser) end, {description = "run browser", group = "hotkeys"}),
@@ -188,11 +188,11 @@ local globalkeys = awful.util.table.join(
   --awful.key({ ctrlkey, modkey, "Shift" }, "l", function () os.execute("xset s activate") end, {description = "Lock current screen", group = "hotkeys"}),
 
   -- Hotkeys: Calculator
-  awful.key({}, "#148", function () awful.util.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
+  awful.key({}, "#148", function () awful.spawn('gnome-calculator') end, {description = "Calculator", group = "hotkeys"}),
   -- Hotkeys: Enpass
-  awful.key({ ctrlkey, "Shift" }, "\\", function () awful.util.spawn('/opt/enpass/Enpass showassistant') end, {description = "Enpass Quick Access", group = "hotkeys"}),
+  awful.key({ ctrlkey, "Shift" }, "\\", function () awful.spawn('/opt/enpass/Enpass showassistant') end, {description = "Enpass Quick Access", group = "hotkeys"}),
   -- Hotkeys: Htop
-  awful.key({ ctrlkey, "Shift" }, "Escape", function () awful.util.spawn(terminal .. " -e htop") end, {description = "Htop", group = "hotkeys"}),
+  awful.key({ ctrlkey, "Shift" }, "Escape", function () awful.spawn(terminal .. " -e htop") end, {description = "Htop", group = "hotkeys"}),
   -- Client: Focus
   awful.key({ modkey }, "u", awful.client.urgent.jumpto, {description = "jump to urgent client", group = "client: switch"}),
 
@@ -201,7 +201,7 @@ local globalkeys = awful.util.table.join(
   awful.key({ modkey }, "k", function() awful.client.focus.global_bydirection("up") if client.focus then client.focus:raise() end end, {description = "focus up", group = "client: switch"}),
   awful.key({ modkey }, "h", function() awful.client.focus.global_bydirection("left") if client.focus then client.focus:raise() end end, {description = "focus left", group = "client: switch"}),
   awful.key({ modkey }, "l", function() awful.client.focus.global_bydirection("right") if client.focus then client.focus:raise() end end, {description = "focus right", group = "client: switch"}),
-  awful.key({ modkey }, "Tab", revelation),
+  awful.key({ modkey }, "Tab", revelation, {description = "window overview", group = "client: switch"}),
 
   -- Client: layout manipulation
   awful.key({ modkey, "Shift" }, "h", function () awful.client.swap.bydirection("left") end, {description = "swap with client on the left", group = "client: switch"}),
@@ -268,7 +268,7 @@ local globalkeys = awful.util.table.join(
   awful.key({ modkey, "Control", "Shift" }, "l", function () awful.tag.incnmaster(-1, nil, true) end, {description = "decrease the number of master clients", group = "layout: modify"})
 )
 
-local clientkeys = awful.util.table.join(
+local clientkeys = gears.table.join(
   awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
   awful.key({ modkey, "Shift" }, "c", function (c) c:kill() end, {description = "close", group = "client"}),
 
@@ -300,7 +300,7 @@ for i = 1, 9 do
         descr_move = {description = "move focused client to tag #", group = "tag"}
         descr_toggle_focus = {description = "toggle focused client on tag #", group = "tag"}
     end
-    globalkeys = awful.util.table.join(globalkeys,
+    globalkeys = gears.table.join(globalkeys,
         -- View tag only.
         awful.key({ modkey }, "#" .. i + 9,
                   function ()
@@ -489,7 +489,7 @@ client.connect_signal("request::titlebars", function(c)
 
     -- Default
     -- buttons for the titlebar
-    local buttons = awful.util.table.join(
+    local buttons = gears.table.join(
         awful.button({ }, 1, function()
             c:emit_signal("request::activate", "titlebar", {raise = true})
             awful.mouse.client.move(c)
@@ -529,12 +529,8 @@ end)
 
 -- Enable sloppy focus, so that focus follows mouse.
 client.connect_signal("mouse::enter", function(c)
-    -- Skip activation for wechat windows
-    if c.class ~= "wechat" then
-        c:emit_signal("request::activate", "mouse_enter", {raise = false})
-    end
-
-    if c.class ~= "com.alibabainc.dingtalk" then
+    -- Skip activation for wechat and dingtalk windows
+    if c.class ~= "wechat" and c.class ~= "com.alibabainc.dingtalk" then
         c:emit_signal("request::activate", "mouse_enter", {raise = false})
     end
 end)
@@ -543,7 +539,7 @@ end)
 local function border_adjust(c)
     if c.maximized then -- no borders if only 1 client visible
         c.border_width = 0
-    elseif #awful.screen.focused().clients > 1 then
+    elseif #c.screen.clients > 1 then
         c.border_width = beautiful.border_width
         c.border_color = beautiful.border_focus
     end

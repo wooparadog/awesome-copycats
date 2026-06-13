@@ -33,6 +33,12 @@ local function factory(args)
 
         _current_level = 0,
         _mute          = "no",
+        -- NOTE: two distinct "device" values are tracked here, do not confuse them:
+        --   * pipe_pulsebar.device  -> the sink *index* (e.g. "49"), parsed from
+        --     `pactl get-sink-volume` output. This is what rc.lua's volume keys and
+        --     theme.lua's button handlers pass to `pactl set-sink-*`.
+        --   * volume_now.device     -> the device.string (e.g. "alsa_output...."),
+        --     a human-readable id only used for the tooltip. NOT a pactl target.
         device         = "N/A"
     }
 
@@ -123,6 +129,7 @@ local function factory(args)
                 muted  = string.match(s, "Mute: (%S+)") or "N/A"
             }
 
+            -- sink index used as the pactl target (see device note above)
             pipe_pulsebar.device = volume_now.index
 
             local ch = 1

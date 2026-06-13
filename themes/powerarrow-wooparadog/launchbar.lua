@@ -14,14 +14,6 @@ local gears = require("gears")
 
 local launchbar = {}
 
-function split(str)
-  local array = {}
-  for mem in string.gmatch(str, "([^ ]+)") do
-    table.insert(array, mem)
-  end
-  return array
-end
-
 local function getValue(t, key)
   local _, _, res = string.find(t, key .. " *= *([^%c]+)%c")
   return res
