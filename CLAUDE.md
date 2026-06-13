@@ -24,6 +24,8 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 - `net_widgets/` - Network status widgets
 - `revelation/` - Window switcher/overview
 
+These are git submodules. **Never modify files inside these directories.** If a submodule needs different behavior, wrap or override it from within the theme or main config files.
+
 ### D-Bus Convention
 All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.
 Never call `Gio.bus_get_sync` or hold a raw `Gio.DBusConnection` directly in other modules.

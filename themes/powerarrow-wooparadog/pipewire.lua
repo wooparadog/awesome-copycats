@@ -12,6 +12,7 @@ local awful      = require("awful")
 local naughty    = require("naughty")
 local wibox      = require("wibox")
 local xresources = require("beautiful.xresources")
+local root     = root
 local math     = math
 local string   = string
 local type     = type
@@ -234,6 +235,21 @@ local function factory(args)
             end
         })
     end
+
+    root.keys(gears.table.join(root.keys(),
+        awful.key({}, "#123", function()
+            awful.spawn(string.format("pactl set-sink-volume %s +5%%", pipe_pulsebar.device))
+            pipe_pulsebar.update()
+        end, {description = "volume up", group = "hotkeys"}),
+        awful.key({}, "#122", function()
+            awful.spawn(string.format("pactl set-sink-volume %s -5%%", pipe_pulsebar.device))
+            pipe_pulsebar.update()
+        end, {description = "volume down", group = "hotkeys"}),
+        awful.key({}, "#121", function()
+            awful.spawn(string.format("pactl set-sink-mute %s toggle", pipe_pulsebar.device))
+            pipe_pulsebar.update()
+        end, {description = "toggle mute", group = "hotkeys"})
+    ))
 
     pipe_pulsebar.update()
     subscribe_volume_events()
