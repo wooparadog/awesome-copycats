@@ -12,12 +12,12 @@ return function(theme)
     theme.notification_fg           = "#cdd6f4"
     theme.notification_border_color = "#b4befe"
     theme.notification_border_width = 1
-    theme.notification_margin       = 10
+    theme.notification_margin       = 14
     theme.notification_spacing      = 5
-    theme.notification_icon_size    = 48
-    theme.notification_max_width    = 400
-    theme.notification_max_height   = 200
-    theme.notification_opacity      = 0.9
+    theme.notification_icon_size    = 64
+    theme.notification_max_width    = 520   -- fixed popup width (see request::display)
+    theme.notification_max_height   = 160   -- popup grows with content up to this cap
+    theme.notification_opacity      = 1
     theme.notification_font         = theme.font
     -- dunst: corner_radius = 5, corners = top-left,bottom (top-right left square).
     theme.notification_shape        = function(cr, w, h)
@@ -68,7 +68,7 @@ return function(theme)
         local text_column = {
             naughty.widget.title,
             naughty.widget.message,
-            spacing = 2,
+            spacing = 4,
             layout  = wibox.layout.fixed.vertical,
         }
 
@@ -89,9 +89,16 @@ return function(theme)
                     {
                         {
                             naughty.widget.icon,
-                            text_column,
+                            {
+                                -- Center the text against the (taller) icon and
+                                -- let it fill the remaining width.
+                                text_column,
+                                valign                  = "center",
+                                content_fill_horizontal = true,
+                                widget                  = wibox.container.place,
+                            },
                             fill_space = true,
-                            spacing    = 10,
+                            spacing    = 14,
                             layout     = wibox.layout.fixed.horizontal,
                         },
                         margins = theme.notification_margin,
@@ -100,10 +107,16 @@ return function(theme)
                     id     = "background_role",
                     widget = naughty.container.background,
                 },
+                -- Cap the height: the popup shrinks to fit short content and clips
+                -- anything taller (it never grows past this).
                 strategy = "max",
-                width    = theme.notification_max_width,
+                height   = theme.notification_max_height,
                 widget   = wibox.container.constraint,
             },
+            -- Fixed width so stacked notifications line up.
+            strategy = "exact",
+            width    = theme.notification_max_width,
+            widget   = wibox.container.constraint,
         }
     end)
 end
