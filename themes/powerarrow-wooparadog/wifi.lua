@@ -1,9 +1,6 @@
--- Lua function to get the current Wi-Fi SSID asynchronously
--- and pass it to a callback as a table
--- Replace 'wlan0' with your actual wireless device name if different in the command string.
--- You can also make the device_name a parameter of this function if needed.
-
 local awful = require("awful")
+local lgi   = require("lgi")
+local Gio   = lgi.Gio
 
 local wifi_utils = {}
 
@@ -46,5 +43,55 @@ function wifi_utils.get_wifi_info_async(callback, device_name_param)
     end)
 end
 
+
+-- Subscribe to iwd D-Bus signals so the callback fires whenever the connected
+-- network changes. Filters on arg0 = "net.connman.iwd.Station" so only station
+-- property changes are delivered (not RSSI noise from other interfaces).
+-- Within each signal, only State and ConnectedNetwork changes trigger a re-query.
+-- Returns a handle with a :disconnect() method.
+function wifi_utils.subscribe_ssid_changes(callback, device_name_param)
+    local device_name = device_name_param or "wlan0"
+
+    local system_bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, nil)
+    if not system_bus then return { disconnect = function() end } end
+
+    local id = system_bus:signal_subscribe(
+        "net.connman.iwd",
+        "org.freedesktop.DBus.Properties",
+        "PropertiesChanged",
+        nil,                          -- any object path
+        "net.connman.iwd.Station",    -- arg0: only Station property changes
+        Gio.DBusSignalFlags.NONE,
+        function(_conn, _sender, _path, _iface, _signal, params)
+            -- changed properties dict (index 1) and invalidated array (index 2)
+            local changed    = params:get_child_value(1)
+            local invalidated = params:get_child_value(2)
+
+            local relevant = changed:lookup_value("State", nil) ~= nil
+                          or changed:lookup_value("ConnectedNetwork", nil) ~= nil
+
+            if not relevant then
+                for i = 0, invalidated:n_children() - 1 do
+                    if invalidated:get_child_value(i).value == "ConnectedNetwork" then
+                        relevant = true
+                        break
+                    end
+                end
+            end
+
+            if not relevant then return end
+
+            wifi_utils.get_wifi_info_async(function(wifi_data)
+                callback(wifi_data and wifi_data.name)
+            end, device_name)
+        end
+    )
+
+    return {
+        disconnect = function()
+            system_bus:signal_unsubscribe(id)
+        end
+    }
+end
 
 return wifi_utils

@@ -370,29 +370,32 @@ function theme.at_screen_connect(s)
 
     -- create wallpaper
     local wallpaper_changer = require("themes.powerarrow-wooparadog.wallpaper"){
-      timeout=local_configs.wallpapers.tiemout or 300,
+      timeout=local_configs.wallpapers.timeout or 300,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,
       widget_icon_wallpaper_paused=theme.widget_icon_wallpaper_paused,
     }
 
+    -- Resolve the wallpaper path list for a given SSID and screen orientation.
+    local function wallpaper_path_for(ssid)
+        local sources = local_configs.wallpapers.wifi_specific_sources
+        if ssid and sources and sources[ssid] then
+            return is_horizon and sources[ssid].horizontal_path or sources[ssid].vertical_path
+        end
+        return is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path
+    end
+
     if local_configs.wallpapers.enable_wifi_specific_sources then
       wifi.get_wifi_info_async(function(wifi_data)
-          if wifi_data and wifi_data.name then
-            local path
-            if is_horizon then
-              path = local_configs.wallpapers.wifi_specific_sources[wifi_data.name] and local_configs.wallpapers.wifi_specific_sources[wifi_data.name].horizontal_path or local_configs.wallpapers.horizontal_path
-            else
-              path = local_configs.wallpapers.wifi_specific_sources[wifi_data.name] and local_configs.wallpapers.wifi_specific_sources[wifi_data.name].vertical_path  or local_configs.wallpapers.vertical_path
-            end
+          wallpaper_changer.change_path(wallpaper_path_for(wifi_data and wifi_data.name))
+      end, local_configs.wifi_interface)
 
-            wallpaper_changer.change_path(path)
-            return
-          end
-          wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
+      wifi.subscribe_ssid_changes(function(ssid)
+          if not s.valid then return end
+          wallpaper_changer.change_path(wallpaper_path_for(ssid))
       end, local_configs.wifi_interface)
     else
-      wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
+      wallpaper_changer.change_path(wallpaper_path_for(nil))
     end
 
     screen.connect_signal("property::geometry", function(signal_screen)
