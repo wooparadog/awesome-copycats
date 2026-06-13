@@ -7,7 +7,6 @@
 
 local wibox = require("wibox")
 local layout = require("wibox.layout")
-local util = require("awful.util")
 local launcher = require("awful.widget.launcher")
 local icon_theme = require("menubar.icon_theme")
 local gears = require("gears")
