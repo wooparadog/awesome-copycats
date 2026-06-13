@@ -21,7 +21,6 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 ### External Libraries
 - `lain/` - Layouts, widgets, and utilities library for AwesomeWM
 - `freedesktop/` - Freedesktop.org compliant menu system
-- `net_widgets/` - Network status widgets
 - `revelation/` - Window switcher/overview
 
 These are git submodules. **Never modify files inside these directories.** If a submodule needs different behavior, wrap or override it from within the theme or main config files.

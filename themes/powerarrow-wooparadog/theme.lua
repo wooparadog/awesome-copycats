@@ -271,10 +271,6 @@ if local_configs.enable_bat then
   })
 end
 
--- net indicator
--- local net_wireless = net_widgets.wireless({interface="wlp3s0", font=theme.font})
--- local net_wired = net_widgets.indicator({font=theme.font, interfaces={"lan"}})
-
 -- launcher
 local mylb = launchbar {
   filedir = string.format("%s/Applications/", os.getenv("HOME")),
