@@ -3,6 +3,7 @@
 -- table, so it can set the beautiful notification_* variables and read
 -- theme.dir / theme.font.
 
+local awful   = require("awful")
 local gears   = require("gears")
 local wibox   = require("wibox")
 local naughty = require("naughty")
@@ -95,6 +96,16 @@ return function(theme)
             })
         end
 
+        -- If the notification carries an on_click callback, wire it onto the
+        -- background_role container (which covers the full notification area) so
+        -- a left-click anywhere dismisses the notification and fires the callback.
+        local click_buttons = n.on_click and gears.table.join(
+            awful.button({}, 1, function()
+                n.on_click()
+                n:destroy()
+            end)
+        ) or nil
+
         naughty.layout.box {
             notification    = n,
             -- Tag the popup as a notification window so the compositor can target
@@ -121,8 +132,9 @@ return function(theme)
                         margins = theme.notification_margin,
                         widget  = wibox.container.margin,
                     },
-                    id     = "background_role",
-                    widget = naughty.container.background,
+                    buttons = click_buttons,
+                    id      = "background_role",
+                    widget  = naughty.container.background,
                 },
                 -- Cap the height: the popup shrinks to fit short content and clips
                 -- anything taller (it never grows past this). Skipped for internal

@@ -351,6 +351,7 @@ function theme.at_screen_connect(s)
         screen                     = s,
         widget_icon_wallpaper      = theme.widget_icon_wallpaper,
         widget_icon_wallpaper_paused = theme.widget_icon_wallpaper_paused,
+        notification_icon          = theme.dir .. "/icons/notif/wallpaper.png",
     }
 
     local function wallpaper_path_for(ssid)
@@ -399,8 +400,6 @@ function theme.at_screen_connect(s)
             if wp.current then wp.set_wallpaper(wp.current) end
         end
     end)
-
-    wp.start()
 
     -- Per-screen widgets
     s.quake = lain.util.quake({ app = "urxvt", followtag = true })

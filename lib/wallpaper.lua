@@ -74,6 +74,7 @@ local function factory(input_args)
   wallpaper.wp_paths = args.paths or {}
   wallpaper.wp_normal_icon = args.widget_icon_wallpaper
   wallpaper.wp_paused_icon = args.widget_icon_wallpaper_paused
+  wallpaper.wp_notif_icon  = args.notification_icon
   wallpaper.wp_files = {}
   wallpaper._scanning = false
   wallpaper._scan_callbacks = {}
@@ -239,6 +240,18 @@ local function factory(input_args)
 
     -- Notify dbus_caller we've changed wallpaper
     dbus_caller.refresh_user_wallpaper(wallpaper_path)
+
+    -- Notify the user; clicking anywhere on the popup opens the file.
+    local filename = wallpaper_path:match("([^/]+)$") or wallpaper_path
+    naughty.notify({
+      app_name = "awesome",
+      title    = filename,
+      text     = "Screen " .. wallpaper.wp_screen.index,
+      screen   = wallpaper.wp_screen,
+      icon     = wallpaper.wp_notif_icon,
+      timeout  = 5,
+      on_click = function() awful.spawn({"xdg-open", wallpaper_path}) end,
+    })
   end
 
   -- Pick a random scanned wallpaper and display it. Assumes wp_files is populated.
