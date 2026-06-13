@@ -6,6 +6,7 @@
 local gears   = require("gears")
 local wibox   = require("wibox")
 local naughty = require("naughty")
+local dpi     = require("beautiful.xresources").apply_dpi
 
 return function(theme)
     theme.notification_bg           = "#1e1e2e"
@@ -18,7 +19,9 @@ return function(theme)
     theme.notification_max_width    = 520   -- fixed popup width (see request::display)
     theme.notification_max_height   = 160   -- popup grows with content up to this cap
     theme.notification_opacity      = 1
-    theme.notification_font         = theme.font
+    -- A touch larger than the wibar font, sized in DPI-scaled pixels so it
+    -- tracks the screen DPI (the "px" suffix stops Pango double-scaling).
+    theme.notification_font         = "Terminus " .. dpi(16) .. "px"
     -- dunst: corner_radius = 5, corners = top-left,bottom (top-right left square).
     theme.notification_shape        = function(cr, w, h)
         gears.shape.partially_rounded_rect(cr, w, h, true, false, true, true, 5)
@@ -84,6 +87,10 @@ return function(theme)
 
         naughty.layout.box {
             notification    = n,
+            -- Tag the popup as a notification window so the compositor can target
+            -- it (e.g. picom's inactive-opacity rule must skip window_type
+            -- 'notification', otherwise it dims unfocused popups to 0.8).
+            type            = "notification",
             widget_template = {
                 {
                     {
