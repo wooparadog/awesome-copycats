@@ -1,6 +1,5 @@
-local awful = require("awful")
-local lgi   = require("lgi")
-local Gio   = lgi.Gio
+local awful        = require("awful")
+local dbus_singleton = require("themes.powerarrow-wooparadog.dbus"){}
 
 local wifi_utils = {}
 
@@ -52,16 +51,12 @@ end
 function wifi_utils.subscribe_ssid_changes(callback, device_name_param)
     local device_name = device_name_param or "wlan0"
 
-    local system_bus = Gio.bus_get_sync(Gio.BusType.SYSTEM, nil)
-    if not system_bus then return { disconnect = function() end } end
-
-    local id = system_bus:signal_subscribe(
+    local id = dbus_singleton.subscribe_signal(
         "net.connman.iwd",
         "org.freedesktop.DBus.Properties",
         "PropertiesChanged",
         nil,                          -- any object path
         "net.connman.iwd.Station",    -- arg0: only Station property changes
-        Gio.DBusSignalFlags.NONE,
         function(_conn, _sender, _path, _iface, _signal, params)
             -- changed properties dict (index 1) and invalidated array (index 2)
             local changed    = params:get_child_value(1)
@@ -89,7 +84,7 @@ function wifi_utils.subscribe_ssid_changes(callback, device_name_param)
 
     return {
         disconnect = function()
-            system_bus:signal_unsubscribe(id)
+            dbus_singleton.unsubscribe_signal(id)
         end
     }
 end

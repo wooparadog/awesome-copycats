@@ -20,13 +20,23 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 
 ### External Libraries
 - `lain/` - Layouts, widgets, and utilities library for AwesomeWM
-- `bling/` - Additional layouts and utilities (provides centered layout used in config)
 - `freedesktop/` - Freedesktop.org compliant menu system
 - `net_widgets/` - Network status widgets
 - `revelation/` - Window switcher/overview
 
+### D-Bus Convention
+All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.
+Never call `Gio.bus_get_sync` or hold a raw `Gio.DBusConnection` directly in other modules.
+The singleton exposes:
+- `dbus.system` — the raw `Gio.DBusConnection` (system bus) for advanced use
+- `dbus.subscribe_signal(sender, interface, signal, path, arg0, callback)` — subscribe to a system bus signal; returns an id
+- `dbus.unsubscribe_signal(id)` — cancel a subscription
+- `dbus.get_battery_async(battery, callback)` — fetch UPower battery properties
+- `dbus.parse_battery_props(dict)` — parse a UPower `a{sv}` variant into a Lua table
+- `dbus.refresh_user_wallpaper(path)` — persist wallpaper path via AccountsService
+
 ### Key Components
-- **Layouts**: Uses bling.centered as primary layout, with standard awesome layouts as alternatives
+- **Layouts**: Uses standard awesome layouts (`awful.layout.suit.*`)
 - **Tags**: 6 predefined tags: Firefox, Terminal, Files, IM, Steam, Spotify with specific layouts per tag
 - **Autostart**: Uses `dex` to handle XDG autostart applications
 - **Terminal**: Uses custom `terminal.sh` script

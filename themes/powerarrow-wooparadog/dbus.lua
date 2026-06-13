@@ -71,6 +71,20 @@ local function factory(args)
   end
   dbus.parse_battery_props = parse_battery_props
 
+  -- Subscribe to a D-Bus signal on the system bus.
+  -- Returns an integer subscription id; pass it to unsubscribe_signal to cancel.
+  dbus.subscribe_signal = function(sender, interface_name, signal_name, object_path, arg0, callback)
+    return system_bus:signal_subscribe(
+      sender, interface_name, signal_name, object_path, arg0,
+      Gio.DBusSignalFlags.NONE,
+      callback
+    )
+  end
+
+  dbus.unsubscribe_signal = function(id)
+    system_bus:signal_unsubscribe(id)
+  end
+
   -- Async fetch of all UPower battery properties.
   -- callback receives a table: {state, tte, perc, watt, present}
   -- state: 1=charging 2=discharging 3=empty 4=fully-charged 5/6=pending
