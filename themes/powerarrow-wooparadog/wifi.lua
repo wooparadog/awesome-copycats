@@ -1,4 +1,5 @@
 local awful        = require("awful")
+local gears        = require("gears")
 local dbus_singleton = require("themes.powerarrow-wooparadog.dbus"){}
 
 local wifi_utils = {}
@@ -48,8 +49,32 @@ end
 -- property changes are delivered (not RSSI noise from other interfaces).
 -- Within each signal, only State and ConnectedNetwork changes trigger a re-query.
 -- Returns a handle with a :disconnect() method.
+--
+-- A single connect/switch makes iwd emit a *burst* of PropertiesChanged signals
+-- (State cycles disconnected→connecting→connected and ConnectedNetwork flips),
+-- each of which would otherwise drive its own SSID query and wallpaper refresh.
+-- We coalesce the burst with a short single-shot timer that restarts on every
+-- relevant signal, so the query runs once after the station settles, and we
+-- additionally skip the callback when the resolved SSID is unchanged.
 function wifi_utils.subscribe_ssid_changes(callback, device_name_param)
     local device_name = device_name_param or "wlan0"
+
+    local last_ssid
+    local has_last_ssid = false
+
+    local debounce = gears.timer {
+        timeout     = 1,
+        single_shot = true,
+        callback    = function()
+            wifi_utils.get_wifi_info_async(function(wifi_data)
+                local ssid = wifi_data and wifi_data.name
+                if has_last_ssid and ssid == last_ssid then return end
+                last_ssid = ssid
+                has_last_ssid = true
+                callback(ssid)
+            end, device_name)
+        end
+    }
 
     local id = dbus_singleton.subscribe_signal(
         "net.connman.iwd",
@@ -76,9 +101,9 @@ function wifi_utils.subscribe_ssid_changes(callback, device_name_param)
 
             if not relevant then return end
 
-            wifi_utils.get_wifi_info_async(function(wifi_data)
-                callback(wifi_data and wifi_data.name)
-            end, device_name)
+            -- Restart the settle window; the actual query runs once the burst
+            -- of transition signals stops arriving.
+            debounce:again()
         end
     )
 
