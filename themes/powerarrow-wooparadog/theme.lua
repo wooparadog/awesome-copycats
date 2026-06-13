@@ -5,7 +5,6 @@ local gears = require("gears")
 local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
-local naughty = require("naughty")
 
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
@@ -100,14 +99,8 @@ theme.titlebar_maximized_button_normal_active   = theme.dir .. "/icons/titlebar/
 theme.titlebar_maximized_button_focus_inactive  = theme.dir .. "/icons/titlebar/maximized_focus_inactive.png"
 theme.titlebar_maximized_button_normal_inactive = theme.dir .. "/icons/titlebar/maximized_normal_inactive.png"
 
-theme.notification_max_height = 200
-theme.notification_max_width = 800
-theme.notification_opacity = 0.9
-theme.notification_margin = 5
-theme.notification_icon_size = 128
-
-naughty.config.defaults.position = "top_middle"
-naughty.config.defaults.timeout = 10
+-- Notifications: naughty styled to match the previous dunst setup.
+require("themes.powerarrow-wooparadog.notifications")(theme)
 
 local markup = lain.util.markup
 local separators = lain.util.separators
