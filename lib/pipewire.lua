@@ -9,11 +9,12 @@
 local helpers    = require("lain.helpers")
 local gears      = require("gears")
 local awful      = require("awful")
-local naughty    = require("naughty")
+local lgi        = require("lgi")
+local Wp         = lgi.require("Wp", "0.5")
+local GLib       = lgi.GLib
 local wibox      = require("wibox")
 local xresources = require("beautiful.xresources")
 local root     = root
-local math     = math
 local string   = string
 local type     = type
 local tonumber = tonumber
@@ -52,10 +53,6 @@ local function factory(args)
     local paddings   = args.paddings or 1
     local ticks_size = args.ticks_size or 7
     local ticks      = args.ticks or false
-    local tick       = args.tick or "|"
-    local tick_pre   = args.tick_pre or "["
-    local tick_post  = args.tick_post or "]"
-    local tick_none  = args.tick_none or " "
     local volume_now = {
       index = "N/A",
       muted  = "N/A",
@@ -64,22 +61,14 @@ local function factory(args)
       right = "N/A",
     }
     local widgets    = {}
-    local screen     = args.screen
-    local button_handlers = args.button_handlers 
+    local button_handlers = args.button_handlers
 
     pipe_pulsebar.colors              = args.colors or pipe_pulsebar.colors
-    pipe_pulsebar.followtag           = args.followtag or false
-    pipe_pulsebar.notification_preset = args.notification_preset
     pipe_pulsebar.devicetype          = args.devicetype or "sink"
     pipe_pulsebar.udevicetype         = pipe_pulsebar.devicetype:gsub("^%l",string.upper)
     pipe_pulsebar.cmd                 = args.cmd or "LANG=en_US.UTF-8 pactl get-" .. pipe_pulsebar.devicetype .. "-volume @DEFAULT_" .. string.upper(pipe_pulsebar.devicetype) .. "@; LANG=en_US.UTF-8 pactl get-" .. pipe_pulsebar.devicetype .. "-mute @DEFAULT_" .. string.upper(pipe_pulsebar.devicetype) .. "@; LANG=en_US.UTF-8 pactl list " .. pipe_pulsebar.devicetype .. "s | grep -B 2 'Name: '$(pactl get-default-" .. pipe_pulsebar.devicetype .. ")"
     pipe_pulsebar.scmd                = args.cmd or "LANG=en_US.UTF-8 pactl list " .. pipe_pulsebar.devicetype .. "s | sed -n -e '/" .. pipe_pulsebar.udevicetype .. " #/p' -e '/Base Volume/d' -e '/Volume:/p' -e '/Mute:/p' -e '/device\\.string/p'"
 
-    if not pipe_pulsebar.notification_preset then
-        pipe_pulsebar.notification_preset = {
-            font = "Monospace 10"
-        }
-    end
 
     pipe_pulsebar.add_screen = function(screen)
       local bar = wibox.widget {
@@ -171,69 +160,53 @@ local function factory(args)
         end)
     end
 
-
-    function pipe_pulsebar.notify()
-        pipe_pulsebar.update(function()
-            local preset = pipe_pulsebar.notification_preset
-
-            preset.title = string.format("%s %s - %s%%", pipe_pulsebar.devicetype, pipe_pulsebar.device, pipe_pulsebar._current_level)
-
-            if pipe_pulsebar._mute == "yes" then
-                preset.title = preset.title .. " muted"
-            end
-
-            -- tot is the maximum number of ticks to display in the notification
-            -- fallback: default horizontal wibox height
-            local wib, tot = awful.screen.focused().mywibox, 20
-
-            -- if we can grab mywibox, tot is defined as its height if
-            -- horizontal, or width otherwise
-            if wib then
-                if wib.position == "left" or wib.position == "right" then
-                    tot = wib.width
-                else
-                    tot = wib.height
-                end
-            end
-
-            local int = math.modf((pipe_pulsebar._current_level / 100) * tot)
-            preset.text = string.format(
-                "%s%s%s%s",
-                tick_pre,
-                string.rep(tick, int),
-                string.rep(tick_none, tot - int),
-                tick_post
-            )
-
-            if pipe_pulsebar.followtag then preset.screen = awful.screen.focused() end
-
-            if not pipe_pulsebar.notification then
-                pipe_pulsebar.notification = naughty.notify {
-                    preset  = preset,
-                    destroy = function() pipe_pulsebar.notification = nil end
-                }
-            else
-                naughty.replace_text(pipe_pulsebar.notification, preset.title, preset.text)
-            end
-        end)
-    end
-
-    -- Subscribe to pactl events; update only when the sink or server actually changes.
-    -- Auto-restarts after a 2 s delay if pactl subscribe exits unexpectedly.
+    -- Subscribe to PipeWire volume/mute changes via WirePlumber's GObject API.
+    -- No subprocess — WpCore connects to the PipeWire socket directly on the
+    -- GLib main loop that AwesomeWM already runs. When params-changed fires on
+    -- any Audio/Sink node with id "Props", we call update() to refresh the bar.
     local function subscribe_volume_events()
-        awful.spawn.with_line_callback("pactl subscribe", {
-            stdout = function(line)
-                if line:match("'change' on sink") or line:match("'change' on server") then
+        -- Guard: Wp.init() must only run once per process.
+        if not pipe_pulsebar._wp_inited then
+            Wp.init(Wp.InitFlags.PIPEWIRE + Wp.InitFlags.SPA_TYPES)
+            pipe_pulsebar._wp_inited = true
+        end
+
+        local core = Wp.Core.new(GLib.MainContext.default(), nil, nil)
+        local om   = Wp.ObjectManager.new()
+
+        local interest = Wp.ObjectInterest.new_type(Wp.Node)
+        interest:add_constraint(
+            Wp.ConstraintType.PW_PROPERTY, "media.class",
+            Wp.ConstraintVerb.EQUALS, GLib.Variant("s", "Audio/Sink"))
+        om:add_interest_full(interest)
+
+        om:request_object_features(Wp.Node,
+            Wp.ProxyFeatures.PROXY_FEATURE_BOUND
+            + Wp.ProxyFeatures.PIPEWIRE_OBJECT_FEATURE_INFO
+            + Wp.ProxyFeatures.PIPEWIRE_OBJECT_FEATURE_PARAM_PROPS)
+
+        local debounce_timer
+        om.on_object_added:connect(function(_, node)
+            node.on_params_changed:connect(function(_, param_id)
+                if param_id ~= "Props" then return end
+                if debounce_timer then debounce_timer:stop() end
+                debounce_timer = gears.timer.start_new(0.1, function()
+                    debounce_timer = nil
                     pipe_pulsebar.update()
-                end
-            end,
-            exit = function()
-                gears.timer.start_new(2, function()
-                    subscribe_volume_events()
                     return false
                 end)
-            end
-        })
+            end)
+        end)
+
+        core.on_connected:connect(function()
+            core:install_object_manager(om)
+        end)
+
+        core:connect()
+
+        -- Keep core and om alive for the lifetime of awesome.
+        pipe_pulsebar._wp_core = core
+        pipe_pulsebar._wp_om   = om
     end
 
     root.keys(gears.table.join(root.keys(),
