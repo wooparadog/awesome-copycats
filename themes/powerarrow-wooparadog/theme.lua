@@ -10,6 +10,7 @@ local naughty = require("naughty")
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
 local wifi = require("themes.powerarrow-wooparadog.wifi")
+local battery_widget = require("themes.powerarrow-wooparadog.battery")
 
 local xresources = require("beautiful.xresources")
 local dpi = xresources.apply_dpi
@@ -222,29 +223,39 @@ theme.fs = lain.widget.fs({
 
 --[[ Battery
 ]]
+local baticon
+
 if local_configs.enable_bat then
-  local baticon = wibox.widget.imagebox(theme.widget_battery)
-  theme.bat = lain.widget.bat({
+  baticon = wibox.widget.imagebox(theme.widget_battery)
+
+  theme.bat = battery_widget({
       battery = local_configs.battery,
-      ac = local_configs.ac,
       settings = function()
-          if bat_now.status and bat_now.status ~= "N/A" then
-              if bat_now.ac_status == 1 then
-                  widget:set_markup(markup.font(theme.font, " " .. bat_now.status .. " " .. bat_now.perc .. "% "))
-                  baticon:set_image(theme.widget_ac)
-                  return
-              elseif not bat_now.perc and tonumber(bat_now.perc) <= 5 then
-                  baticon:set_image(theme.widget_battery_empty)
-              elseif not bat_now.perc and tonumber(bat_now.perc) <= 15 then
-                  baticon:set_image(theme.widget_battery_low)
-              else
-                  baticon:set_image(theme.widget_battery)
-              end
-              widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "% "))
-          else
-              widget:set_markup()
+          if bat_now.status == "N/A" then
+              widget:set_markup("")
               baticon:set_image(theme.widget_ac)
+              return
           end
+          if bat_now.ac_status == 1 then
+              widget:set_markup(markup.font(theme.font, " " .. bat_now.status .. " " .. bat_now.perc .. "% "))
+              baticon:set_image(theme.widget_ac)
+              return
+          end
+          local perc = tonumber(bat_now.perc) or 0
+          if perc <= 5 then
+              baticon:set_image(theme.widget_battery_empty)
+          elseif perc <= 15 then
+              baticon:set_image(theme.widget_battery_low)
+          else
+              baticon:set_image(theme.widget_battery)
+          end
+          local time_str = ""
+          if bat_now.tte and bat_now.tte > 0 then
+              local h = math.floor(bat_now.tte / 3600)
+              local m = math.floor((bat_now.tte % 3600) / 60)
+              time_str = string.format(" %dh%02dm", h, m)
+          end
+          widget:set_markup(markup.font(theme.font, " " .. bat_now.perc .. "%" .. time_str .. " "))
       end
   })
 end
@@ -316,11 +327,11 @@ end
 
 
 -- Net
-local net = lain.widget.net({
+local net = local_configs.enable_net and lain.widget.net({
     settings = function()
         widget:set_markup(markup.fontfg(theme.font, "#FEFEFE", " " .. net_now.received .. " ↓↑ " .. net_now.sent .. " "))
     end
-})
+}) or nil
 
 -- Separators
 local arrow = separators.arrow_left
@@ -474,9 +485,9 @@ function theme.at_screen_connect(s)
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
             -- arrow("#4B3B51", "#CB755B"),
             local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or wibox.container.background(),
-            arrow("#4B3B51", "#5e3636"),
-            wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636"),
-            arrow("#5e3636", "#777E76"),
+            local_configs.enable_net and arrow("#4B3B51", "#5e3636") or arrow("#4B3B51", "#777E76"),
+            local_configs.enable_net and wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net and net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636") or nil,
+            local_configs.enable_net and arrow("#5e3636", "#777E76") or nil,
             wibox.container.background(wibox.container.margin(textclock, dpi(4, s), dpi(8, s)), "#777E76"),
             wibox.container.background(wibox.container.margin(weather.icon, dpi(4, s), dpi(8, s)), "#777E76"),
             wibox.container.background(wibox.container.margin(weather.widget, dpi(4, s), dpi(8, s)), "#777E76"),
