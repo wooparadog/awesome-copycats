@@ -126,8 +126,8 @@ theme.cal = lain.widget.cal({
 -- weather
 local weather = lain.widget.weather({
   APPID = local_configs.openweathermap_key,
-  lat=31.327888134513756,
-  lon=121.26448673058344,
+  lat=local_configs.weather.lat,
+  lon=local_configs.weather.lon,
   settings = function()
     widget:set_markup(weather_now["main"]["temp"] .. "°C")
   end,
@@ -198,7 +198,6 @@ local temp = lain.widget.temp({
         widget:set_markup(markup.font(theme.font, " " .. coretemp_now .. "°C "))
     end
 })
---]]
 local tempicon = wibox.widget.imagebox(theme.widget_temp)
 
 -- / fs
@@ -222,7 +221,7 @@ if local_configs.enable_bat then
 
   theme.bat = battery_widget({
       battery = local_configs.battery,
-      settings = function()
+      settings = function(bat_now, widget)
           if bat_now.status == "N/A" then
               widget:set_markup("")
               baticon:set_image(theme.widget_ac)
@@ -391,7 +390,7 @@ function theme.at_screen_connect(s)
             return
           end
           wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
-      end, "wlan0")
+      end, local_configs.wifi_interface)
     else
       wallpaper_changer.change_path(is_horizon and local_configs.wallpapers.horizontal_path or local_configs.wallpapers.vertical_path)
     end

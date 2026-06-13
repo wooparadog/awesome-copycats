@@ -15,22 +15,23 @@ local function factory(args)
   dbus.system = system_bus
 
   local current_user = GLib.get_user_name()
-  local ok, result = pcall(function()
-    return system_bus:call_sync(
-      'org.freedesktop.Accounts',
-      '/org/freedesktop/Accounts',
-      'org.freedesktop.Accounts',
-      'FindUserByName',
-      GLib.Variant('(s)', {current_user}),
-      GLib.VariantType.new('(o)'),
-      Gio.DBusCallFlags.NONE,
-      -1,
-      nil
-    )
-  end)
-  if ok and result then
-    dbus.current_user_path = result.value[1]
-  end
+  system_bus:call(
+    'org.freedesktop.Accounts',
+    '/org/freedesktop/Accounts',
+    'org.freedesktop.Accounts',
+    'FindUserByName',
+    GLib.Variant('(s)', {current_user}),
+    GLib.VariantType.new('(o)'),
+    Gio.DBusCallFlags.NONE,
+    -1,
+    nil,
+    function(conn, res)
+      local ok, result = pcall(function() return conn:call_finish(res) end)
+      if ok and result then
+        dbus.current_user_path = result.value[1]
+      end
+    end
+  )
 
   dbus.refresh_user_wallpaper = function(path)
     if not dbus.current_user_path then return end

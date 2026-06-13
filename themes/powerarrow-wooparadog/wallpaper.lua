@@ -32,6 +32,35 @@ dbus.add_match('session', "type=signal,interface=org.freedesktop.portal.Wallpape
 -- changes a time-based seed and is an anti-pattern.
 math.randomseed(os.time())
 
+-- Global bindings registered once. Callbacks search `instances` at call time so
+-- they naturally handle new screens added after startup.
+root.buttons(gears.table.join(
+  root.buttons(),
+  awful.button({}, 2, function()
+    local s = awful.screen.focused()
+    for _, inst in ipairs(instances) do
+      if inst.wp_screen == s and inst.current then
+        gears.debug.print_warning(string.format("Upload Wallpaper: %s", inst.current))
+        awful.spawn({"upload_to_telegram.sh", inst.current})
+        return
+      end
+    end
+  end)
+))
+
+root.keys(gears.table.join(
+  root.keys(),
+  awful.key({"Mod4"}, "d", function()
+    local s = awful.screen.focused{client=false, mouse=true}
+    for _, inst in ipairs(instances) do
+      if inst.wp_screen == s then
+        inst.start()
+        return
+      end
+    end
+  end, {description = "Refresh wallpaper", group = "screen"})
+))
+
 local function factory(input_args)
   local args = input_args or {}
   local wallpaper = {}
@@ -185,7 +214,8 @@ local function factory(input_args)
         end
       end),
       awful.button({ }, 2, function()
-        awful.spawn("xdg-open '" .. wallpaper.current .. "'")
+        if not wallpaper.current then return end
+        awful.spawn({"xdg-open", wallpaper.current})
       end),
       awful.button({ }, 3, function()
         wallpaper.stop()
@@ -259,29 +289,7 @@ local function factory(input_args)
     end
   end
 
-  root.buttons(gears.table.join(
-    root.buttons(),
-    awful.button({ }, 2, function ()
-      if is_screen_valid() and wallpaper.current and awful.screen.focused().index == wallpaper.wp_screen.index then
-        gears.debug.print_warning(string.format("Upload Wallpaper: %s", wallpaper.current))
-        awful.spawn("upload_to_telegram.sh " .. '"' .. wallpaper.current .. '"')
-      end
-    end)
-  ))
-
   wallpaper.wp_timer:connect_signal("timeout", wallpaper.start)
-
-  -- Add global keybinding for this wallpaper instance
-  root.keys(
-    gears.table.join(
-      root.keys(),
-      awful.key({ "Mod4" }, "d", function()
-        if is_screen_valid() and awful.screen.focused { client=false, mouse=true }.index == wallpaper.wp_screen.index then
-          wallpaper.start()
-        end
-      end, {description = "Refresh wallpaper", group = "screen"})
-    )
-  )
 
   instances[#instances+1] = wallpaper
 

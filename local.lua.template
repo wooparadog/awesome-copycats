@@ -11,6 +11,11 @@ local configs = {
   enable_net = true,
   battery = "BAT0",
   ac = "ACAD",
+  wifi_interface = "wlan0",
+  weather = {
+    lat = 0.0,
+    lon = 0.0,
+  },
 
   -- Cpu Temperature
   tempfile = '/sys/devices/pci0000:00/0000:00:18.3/hwmon/hwmon5/temp1_input',

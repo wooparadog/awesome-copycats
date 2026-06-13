@@ -44,8 +44,7 @@ local function factory(args)
 
     args             = args or {}
 
-    local timeout    = args.timeout or 5
-    local settings   = args.settings or function() end
+    local settings   = args.settings or function(_volume_now) end
     local width      = args.width or 63
     local height     = args.height or 1
     local margins    = args.margins or 1
@@ -60,7 +59,7 @@ local function factory(args)
       index = "N/A",
       muted  = "N/A",
       channel = {},
-      left = "N/a",
+      left = "N/A",
       right = "N/A",
     }
     local widgets    = {}
@@ -148,16 +147,16 @@ local function factory(args)
             if volu:match("N/A") or mute:match("N/A") then return end
 
             if volu ~= pipe_pulsebar._current_level or mute ~= pipe_pulsebar._mute then
+                pipe_pulsebar._current_level = tonumber(volu)
+                pipe_pulsebar._mute = mute
+                local is_muted = pipe_pulsebar._current_level == 0 or mute == "yes"
                 for _, w in ipairs(widgets) do
-                  pipe_pulsebar._current_level = tonumber(volu)
                   w.bar:set_value(pipe_pulsebar._current_level / 100)
-                  if pipe_pulsebar._current_level == 0 or mute == "yes" then
-                      pipe_pulsebar._mute = mute
-                      w.tooltip:set_text ("[muted]")
+                  if is_muted then
+                      w.tooltip:set_text("[muted]")
                       w.bar.color = pipe_pulsebar.colors.mute
                       w.bar.background_color = pipe_pulsebar.colors.mute_background
                   else
-                      pipe_pulsebar._mute = "no"
                       w.tooltip:set_text(string.format("%s %s: %s", pipe_pulsebar.devicetype, pipe_pulsebar.device, volu))
                       w.bar.color = pipe_pulsebar.colors.unmute
                       w.bar.background_color = pipe_pulsebar.colors.background
@@ -218,7 +217,26 @@ local function factory(args)
         end)
     end
 
-    helpers.newtimer(string.format("pipe_pulsebar-%s-%s", pipe_pulsebar.devicetype, pipe_pulsebar.device), timeout, pipe_pulsebar.update)
+    -- Subscribe to pactl events; update only when the sink or server actually changes.
+    -- Auto-restarts after a 2 s delay if pactl subscribe exits unexpectedly.
+    local function subscribe_volume_events()
+        awful.spawn.with_line_callback("pactl subscribe", {
+            stdout = function(line)
+                if line:match("'change' on sink") or line:match("'change' on server") then
+                    pipe_pulsebar.update()
+                end
+            end,
+            exit = function()
+                gears.timer.start_new(2, function()
+                    subscribe_volume_events()
+                    return false
+                end)
+            end
+        })
+    end
+
+    pipe_pulsebar.update()
+    subscribe_volume_events()
 
     return pipe_pulsebar
 end

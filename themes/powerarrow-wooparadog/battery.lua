@@ -13,8 +13,7 @@ local string = string
 local function factory(args)
   args = args or {}
 
-  -- luacheck: globals bat_now
-  bat_now = {
+  local bat_now = {
     status    = "N/A",
     ac_status = "N/A",
     perc      = "N/A",
@@ -24,7 +23,7 @@ local function factory(args)
 
   local bat      = { widget = args.widget or wibox.widget.textbox() }
   local battery  = args.battery or "BAT0"
-  local settings = args.settings or function() end
+  local settings = args.settings or function(_bat_now, _widget) end
   local notify   = args.notify ~= false
   local n_perc   = args.n_perc or { 5, 15 }
 
@@ -82,8 +81,7 @@ local function factory(args)
       end
     end
 
-    widget = bat.widget  -- luacheck: globals widget
-    settings()
+    settings(bat_now, bat.widget)
   end
 
   local function refresh()

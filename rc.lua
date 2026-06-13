@@ -178,9 +178,9 @@ local globalkeys = gears.table.join(
   awful.key({ modkey, }, "z", function () awful.screen.focused().quake:toggle() end, {description = "dropdown application", group = "hotkeys"}),
 
   -- Hotkeys: ALSA volume control
-  awful.key({}, "#123", function () os.execute(string.format("pactl set-sink-volume %s +5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume up", group = "hotkeys"}),
-  awful.key({}, "#122", function () os.execute(string.format("pactl set-sink-volume %s -5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume down", group = "hotkeys"}),
-  awful.key({}, "#121", function () os.execute(string.format("pactl set-sink-mute %s toggle", beautiful.volume.device)) beautiful.volume.update() end, {description = "toggle mute", group = "hotkeys"}),
+  awful.key({}, "#123", function () awful.spawn(string.format("pactl set-sink-volume %s +5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume up", group = "hotkeys"}),
+  awful.key({}, "#122", function () awful.spawn(string.format("pactl set-sink-volume %s -5%%", beautiful.volume.device)) beautiful.volume.update() end, {description = "volume down", group = "hotkeys"}),
+  awful.key({}, "#121", function () awful.spawn(string.format("pactl set-sink-mute %s toggle", beautiful.volume.device)) beautiful.volume.update() end, {description = "toggle mute", group = "hotkeys"}),
 
   -- Hotkeys: Backlight
   awful.key({}, "XF86MonBrightnessUp", function () os.execute("brightnessctl s +10%") end, {description = "Increase Screen Brightness", group = "hotkeys"}),
