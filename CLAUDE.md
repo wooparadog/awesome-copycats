@@ -19,10 +19,12 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 - Theme includes custom modules: `launchbar.lua`, `pipewire.lua`, `wifi.lua`, `wallpaper.lua`
 
 ### External Libraries (git submodules, root level)
-- `lain/` - Layouts, widgets, and utilities
 - `freedesktop/` - Freedesktop.org compliant menu system
 
 **Never modify files inside these directories.** If different behavior is needed, wrap or override from within the theme or `lib/`.
+
+### Vendored Libraries (`lib/lain/`)
+The lain library is vendored into `lib/lain/` (not a submodule). Only the modules actually used are present: `helpers`, `util/markup`, `util/separators`, `util/quake`, `util/dkjson`, `widget/cal`, `widget/weather`, `widget/mem`, `widget/cpu`, `widget/temp`, `widget/net`. All internal `require("lain.*")` paths were rewritten to `require("lib.lain.*")`. Require it as `lib.lain`.
 
 ### Reusable Widgets (`lib/`)
 Generic widgets and utilities owned by this repo, usable across themes. Required via `lib.X`.
@@ -35,6 +37,14 @@ Generic widgets and utilities owned by this repo, usable across themes. Required
 - `lib/pipewire.lua` - PipeWire/PulseAudio volume bar widget factory
 - `lib/binclock.lua` - Binary clock widget
 - `lib/launchbar.lua` - Quick-launch bar widget
+
+### Internal Notification Convention
+All `naughty.notify` calls that originate from within this config (battery alerts, calendar, weather, wallpaper, wifi change, startup errors, etc.) **must** include `app_name = "awesome"`. This marker is checked in `themes/powerarrow-wooparadog/notifications.lua`'s `request::display` handler and causes:
+- Position: `top_left` (external app notifications appear `top_right`)
+- No fixed width or height constraints (content is never clipped)
+- Fallback icon: `icons/notif/awesome-wm.png` when the notification provides no icon of its own (weather, wifi, etc. supply their own and keep them)
+
+External D-Bus notifications (from apps) must **not** set `app_name = "awesome"`.
 
 ### D-Bus Convention
 All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.
