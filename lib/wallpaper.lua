@@ -142,6 +142,7 @@ local function factory(input_args)
     local function flush_callbacks()
       if total_paths > 0 and is_screen_valid() then
         naughty.notify({
+          app_name = "awesome",
           preset  = naughty.config.presets.normal,
           title   = "Wallpaper Pool Refreshed",
           text    = string.format("Screen %s: %s candidates collected",
@@ -195,6 +196,7 @@ local function factory(input_args)
       awful.button({ "Mod4" }, 1, function()
         if not wallpaper.current then
           naughty.notify({
+            app_name = "awesome",
             preset = naughty.config.presets.normal,
             title = "Delete Wallpaper",
             text = "No wallpaper to delete"
@@ -205,12 +207,14 @@ local function factory(input_args)
         local filename = wallpaper.current:match("([^/]+)$")
         if wallpaper.delete_current() then
           naughty.notify({
+            app_name = "awesome",
             preset = naughty.config.presets.normal,
-            title = "Delete Wallpaper", 
+            title = "Delete Wallpaper",
             text = "Wallpaper '" .. filename .. "' deleted successfully"
           })
         else
           naughty.notify({
+            app_name = "awesome",
             preset = naughty.config.presets.critical,
             title = "Delete Wallpaper",
             text = "Failed to delete wallpaper '" .. filename .. "'"

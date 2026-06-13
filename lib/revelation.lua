@@ -37,7 +37,7 @@ local capi         = {
 
 local function debuginfo(message)
     message = message or "No information available"
-    nid = naughty.notify({ text = tostring(message), timeout = 10 })
+    nid = naughty.notify({ app_name = "awesome", text = tostring(message), timeout = 10 })
 end
 
 local delayed_call = (type(timer) ~= 'table' and  require("gears.timer").delayed_call)

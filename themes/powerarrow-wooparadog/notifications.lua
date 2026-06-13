@@ -57,14 +57,24 @@ return function(theme)
 
     -- Render notifications with a dunst-like layout. Per-urgency colors and the
     -- fallback icon come from the presets above; internal awesome notifications
-    -- (calendar, weather, volume OSD) pass their own presets and are unaffected.
-    naughty.connect_signal("request::display", function(n)
-        local has_app = n.app_name ~= nil and n.app_name ~= ""
+    -- (calendar, weather, battery, etc.) mark themselves app_name="awesome" and
+    -- bypass the fixed size constraints so their content is never clipped.
+    local awesome_icon = theme.dir .. "/icons/notif/awesome-wm.png"
 
-        -- App notifications without their own icon get the urgency bell, like
-        -- dunst. Internal notifications (calendar, volume OSD) have no app_name
-        -- and keep their iconless look.
-        if has_app and not n.icon then
+    naughty.connect_signal("request::display", function(n)
+        local is_internal = n.app_name == "awesome"
+        local has_app = not is_internal and n.app_name ~= nil and n.app_name ~= ""
+
+        if is_internal then
+            -- Top-left corner, away from external app notifications (top-right).
+            n.position = "top_left"
+            -- Use the AwesomeWM logo when the notification doesn't supply its own icon
+            -- (weather, wifi, etc. bring their own; calendar and battery alerts don't).
+            if not n.icon then
+                n.icon = awesome_icon
+            end
+        elseif has_app and not n.icon then
+            -- App notifications without their own icon get the urgency bell, like dunst.
             n.icon = fallback_icon[n.urgency] or fallback_icon.normal
         end
 
@@ -115,14 +125,15 @@ return function(theme)
                     widget = naughty.container.background,
                 },
                 -- Cap the height: the popup shrinks to fit short content and clips
-                -- anything taller (it never grows past this).
+                -- anything taller (it never grows past this). Skipped for internal
+                -- notifications so calendar/weather/etc. are never truncated.
                 strategy = "max",
-                height   = theme.notification_max_height,
+                height   = not is_internal and theme.notification_max_height or nil,
                 widget   = wibox.container.constraint,
             },
-            -- Fixed width so stacked notifications line up.
+            -- Fixed width so stacked notifications line up. Skipped for internals.
             strategy = "exact",
-            width    = theme.notification_max_width,
+            width    = not is_internal and theme.notification_max_width or nil,
             widget   = wibox.container.constraint,
         }
     end)

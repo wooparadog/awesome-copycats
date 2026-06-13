@@ -56,12 +56,14 @@ local function factory(args)
       if bat_now.status == "Discharging" and perc then
         if perc <= n_perc[1] then
           bat.id = naughty.notify({
+            app_name   = "awesome",
             preset     = { title = "Battery exhausted", text = "Shutdown imminent",
                            timeout = 15, fg = "#000000", bg = "#FFFFFF" },
             replaces_id = bat.id,
           }).id
         elseif perc <= n_perc[2] then
           bat.id = naughty.notify({
+            app_name   = "awesome",
             preset     = { title = "Battery low", text = "Plug the cable!",
                            timeout = 15, fg = "#202020", bg = "#CDCDCD" },
             replaces_id = bat.id,
@@ -70,6 +72,7 @@ local function factory(args)
         fullnotification = false
       elseif bat_now.status == "Full" and not fullnotification then
         bat.id = naughty.notify({
+          app_name   = "awesome",
           preset     = { title = "Battery charged",
                          text  = "Reached " .. tostring(bat_now.perc) .. "%",
                          timeout = 15, fg = "#202020", bg = "#CDCDCD" },

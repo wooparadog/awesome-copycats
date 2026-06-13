@@ -2,7 +2,7 @@
 local screen, root = screen, root
 
 local gears          = require("gears")
-local lain           = require("lain")
+local lain           = require("lib.lain")
 local awful          = require("awful")
 local wibox          = require("wibox")
 local naughty        = require("naughty")
@@ -370,6 +370,7 @@ function theme.at_screen_connect(s)
             if not s.valid then return end
             if s.index == 1 then
                 naughty.notify({
+                    app_name  = "awesome",
                     preset    = naughty.config.presets.normal,
                     title     = "Network Changed",
                     text      = ssid and ("Connected to " .. ssid) or "Disconnected",
