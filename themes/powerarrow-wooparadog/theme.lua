@@ -16,6 +16,25 @@ local dpi = xresources.apply_dpi
 
 local local_configs = require("local")
 
+-- Backfill defaults for fields added after the initial template so that older
+-- local.lua files don't crash on nil-indexing or produce silent wrong behaviour.
+do
+    local cfg = local_configs
+
+    if not cfg.weather then cfg.weather = {} end
+    cfg.weather.lat    = cfg.weather.lat or 0.0
+    cfg.weather.lon    = cfg.weather.lon or 0.0
+
+    cfg.wifi_interface = cfg.wifi_interface or "wlan0"
+
+    if not cfg.wallpapers then cfg.wallpapers = {} end
+    local wp = cfg.wallpapers
+    wp.timeout                      = wp.timeout or 300
+    wp.enable_wifi_specific_sources = wp.enable_wifi_specific_sources or false
+    wp.horizontal_path              = wp.horizontal_path or {}
+    wp.vertical_path                = wp.vertical_path   or {}
+end
+
 local theme                                     = {}
 theme.wibar_margin_left                         = local_configs.wibar_margin_left or 0
 theme.wibar_margin_right                        = local_configs.wibar_margin_right or 0
