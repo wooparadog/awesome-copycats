@@ -2,15 +2,15 @@
 local screen, root = screen, root
 
 local gears = require("gears")
-local lain  = require("lib.lain")
+local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
 local naughty = require("naughty")
 
-local launchbar = require("lib.launchbar")
-local pipewire = require("lib.pipewire")
-local wifi = require("lib.wifi")
-local battery_widget = require("lib.battery")
+local launchbar = require("launchbar")
+local pipewire = require("pipewire")
+local wifi = require("wifi")
+local battery_widget = require("battery")
 
 local xresources = require("beautiful.xresources")
 local dpi = xresources.apply_dpi
@@ -385,7 +385,7 @@ function theme.at_screen_connect(s)
     end
 
     -- create wallpaper
-    local wallpaper_changer = require("lib.wallpaper"){
+    local wallpaper_changer = require("wallpaper"){
       timeout=local_configs.wallpapers.timeout or 300,
       screen=s,
       widget_icon_wallpaper=theme.widget_icon_wallpaper,

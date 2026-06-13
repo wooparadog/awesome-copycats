@@ -7,7 +7,17 @@ local awful         = require("awful")
 local wibox         = require("wibox")
 local beautiful     = require("beautiful")
 local naughty       = require("naughty")
-local freedesktop   = require("lib.freedesktop")
+
+-- Add lib/ to package.path so submodule-internal requires resolve correctly
+-- (e.g. freedesktop/init.lua does require("freedesktop.desktop"))
+do
+    local config = awful.util.getdir("config")
+    package.path = package.path
+        .. ";" .. config .. "/lib/?.lua"
+        .. ";" .. config .. "/lib/?/init.lua"
+end
+
+local freedesktop   = require("freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
 
@@ -15,7 +25,7 @@ awful.screen.set_auto_dpi_enabled(true)
 
 local capi = {mousegrabber = mousegrabber}
 
-local revelation=require("lib.revelation")
+local revelation=require("revelation")
 
 
 -- Check if awesome encountered an error during startup and fell back to

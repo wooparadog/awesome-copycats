@@ -6,7 +6,7 @@
 
 --]]
 
-local helpers    = require("lib.lain.helpers")
+local helpers    = require("lain.helpers")
 local gears      = require("gears")
 local awful      = require("awful")
 local naughty    = require("naughty")
