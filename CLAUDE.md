@@ -18,12 +18,12 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 - `theme.lua` - Main theme file defining colors, fonts, icons, and wibar configuration
 - Theme includes custom modules: `launchbar.lua`, `pipewire.lua`, `wifi.lua`, `wallpaper.lua`
 
-### External Libraries
-- `lain/` - Layouts, widgets, and utilities library for AwesomeWM
-- `freedesktop/` - Freedesktop.org compliant menu system
-- `revelation/` - Window switcher/overview
+### External Libraries (`lib/`)
+- `lib/lain/` - Layouts, widgets, and utilities library for AwesomeWM (git submodule)
+- `lib/freedesktop/` - Freedesktop.org compliant menu system (git submodule)
+- `lib/revelation.lua` - Window switcher/overview (vendored)
 
-These are git submodules. **Never modify files inside these directories.** If a submodule needs different behavior, wrap or override it from within the theme or main config files.
+`lain` and `freedesktop` are git submodules. **Never modify files inside `lib/`.** If a submodule needs different behavior, wrap or override it from within the theme or main config files.
 
 ### D-Bus Convention
 All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.

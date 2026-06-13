@@ -7,7 +7,7 @@ local awful         = require("awful")
 local wibox         = require("wibox")
 local beautiful     = require("beautiful")
 local naughty       = require("naughty")
-local freedesktop   = require("freedesktop")
+local freedesktop   = require("lib.freedesktop")
 local hotkeys_popup = require("awful.hotkeys_popup").widget
                       require("awful.hotkeys_popup.keys")
 
@@ -15,7 +15,7 @@ awful.screen.set_auto_dpi_enabled(true)
 
 local capi = {mousegrabber = mousegrabber}
 
-local revelation=require("revelation")
+local revelation=require("lib.revelation")
 
 
 -- Check if awesome encountered an error during startup and fell back to
