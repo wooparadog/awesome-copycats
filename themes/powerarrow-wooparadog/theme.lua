@@ -5,6 +5,7 @@ local gears = require("gears")
 local lain  = require("lain")
 local awful = require("awful")
 local wibox = require("wibox")
+local naughty = require("naughty")
 
 local launchbar = require("themes.powerarrow-wooparadog.launchbar")
 local pipewire = require("themes.powerarrow-wooparadog.pipewire")
@@ -411,6 +412,18 @@ function theme.at_screen_connect(s)
 
       wifi.subscribe_ssid_changes(function(ssid)
           if not s.valid then return end
+          -- Only screen 1 announces the change so a multi-monitor setup pops a
+          -- single notification per switch (the wallpaper still updates per screen).
+          if s.index == 1 then
+            naughty.notify({
+              preset = naughty.config.presets.normal,
+              title  = "Network Changed",
+              text   = ssid and ("Connected to " .. ssid) or "Disconnected",
+              icon   = theme.dir .. "/icons/network-wireless.png",
+              icon_size = 64,
+              timeout = 5,
+            })
+          end
           wallpaper_changer.change_path(wallpaper_path_for(ssid))
       end, local_configs.wifi_interface)
     else
