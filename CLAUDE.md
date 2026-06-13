@@ -18,11 +18,15 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 - `theme.lua` - Main theme file defining colors, fonts, icons, and wibar configuration
 - Theme includes custom modules: `launchbar.lua`, `pipewire.lua`, `wifi.lua`, `wallpaper.lua`
 
-### External Libraries and Reusable Widgets (`lib/`)
-Third-party libraries and generic widgets that are not tied to any specific theme live here.
+### External Libraries (git submodules, root level)
+- `lain/` - Layouts, widgets, and utilities
+- `freedesktop/` - Freedesktop.org compliant menu system
 
-- `lib/lain/` - Layouts, widgets, and utilities (git submodule)
-- `lib/freedesktop/` - Freedesktop.org compliant menu system (git submodule)
+**Never modify files inside these directories.** If different behavior is needed, wrap or override from within the theme or `lib/`.
+
+### Reusable Widgets (`lib/`)
+Generic widgets and utilities owned by this repo, usable across themes. Required via `lib.X`.
+
 - `lib/revelation.lua` - Window switcher/overview (vendored)
 - `lib/dbus.lua` - D-Bus singleton (system bus access, UPower, AccountsService)
 - `lib/battery.lua` - UPower-backed battery widget factory
@@ -31,8 +35,6 @@ Third-party libraries and generic widgets that are not tied to any specific them
 - `lib/pipewire.lua` - PipeWire/PulseAudio volume bar widget factory
 - `lib/binclock.lua` - Binary clock widget
 - `lib/launchbar.lua` - Quick-launch bar widget
-
-**Never modify files inside `lib/lain/` or `lib/freedesktop/` (git submodules).** All other `lib/` files are owned by this repo and may be edited.
 
 ### D-Bus Convention
 All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.
