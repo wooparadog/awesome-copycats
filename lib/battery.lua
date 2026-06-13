@@ -27,7 +27,7 @@ local function factory(args)
   local notify   = args.notify ~= false
   local n_perc   = args.n_perc or { 5, 15 }
 
-  local upower   = require("themes.powerarrow-wooparadog.dbus"){}
+  local upower   = require("lib.dbus"){}
   local path     = "/org/freedesktop/UPower/devices/battery_" .. battery
 
   local fullnotification = false

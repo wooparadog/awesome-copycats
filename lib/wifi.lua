@@ -1,6 +1,6 @@
 local awful        = require("awful")
 local gears        = require("gears")
-local dbus_singleton = require("themes.powerarrow-wooparadog.dbus"){}
+local dbus_singleton = require("lib.dbus"){}
 
 local wifi_utils = {}
 
