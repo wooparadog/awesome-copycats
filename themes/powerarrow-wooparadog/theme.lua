@@ -337,6 +337,11 @@ local net = local_configs.enable_net and lain.widget.net({
 local arrow = separators.arrow_left
 local right_arrow = separators.arrow_right
 
+-- Background color of the last segment before the net/clock section.
+-- Drives the arrow source so the color chain stays consistent regardless
+-- of which optional widgets are enabled.
+local pre_clock_color = local_configs.enable_bat and "#CB755B" or "#4B3B51"
+
 local systray = wibox.widget.systray()
 
 -- Move systray to the screen under the mouse cursor,
@@ -483,9 +488,9 @@ function theme.at_screen_connect(s)
             wibox.container.background(wibox.container.margin(wibox.widget { cpuicon, cpu.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(4, s)), "#4B696D"),
             arrow("#4B696D", "#4B3B51"),
             wibox.container.background(wibox.container.margin(wibox.widget { tempicon, temp.widget, layout = wibox.layout.align.horizontal }, dpi(4, s), dpi(4, s)), "#4B3B51"),
-            -- arrow("#4B3B51", "#CB755B"),
-            local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or wibox.container.background(),
-            local_configs.enable_net and arrow("#4B3B51", "#5e3636") or arrow("#4B3B51", "#777E76"),
+            local_configs.enable_bat and arrow("#4B3B51", "#CB755B") or nil,
+            local_configs.enable_bat and wibox.container.background(wibox.container.margin(wibox.widget { baticon, theme.bat.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#CB755B") or nil,
+            local_configs.enable_net and arrow(pre_clock_color, "#5e3636") or arrow(pre_clock_color, "#777E76"),
             local_configs.enable_net and wibox.container.background(wibox.container.margin(wibox.widget { nil, nil, net and net.widget, layout = wibox.layout.align.horizontal }, dpi(3, s), dpi(3, s)), "#5e3636") or nil,
             local_configs.enable_net and arrow("#5e3636", "#777E76") or nil,
             wibox.container.background(wibox.container.margin(textclock, dpi(4, s), dpi(8, s)), "#777E76"),
