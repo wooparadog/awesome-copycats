@@ -1,5 +1,9 @@
 ---@diagnostic disable-next-line
 local dbus, root = dbus, root
+-- NOTE: `dbus` above is AwesomeWM's built-in session-bus bridge (a C global),
+-- used below for the freedesktop portal Wallpaper signal. Our lib/dbus singleton
+-- only covers the system bus, so this session-bus path is a deliberate exception.
+-- `lgi` below is used solely for Gio.File directory enumeration, not for D-Bus.
 
 local awful = require("awful")
 local gears = require("gears")

@@ -3,8 +3,6 @@
 -- Battery widget backed by UPower DBus signals.
 -- Zero polling cost: updates fire only when UPower reports a state change.
 
-local lgi = require("lgi")
-local Gio, GLib = lgi.Gio, lgi.GLib
 local wibox = require("wibox")
 local naughty = require("naughty")
 local math = math
@@ -90,30 +88,17 @@ local function factory(args)
 
   -- Subscribe to UPower PropertiesChanged on this battery device.
   -- Fires only when battery state actually changes — no polling timer needed.
-  upower.system:signal_subscribe(
+  upower.subscribe_signal(
     nil,
     "org.freedesktop.DBus.Properties",
     "PropertiesChanged",
     path,
     "org.freedesktop.UPower.Device",
-    Gio.DBusSignalFlags.NONE,
     refresh
   )
 
-  -- Sync initial fetch so the widget is populated before at_screen_connect
-  -- builds the wibar. All subsequent updates come from the signal subscription.
-  local ok0, reply0 = pcall(function()
-    return upower.system:call_sync(
-      "org.freedesktop.UPower", path,
-      "org.freedesktop.DBus.Properties", "GetAll",
-      GLib.Variant("(s)", {"org.freedesktop.UPower.Device"}),
-      GLib.VariantType.new("(a{sv})"),
-      Gio.DBusCallFlags.NONE, 5000, nil
-    )
-  end)
-  if ok0 and reply0 then
-    apply(upower.parse_battery_props(reply0:get_child_value(0)))
-  end
+  -- Initial async fetch to populate the widget on startup.
+  upower.get_battery_async(battery, apply)
 
   return bat
 end
