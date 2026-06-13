@@ -3,9 +3,14 @@ local dbus, root = dbus, root
 
 local awful = require("awful")
 local gears = require("gears")
+local lgi = require("lgi")
+local Gio, GLib = lgi.Gio, lgi.GLib
 local dbus_caller = require("themes.powerarrow-wooparadog.dbus"){}
 local wibox = require("wibox")
+local naughty = require("naughty")
 local instances = {}
+
+local IMAGE_EXT = { png = true, jpg = true, jpeg = true }
 
 
 dbus.connect_signal("org.freedesktop.portal.Wallpaper",
@@ -44,9 +49,45 @@ local function factory(input_args)
     return wallpaper.wp_screen and wallpaper.wp_screen.valid
   end
 
+  -- Enumerate one directory's image files asynchronously via Gio, appending
+  -- {key, filename} entries to wp_files. Runs on GIO's thread pool, so a
+  -- slow/stale mount (e.g. Nextcloud) never blocks the WM main loop, and there
+  -- is no subprocess/shell. Invokes on_done(count) when the directory is fully read.
+  local function enumerate_dir(key, path, on_done)
+    local dir = Gio.File.new_for_path(path)
+    dir:enumerate_children_async(
+      "standard::name", Gio.FileQueryInfoFlags.NONE, GLib.PRIORITY_DEFAULT, nil,
+      function(obj, res)
+        local ok, en = pcall(function() return obj:enumerate_children_finish(res) end)
+        if not ok or not en then on_done(0) return end
+
+        local count = 0
+        local function read_batch()
+          en:next_files_async(64, GLib.PRIORITY_DEFAULT, nil, function(e, res2)
+            local ok2, infos = pcall(function() return e:next_files_finish(res2) end)
+            if not ok2 or not infos or #infos == 0 then
+              e:close_async(GLib.PRIORITY_DEFAULT, nil, nil)
+              on_done(count)
+              return
+            end
+            for _, info in ipairs(infos) do
+              local name = info:get_name()
+              local ext = name:match("%.([^.]+)$")
+              if ext and IMAGE_EXT[ext:lower()] then
+                wallpaper.wp_files[#wallpaper.wp_files+1] = {key, name}
+                count = count + 1
+              end
+            end
+            read_batch()
+          end)
+        end
+        read_batch()
+      end
+    )
+  end
+
   -- Scan all configured paths for images asynchronously, then invoke callback.
-  -- Uses `find` via easy_async_with_shell so a slow/stale mount (e.g. Nextcloud)
-  -- never blocks the WM main loop. Concurrent calls share the in-flight scan.
+  -- Concurrent calls share the in-flight scan.
   wallpaper.scan_files = function(callback)
     if not is_screen_valid() then
       if callback then callback() end
@@ -61,29 +102,34 @@ local function factory(input_args)
 
     wallpaper.wp_files = {}
 
+    -- Captured up front: a scan over zero paths (e.g. the startup start() that
+    -- runs before paths are resolved) shouldn't pop a "0 candidates" notice.
+    local total_paths = #wallpaper.wp_paths
+
     local function flush_callbacks()
+      if total_paths > 0 and is_screen_valid() then
+        naughty.notify({
+          preset  = naughty.config.presets.normal,
+          title   = "Wallpaper Pool Refreshed",
+          text    = string.format("Screen %s: %s candidates collected",
+                                  wallpaper.wp_screen.index, #wallpaper.wp_files),
+          timeout = 5,
+        })
+      end
       wallpaper._scanning = false
       local cbs = wallpaper._scan_callbacks
       wallpaper._scan_callbacks = {}
       for _, cb in ipairs(cbs) do cb() end
     end
 
-    local pending = #wallpaper.wp_paths
+    local pending = total_paths
     if pending == 0 then
       flush_callbacks()
       return
     end
 
     for key, value in ipairs(wallpaper.wp_paths) do
-      local cmd = "find '" .. value .. "' -maxdepth 1 -type f " ..
-                  "\\( -iname '*.png' -o -iname '*.jpg' -o -iname '*.jpeg' \\) " ..
-                  "-printf '%f\\n' 2>/dev/null"
-      awful.spawn.easy_async_with_shell(cmd, function(stdout)
-        local count = 0
-        for filename in stdout:gmatch("[^\r\n]+") do
-          wallpaper.wp_files[#wallpaper.wp_files+1] = {key, filename}
-          count = count + 1
-        end
+      enumerate_dir(key, value, function(count)
         if is_screen_valid() then
           gears.debug.print_warning(string.format("Adding wallpaper: %s for %sx%s, Count: %s", value, wallpaper.wp_screen.geometry.width, wallpaper.wp_screen.geometry.height, count))
         end
@@ -114,8 +160,6 @@ local function factory(input_args)
         wallpaper.start()
       end),
       awful.button({ "Mod4" }, 1, function()
-        local naughty = require("naughty")
-
         if not wallpaper.current then
           naughty.notify({
             preset = naughty.config.presets.normal,
