@@ -39,10 +39,12 @@ Generic widgets and utilities owned by this repo, usable across themes. Required
 - `lib/launchbar.lua` - Quick-launch bar widget
 
 ### Internal Notification Convention
-All `naughty.notify` calls that originate from within this config (battery alerts, calendar, weather, wallpaper, wifi change, startup errors, etc.) **must** include `app_name = "awesome"`. This marker is checked in `themes/powerarrow-wooparadog/notifications.lua`'s `request::display` handler and causes:
-- Position: `top_left` (external app notifications appear `top_right`)
-- No fixed width or height constraints (content is never clipped)
-- Fallback icon: `icons/notif/awesome-wm.png` when the notification provides no icon of its own (weather, wifi, etc. supply their own and keep them)
+All `naughty.notify` calls that originate from within this config (battery alerts, wallpaper change, wifi change, startup errors, etc.) **must** include `app_name = "awesome"`. This marker is checked in `themes/powerarrow-wooparadog/notifications.lua`'s `request::display` handler and causes:
+- The dunst-like custom layout but with **no size constraints**, so content (battery/wifi/wallpaper text) is never clipped. External app notifications instead get the constrained layout (fixed width, max height) plus a bold app-name header.
+- Fallback icon `icons/notif/awesome-wm.png` when the notification supplies none (wifi, etc. bring their own and keep them); external apps fall back to the urgency bell icon.
+- An optional `on_click` arg is wired to left-click. It **must** be read from `n._private.on_click` — custom args passed to `naughty.notify` are stored in `_private`, not as real notification properties, so `n.on_click` always reads back `nil`. Used by the wallpaper notification to open the image.
+
+**Exception — lain widget popups:** the calendar and weather popups tag their `notification_preset` with `is_widget_popup = true` (in `theme.lua`, along with a slightly larger font). The handler detects `n.preset.is_widget_popup` and renders them with a **refined content-sized layout** (roomy padding, a gap between the weather icon and the text), distinct from the alert template. Its outer `wibox.container.constraint` uses `strategy = "max"` (not `"exact"`) so the popup grows to fit its content — using `"exact"`, or routing them through the alert template, pins them to the fixed notification width because naughty force-sets `beautiful.notification_max_width` onto the outermost `set_width`-capable widget.
 
 External D-Bus notifications (from apps) must **not** set `app_name = "awesome"`.
 

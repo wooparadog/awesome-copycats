@@ -137,10 +137,13 @@ theme.cal = lain.widget.cal({
     attach_to = { textclock },
     followtag = true,
     notification_preset = {
-        font     = "Terminus 9",
+        font     = "Terminus 11",
         fg       = theme.fg_normal,
         bg       = theme.bg_normal,
         position = "top_right",
+        -- Interactive widget popup: the notifications handler gives it a refined
+        -- content-sized layout instead of the custom alert notification template.
+        is_widget_popup = true,
     },
 })
 
@@ -151,11 +154,24 @@ local weather = lain.widget.weather({
     settings = function()
         widget:set_markup(weather_now["main"]["temp"] .. "°C")
     end,
+    -- One row per forecast slot, monospace-aligned into columns: bold day+time,
+    -- capitalized description, then right-aligned temperature with the °C unit.
+    -- (Default lain format repeats "%a %d" for every slot and omits the unit.)
+    notification_text_fun = function(wn)
+        local when = os.date("%a %H:%M", wn["dt"])
+        local temp = math.floor(wn["main"]["temp"] + 0.5)
+        local desc = wn["weather"][1]["description"]
+        desc = desc:sub(1, 1):upper() .. desc:sub(2)
+        return string.format("<b>%s</b>   %-16s%3d°C", when, desc, temp)
+    end,
     notification_preset = {
-        font     = "Terminus 12",
+        font     = "Terminus 14",
         fg       = theme.fg_normal,
         bg       = theme.bg_normal,
         position = "top_right",
+        -- Interactive widget popup: the notifications handler gives it a refined
+        -- content-sized layout instead of the custom alert notification template.
+        is_widget_popup = true,
     },
 })
 
