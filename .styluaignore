@@ -1,0 +1,4 @@
+# Vendored / submodule code — never reformat (see CLAUDE.md)
+freedesktop/
+lib/lain/
+lib/revelation.lua

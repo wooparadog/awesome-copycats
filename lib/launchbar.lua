@@ -30,7 +30,6 @@ function launchbar.new(args)
 
   local spacing = args.spacing or 5
 
-
   local items = {}
   local widget = layout.fixed.horizontal()
   widget.spacing = spacing
@@ -39,21 +38,28 @@ function launchbar.new(args)
     local ft = io.open(f)
     if ft then
       local t = ft:read("*all")
-      local exec = getValue(t,"Exec")
-      table.insert(items, {image = find_icon(getValue(t,"Icon")),
-      command = exec,
-      position = tonumber(getValue(t,"Position")) or 255 })
+      local exec = getValue(t, "Exec")
+      table.insert(
+        items,
+        { image = find_icon(getValue(t, "Icon")), command = exec, position = tonumber(getValue(t, "Position")) or 255 }
+      )
     else
       gears.debug.print_error("Failed to open " .. f)
     end
   end
-  table.sort(items, function(a,b) return a.position < b.position end)
+  table.sort(items, function(a, b)
+    return a.position < b.position
+  end)
   for _, v in ipairs(items) do
     if v.image then
-      widget:add(wibox.container.margin(wibox.widget{launcher(v), layout = layout.align.horizontal}, 0, 0, 2, 2))
+      widget:add(wibox.container.margin(wibox.widget({ launcher(v), layout = layout.align.horizontal }), 0, 0, 2, 2))
     end
   end
   return widget
 end
 
-return setmetatable(launchbar, { __call = function(_, ...) return launchbar.new(...) end })
+return setmetatable(launchbar, {
+  __call = function(_, ...)
+    return launchbar.new(...)
+  end,
+})
