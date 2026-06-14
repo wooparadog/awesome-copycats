@@ -43,6 +43,10 @@ end
 local theme = {}
 theme.wibar_margin_left = local_configs.wibar_margin_left or 0
 theme.wibar_margin_right = local_configs.wibar_margin_right or 0
+-- Freedesktop icon theme used to resolve app icons for notifications that ship
+-- none of their own (see notifications.lua). nil → hicolor-only fallback.
+-- Also picked up by beautiful (menubar etc.) as the system icon theme.
+theme.icon_theme = local_configs.icon_theme
 theme.dir = os.getenv("HOME") .. "/.config/awesome/themes/powerarrow-wooparadog"
 theme.font = "Terminus 9"
 theme.fg_normal = "#FEFEFE"

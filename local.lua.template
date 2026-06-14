@@ -1,6 +1,10 @@
 #! /usr/bin/env lua
 
 local configs = {
+  -- Freedesktop icon theme used to resolve app icons for notifications that
+  -- ship none of their own (e.g. "breeze-dark", "Papirus-Dark", "Adwaita").
+  -- hicolor is always searched as a final fallback; omit/nil for hicolor-only.
+  icon_theme = nil,
   -- screen
   screen_dpi = {
     high = 96,

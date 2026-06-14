@@ -7,6 +7,7 @@ local awful = require("awful")
 local gears = require("gears")
 local wibox = require("wibox")
 local naughty = require("naughty")
+local menubar_utils = require("menubar.utils")
 local dpi = require("beautiful.xresources").apply_dpi
 
 return function(theme)
@@ -64,6 +65,96 @@ return function(theme)
   -- app_name="awesome", get the AwesomeWM logo when they carry no icon, and
   -- bypass the fixed size constraints so their content is never clipped.
   local awesome_icon = theme.dir .. "/icons/notif/awesome-wm.png"
+
+  -- App-icon fallback for external notifications that ship no icon of their
+  -- own: resolve one from the user's freedesktop icon theme (theme.icon_theme,
+  -- configured in local.lua), then fall back to hicolor, before the urgency bell.
+  --
+  -- menubar.utils.lookup_icon_uncached already does proper freedesktop lookup —
+  -- honouring beautiful.icon_theme with a hicolor fallback, across all icon base
+  -- dirs and png/svg — and returns false on a miss. But it only understands the
+  -- <size>/apps layout (hicolor, Adwaita, Papirus). Breeze (KDE) themes use the
+  -- reversed apps/<size> layout (plain pixel sizes, SVG), which it silently
+  -- misses, so we probe the configured theme in that layout first.
+  local icon_theme = theme.icon_theme
+
+  local icon_base_dirs = {
+    os.getenv("HOME") .. "/.icons",
+    os.getenv("HOME") .. "/.local/share/icons",
+    "/usr/local/share/icons",
+    "/usr/share/icons",
+  }
+  -- Breeze icons are SVG (scalable), but a given icon may exist at only one
+  -- size dir (e.g. only apps/48), so probe every size Breeze actually ships
+  -- plus larger ones other reversed-layout themes use. Largest first.
+  local breeze_sizes = {
+    "512", "256", "128", "96", "64", "48", "32",
+    "24", "24@2x", "24@3x", "22", "22@2x", "22@3x", "16", "16@2x", "16@3x",
+  }
+  local icon_exts = { "svg", "png" }
+
+  -- Probe the reversed apps/<size> layout (Breeze) for `name` in `theme_name`.
+  -- Returns a path or nil; a no-op for standard themes (they lack apps/<size>).
+  local function lookup_reversed_layout(theme_name, name)
+    for _, base in ipairs(icon_base_dirs) do
+      for _, size in ipairs(breeze_sizes) do
+        for _, ext in ipairs(icon_exts) do
+          local path = base .. "/" .. theme_name .. "/apps/" .. size .. "/" .. name .. "." .. ext
+          if gears.filesystem.file_readable(path) then
+            return path
+          end
+        end
+      end
+    end
+    return nil
+  end
+
+  -- Resolved icons are memoized by app_name so the filesystem probing below
+  -- runs at most once per app per session. Misses are cached as `false` (vs
+  -- `nil` = "not looked up yet") so unresolved apps don't re-probe every time.
+  local app_icon_cache = {}
+
+  -- Resolve an installed application icon by app name. Notification app_name
+  -- values vary in case/spacing (e.g. "Firefox", "Telegram Desktop"), so probe
+  -- a few normalized candidates. For each, the configured theme wins (including
+  -- Breeze's reversed layout), then the standard lookup which ends at hicolor.
+  -- Returns a path or nil.
+  local function find_app_icon(app_name)
+    local cached = app_icon_cache[app_name]
+    if cached ~= nil then
+      return cached or nil
+    end
+
+    local seen, candidates = {}, {}
+    local function add(name)
+      if name and name ~= "" and not seen[name] then
+        seen[name] = true
+        candidates[#candidates + 1] = name
+      end
+    end
+    add(app_name)
+    add(app_name:lower())
+    add(app_name:lower():gsub("%s+", "-"))
+    add(app_name:lower():gsub("%s+", ""))
+
+    local result = nil
+    for _, name in ipairs(candidates) do
+      if icon_theme then
+        result = lookup_reversed_layout(icon_theme, name)
+      end
+      if not result then
+        -- Standard <size>/apps lookup: configured theme (via beautiful.icon_theme)
+        -- first, hicolor last; returns false on a miss (normalized to nil here).
+        result = menubar_utils.lookup_icon_uncached(name) or nil
+      end
+      if result then
+        break
+      end
+    end
+
+    app_icon_cache[app_name] = result or false
+    return result
+  end
 
   naughty.connect_signal("request::display", function(n)
     -- Calendar/weather are interactive lain widget popups (tagged in their
@@ -143,8 +234,10 @@ return function(theme)
         n.icon = awesome_icon
       end
     elseif has_app and not n.icon then
-      -- App notifications without their own icon get the urgency bell, like dunst.
-      n.icon = fallback_icon[n.urgency] or fallback_icon.normal
+      -- App notifications without their own icon: first try to match an
+      -- installed application icon by name in the freedesktop theme, then fall
+      -- back to the urgency bell like dunst.
+      n.icon = find_app_icon(n.app_name) or fallback_icon[n.urgency] or fallback_icon.normal
     end
 
     local text_column = {
