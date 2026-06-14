@@ -145,6 +145,7 @@ local function factory(input_args)
         naughty.notify({
           app_name = "awesome",
           preset  = naughty.config.presets.normal,
+          screen  = wallpaper.wp_screen,
           title   = "Wallpaper Pool Refreshed",
           text    = string.format("Screen %s: %s candidates collected",
                                   wallpaper.wp_screen.index, #wallpaper.wp_files),
@@ -199,6 +200,7 @@ local function factory(input_args)
           naughty.notify({
             app_name = "awesome",
             preset = naughty.config.presets.normal,
+            screen = wallpaper.wp_screen,
             title = "Delete Wallpaper",
             text = "No wallpaper to delete"
           })
@@ -210,6 +212,7 @@ local function factory(input_args)
           naughty.notify({
             app_name = "awesome",
             preset = naughty.config.presets.normal,
+            screen = wallpaper.wp_screen,
             title = "Delete Wallpaper",
             text = "Wallpaper '" .. filename .. "' deleted successfully"
           })
@@ -217,6 +220,7 @@ local function factory(input_args)
           naughty.notify({
             app_name = "awesome",
             preset = naughty.config.presets.critical,
+            screen = wallpaper.wp_screen,
             title = "Delete Wallpaper",
             text = "Failed to delete wallpaper '" .. filename .. "'"
           })
