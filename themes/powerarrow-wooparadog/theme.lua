@@ -368,6 +368,7 @@ function theme.at_screen_connect(s)
         widget_icon_wallpaper      = theme.widget_icon_wallpaper,
         widget_icon_wallpaper_paused = theme.widget_icon_wallpaper_paused,
         notification_icon          = theme.dir .. "/icons/notif/wallpaper.png",
+        notify_on_change           = local_configs.wallpapers.notify_on_change or false,
     }
 
     local function wallpaper_path_for(ssid)

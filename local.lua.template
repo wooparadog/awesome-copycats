@@ -23,6 +23,7 @@ local configs = {
   -- Wallpaper
   wallpapers = {
     timeout = 300,
+    notify_on_change = false,  -- show a notification each time the wallpaper rotates
     enable_wifi_specific_sources = false,
     horizontal_path = {
         string.format("%s/Wallpaper/", os.getenv("HOME")),

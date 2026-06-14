@@ -416,7 +416,11 @@ awful.rules.rules = {
        end },
 
     { rule = { class = "flameshot" },
-      properties = { floating = true }},
+      properties = {
+        floating = true,
+        fullscreen = true
+      }
+    },
 
     { rule = { class = "wechat" },
       properties = { focus=false }},
