@@ -54,11 +54,11 @@ awful.spawn.with_shell(
   'if (xrdb -query | grep -q "^awesome\\.started:\\s*true$"); then exit; fi;'
     .. 'xrdb -merge <<< "awesome.started:true";'
     -- list each of your autostart commands, followed by ; inside single quotes, followed by ..
+    .. "dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY DESKTOP_SESSION XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE;"
+    .. "systemctl --user start awesome-session.target;"
     .. "dex --environment awesome --autostart;" -- https://github.com/jceb/dex
     --'snixembed --fork;' .. -- https://github.com/awesomeWM/awesome/issues/2995 for cloudflare warp-taskbar
     .. "vicinae server;"
-    .. "systemctl --user import-environment DISPLAY XAUTHORITY XDG_CURRENT_DESKTOP;"
-    .. "systemctl --user start awesome-session.target;"
 )
 
 -- Variable definitions
