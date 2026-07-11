@@ -561,12 +561,20 @@ awful.rules.rules = {
 
   {
     rule = { class = "Lark" },
+    except = { name = "Picture" },
     callback = function(c)
       local focused_screen = awful.screen.focused()
       if focused_screen.tags[4] and focused_screen.tags[4].name == "IM" then
         c:move_to_tag(focused_screen.tags[4])
       end
     end,
+  },
+
+  -- Lark image-preview popup: float and center on the current tag/screen
+  -- instead of being tiled into the IM tag.
+  {
+    rule = { class = "Lark", name = "Picture" },
+    properties = { floating = true, ontop = true, placement = awful.placement.centered },
   },
 
   {
