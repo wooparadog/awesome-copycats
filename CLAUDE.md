@@ -18,10 +18,13 @@ This is a customized AwesomeWM configuration based on the "awesome-copycats" the
 - `theme.lua` - Main theme file defining colors, fonts, icons, and wibar configuration
 - Theme includes custom modules: `launchbar.lua`, `pipewire.lua`, `wifi.lua`, `wallpaper.lua`
 
-### External Libraries (git submodules, root level)
+### External Libraries (git submodules)
 - `freedesktop/` - Freedesktop.org compliant menu system
+- `lib/ai/` - Claude Code / Codex agent indicator, extracted to its own repo:
+  [wooparadog/awesome-ai-agents](https://github.com/wooparadog/awesome-ai-agents).
+  Checked out at `lib/ai`, so `require("lib.ai")` is unchanged.
 
-**Never modify files inside these directories.** If different behavior is needed, wrap or override from within the theme or `lib/`.
+**Never modify files inside these directories.** If different behavior is needed, wrap or override from within the theme or `lib/`. Changes to the AI indicator belong upstream in `awesome-ai-agents`; commit and push there, then bump the submodule pointer here.
 
 ### Vendored Libraries (`lib/lain/`)
 The lain library is vendored into `lib/lain/` (not a submodule). Only the modules actually used are present: `helpers`, `util/markup`, `util/separators`, `util/quake`, `util/dkjson`, `widget/cal`, `widget/weather`, `widget/mem`, `widget/cpu`, `widget/temp`, `widget/net`. All internal `require("lain.*")` paths were rewritten to `require("lib.lain.*")`. Require it as `lib.lain`.
@@ -47,6 +50,21 @@ All `naughty.notify` calls that originate from within this config (battery alert
 **Exception — lain widget popups:** the calendar and weather popups tag their `notification_preset` with `is_widget_popup = true` (in `theme.lua`, along with a slightly larger font). The handler detects `n.preset.is_widget_popup` and renders them with a **refined content-sized layout** (roomy padding, a gap between the weather icon and the text), distinct from the alert template. Its outer `wibox.container.constraint` uses `strategy = "max"` (not `"exact"`) so the popup grows to fit its content — using `"exact"`, or routing them through the alert template, pins them to the fixed notification width because naughty force-sets `beautiful.notification_max_width` onto the outermost `set_width`-capable widget.
 
 External D-Bus notifications (from apps) must **not** set `app_name = "awesome"`.
+
+### AI Agent Hook Convention
+The AI indicator (`lib/ai/`, a submodule) is driven by agent hooks, never by polling.
+`lib/ai/hook.sh` — registered by `lib/ai/install-hooks.sh` into `~/.claude/settings.json`
+and `~/.codex/hooks.json` — drops each hook
+payload into `$XDG_RUNTIME_DIR/ai-agents/<agent>.<Event>.<pid>.<nanos>.json`; the agent
+name, event and pid live in the *filename* so the script never builds JSON. A Gio
+directory monitor picks them up. Codex additionally requires trusting hooks once from its
+TUI before they run. Do not register `PreToolUse`/`PostToolUse` — they fire hundreds of
+times per turn for no extra signal.
+
+Transcript cost accounting is incremental: each file's byte offset is persisted in
+`~/.cache/awesome/ai-agents.json` and only appended bytes are re-parsed. Assistant
+messages are deduplicated **globally** (not per file) — forked/resumed sessions copy
+their parent's history into a new transcript, which otherwise overcounts by ~10%.
 
 ### D-Bus Convention
 All D-Bus interaction goes through the singleton in `themes/powerarrow-wooparadog/dbus.lua`.

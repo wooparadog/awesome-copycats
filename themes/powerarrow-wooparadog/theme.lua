@@ -11,6 +11,7 @@ local pipewire = require("lib.pipewire")
 local wifi = require("lib.wifi")
 local battery_widget = require("lib.battery")
 local wallpaper = require("lib.wallpaper")
+local ai_agents = require("lib.ai")
 local xresources = require("beautiful.xresources")
 local dpi = xresources.apply_dpi
 local local_configs = require("local")
@@ -27,6 +28,11 @@ do
   cfg.weather.lon = cfg.weather.lon or 0.0
 
   cfg.wifi_interface = cfg.wifi_interface or "wlan0"
+
+  if cfg.enable_ai == nil then
+    cfg.enable_ai = true
+  end
+  cfg.ai_icon_font = cfg.ai_icon_font or "NotoSansM Nerd Font 10"
 
   if not cfg.wallpapers then
     cfg.wallpapers = {}
@@ -295,6 +301,37 @@ local net = local_configs.enable_net
     })
   or nil
 
+-- AI agents: how many Claude Code / Codex sessions are running, and how many of
+-- them are blocked on you. See lib/ai.
+local AI_COLOR = "#3E5C76"
+local AI_DONE_COLOR = "#7BC043"
+
+local ai = local_configs.enable_ai
+    and ai_agents({
+      colors = { asking = theme.fg_urgent, done = AI_DONE_COLOR, dim = "#9A9A9A" },
+      notification_preset = {
+        font = "Terminus 11",
+        fg = theme.fg_normal,
+        bg = theme.bg_normal,
+        position = "top_right",
+        -- Interactive widget popup: the notifications handler gives it a refined
+        -- content-sized layout instead of the custom alert notification template.
+        is_widget_popup = true,
+      },
+      settings = function(state, widget)
+        local text = markup.font(local_configs.ai_icon_font, " \u{f06a9} ") .. markup.font(theme.font, tostring(state.total))
+        if state.asking > 0 then
+          text = text .. markup.fontfg(theme.font, theme.fg_urgent, " ?" .. state.asking)
+        end
+        if state.done > 0 then
+          text = text .. markup.fontfg(theme.font, AI_DONE_COLOR, " \u{2713}" .. state.done)
+        end
+        widget:set_markup(text .. markup.font(theme.font, " "))
+      end,
+    })
+  or nil
+theme.ai = ai
+
 local systray = wibox.widget.systray()
 local function update_systray_screen()
   local s = mouse.screen
@@ -317,6 +354,20 @@ local function buildVolume(s)
   })
 end
 
+-- Always present, so the bar reads bg → AI → volume whether or not an agent is
+-- running; with none it simply shows a zero.
+local function buildAiSegment(s)
+  if not ai then
+    return arrow(theme.bg_normal, "#343434")
+  end
+  return wibox.widget({
+    layout = wibox.layout.fixed.horizontal,
+    arrow(theme.bg_normal, AI_COLOR),
+    wibox.container.background(wibox.container.margin(ai.widget, dpi(2, s), dpi(3, s)), AI_COLOR),
+    arrow(AI_COLOR, "#343434"),
+  })
+end
+
 local function buildLeftWidgets(s)
   return {
     layout = wibox.layout.fixed.horizontal,
@@ -333,7 +384,7 @@ local function buildRightWidgets(s, wp)
   return {
     layout = wibox.layout.fixed.horizontal,
     systray,
-    arrow(theme.bg_normal, "#343434"),
+    buildAiSegment(s),
     wibox.container.background(buildVolume(s), "#343434"),
     arrow("#343434", "#777E76"),
     wibox.container.background(

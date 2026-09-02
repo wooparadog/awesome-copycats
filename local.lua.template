@@ -16,6 +16,12 @@ local configs = {
   battery = "BAT0",
   ac = "ACAD",
   wifi_interface = "wlan0",
+
+  -- AI agents (Claude Code / Codex) wibar indicator. Needs the hooks from
+  -- lib/ai/README.md registered with each CLI; without them the widget simply
+  -- stays hidden.
+  enable_ai = true,
+  ai_icon_font = "NotoSansM Nerd Font 10",
   weather = {
     lat = 0.0,
     lon = 0.0,
