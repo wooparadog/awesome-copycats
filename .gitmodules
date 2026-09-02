@@ -2,3 +2,6 @@
 	path = freedesktop
 	url = git://github.com/lcpz/awesome-freedesktop.git
 
+[submodule "lib/ai"]
+	path = lib/ai
+	url = https://github.com/wooparadog/awesome-ai-agents.git
