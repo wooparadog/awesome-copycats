@@ -81,7 +81,9 @@ local function factory(args)
             replaces_id = bat.id,
           }).id
         end
-        fullnotification = false
+        if perc < 100 then
+          fullnotification = false
+        end
       elseif bat_now.status == "Full" and not fullnotification then
         bat.id = naughty.notify({
           app_name = "awesome",
