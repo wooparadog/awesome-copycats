@@ -165,11 +165,9 @@ return function(theme)
     -- grows to fit its content instead of being pinned to the alert width.
     -- `type` tags the popup window so the compositor (picom) can target it.
     if n.preset and n.preset.is_widget_popup then
-      -- Allow these popups to grow wider than the alert max so the weather
-      -- forecast lines don't word-wrap (the longest OpenWeatherMap
-      -- descriptions reach ~820px); strategy "max" below still shrinks the
-      -- narrower calendar to its content.
-      n.max_width = dpi(560)
+      -- Respect the widget's content-width limit, with the existing cap as a
+      -- fallback. The max constraint still shrinks short content naturally.
+      n.max_width = math.min(n.preset.max_width or dpi(560), math.floor(n.screen.workarea.width * 0.8))
 
       local text = {
         naughty.widget.title,
