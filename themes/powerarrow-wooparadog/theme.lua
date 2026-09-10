@@ -11,7 +11,7 @@ local pipewire = require("lib.pipewire")
 local wifi = require("lib.wifi")
 local battery_widget = require("lib.battery")
 local wallpaper = require("lib.wallpaper")
-local ai_agents = require("lib.ai")
+local ai_agents = require("lib.ai.clients.awesomewm")
 local xresources = require("beautiful.xresources")
 local dpi = xresources.apply_dpi
 local local_configs = require("local")
@@ -216,6 +216,7 @@ if local_configs.enable_bat then
   baticon = wibox.widget.imagebox(theme.widget_battery)
   theme.bat = battery_widget({
     battery = local_configs.battery,
+    notify = false,
     settings = function(bat_now, widget)
       if bat_now.status == "N/A" then
         widget:set_markup("")
@@ -306,8 +307,14 @@ local net = local_configs.enable_net
 local AI_COLOR = "#3E5C76"
 local AI_DONE_COLOR = "#7BC043"
 
+local ai_cloud = local_configs.ai_cloud
+if ai_cloud and (not ai_cloud.url or ai_cloud.url == "") then
+  ai_cloud = nil
+end
+
 local ai = local_configs.enable_ai
     and ai_agents({
+      cloud = ai_cloud,
       colors = { asking = theme.fg_urgent, done = AI_DONE_COLOR, dim = "#9A9A9A" },
       notification_preset = {
         font = "Terminus 11",
@@ -325,6 +332,15 @@ local ai = local_configs.enable_ai
         end
         if state.done > 0 then
           text = text .. markup.fontfg(theme.font, AI_DONE_COLOR, " \u{2713}" .. state.done)
+        end
+        if (state.stale or 0) > 0 then
+          text = text .. markup.fontfg(theme.font, "#9A9A9A", " stale:" .. state.stale)
+        end
+        if (state.unverified or 0) > 0 then
+          text = text .. markup.fontfg(theme.font, "#9A9A9A", " unverified:" .. state.unverified)
+        end
+        if state.connection and state.connection ~= "connected" then
+          text = text .. markup.fontfg(theme.font, theme.fg_urgent, " offline")
         end
         widget:set_markup(text .. markup.font(theme.font, " "))
       end,

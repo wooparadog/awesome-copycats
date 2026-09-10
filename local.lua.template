@@ -17,11 +17,15 @@ local configs = {
   ac = "ACAD",
   wifi_interface = "wlan0",
 
-  -- AI agents (Claude Code / Codex) wibar indicator. Needs the hooks from
-  -- lib/ai/README.md registered with each CLI; without them the widget simply
-  -- stays hidden.
+  -- AI agents (Claude Code / Codex) wibar indicator.
+  -- See lib/ai/clients/awesomewm/README.md. With ai_cloud.url unset, uses local
+  -- tracking via lib/ai/install-hooks.sh; sessions appear after a hook fires.
   enable_ai = true,
   ai_icon_font = "NotoSansM Nerd Font 10",
+  ai_cloud = {
+    url = nil, -- Set to your collector URL, e.g. "https://your-collector.example".
+    token_file = os.getenv("HOME") .. "/.config/ai-agents/read.token",
+  },
   weather = {
     lat = 0.0,
     lon = 0.0,
