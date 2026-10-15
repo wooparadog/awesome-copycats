@@ -315,6 +315,8 @@ end
 local ai = local_configs.enable_ai
     and ai_agents({
       cloud = ai_cloud,
+      -- Announce when an agent on another machine finishes a turn.
+      notify_finished = { app_name = "awesome" },
       colors = { asking = theme.fg_urgent, done = AI_DONE_COLOR, dim = "#9A9A9A" },
       notification_preset = {
         font = "Terminus 11",
