@@ -57,7 +57,7 @@ awful.spawn.with_shell(
     .. "dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY DESKTOP_SESSION XDG_CURRENT_DESKTOP XDG_SESSION_DESKTOP XDG_SESSION_TYPE;"
     .. "systemctl --user start awesome-session.target;"
     .. "dex --environment awesome --autostart;" -- https://github.com/jceb/dex
-    --'snixembed --fork;' .. -- https://github.com/awesomeWM/awesome/issues/2995 for cloudflare warp-taskbar
+    .. 'snixembed --fork;'  -- https://github.com/awesomeWM/awesome/issues/2995 for cloudflare warp-taskbar
     .. "vicinae server;"
 )
 
